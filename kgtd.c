@@ -10,7 +10,8 @@
 #include "bullet.h"
 #include "level.h"
 
-int path[] = {5, 10, 2, -10, 2, 10, 10, 3, -5, 3, 21};
+int path[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
+map_t map = { path, sizeof(path)/sizeof(path[0]), 0, 3 };
 
 /* function prototypes */
 static void step();
@@ -22,8 +23,6 @@ SDL_Surface *screen;
 SDL_TimerID update_timer;
 SDL_TimerID noobspawner;
 SDL_TimerID noobspawner2;
-
-map_t map = { path, sizeof(path)/sizeof(path[0]), 0, 7 };
 
 /* timekeeper */
 double oldtime;
@@ -53,7 +52,7 @@ static void handle_event(SDL_Event *ev)
 
 		/* XXX */
 		if(ev->button.button == SDL_BUTTON_LEFT)
-			tower_new(gx, gy, 2524.0, kgtd_state.type_selected);
+			tower_new(gx, gy, 524.0, kgtd_state.type_selected);
 		return;
 	}
 	case SDL_USEREVENT: {
@@ -62,7 +61,7 @@ static void handle_event(SDL_Event *ev)
 			update();
 		}
 		else if(ev->user.code == 1) {
-			noob_new(GRID_SIZE/2, 7 * GRID_SIZE + GRID_SIZE/2, &kgtd_state);
+			noob_new(GRID_SIZE/2, 3 * GRID_SIZE + GRID_SIZE/2, &kgtd_state);
 		}
 	}
 	default:
@@ -176,7 +175,7 @@ int main(int argc, char **argv)
 	init();
 
 	/* XXX */
-	noobspawner = SDL_AddTimer(302, spawn_cb, NULL);
+	noobspawner = SDL_AddTimer(3002, spawn_cb, NULL);
 
 	while (SDL_WaitEvent(&ev)) {
 		handle_event(&ev);

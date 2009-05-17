@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "attr.h"
+#include "variable_queue.h"
 
 struct bullet_t {
 	float x;
@@ -11,8 +12,10 @@ struct bullet_t {
 	float yv;
 	float damage;
 	float age;
+	float max_age;
 	noob_t *dest;
 	attr_t attr;
+	Q_NEW_LINK(bullet_t) list;
 };
 
 typedef union bullet_obj {

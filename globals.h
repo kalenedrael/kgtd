@@ -9,8 +9,8 @@
 /* global constants */
 #define XRES 800
 #define YRES 600
-#define SIDEBAR_SIZE 100
-#define GRID_SIZE 20
+#define SIDEBAR_SIZE 110
+#define GRID_SIZE 30
 #define GRID_X ((XRES-SIDEBAR_SIZE)/GRID_SIZE)
 #define GRID_Y (YRES/GRID_SIZE)
 

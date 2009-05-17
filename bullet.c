@@ -4,6 +4,7 @@
 
 static bullet_obj bullets[BULLET_NUM_MAX];
 static bullet_obj *bullet_first_free;
+static Q_HEAD(bullet_t) bullet_list = Q_STATIC_INITIALIZER;
 
 void bullet_init()
 {
@@ -37,7 +38,14 @@ bullet_t *bullet_new(float x, float y, float xv, float yv, float damage, attr_t 
 	bullet->yv = yv;
 	bullet->damage = damage;
 	bullet->age = 0.0;
+	if(attr == ATTR_ENERGY_LASER_PULSE ||
+	   attr == ATTR_ENERGY_PARTICLE_LIGHTNING)
+		bullet->max_age = BULLET_PULSE_MAX_AGE;
+	else
+		bullet->max_age = BULLET_MAX_AGE;
 	dest->refcnt++;
+
+	Q_INSERT_HEAD(&bullet_list, bullet, list);
 
 	return bullet;
 }
@@ -47,6 +55,7 @@ void bullet_destroy(bullet_t *bullet)
 	bullet_obj *b_obj = (bullet_obj*)bullet;
 
 	bullet->dest->refcnt--;
+	Q_REMOVE(&bullet_list, bullet, list);
 	b_obj->is_valid = 0;
 	b_obj->next = bullet_first_free;
 	bullet_first_free = b_obj;
@@ -54,7 +63,8 @@ void bullet_destroy(bullet_t *bullet)
 
 static void draw_each(bullet_t *bullet, void *throwaway)
 {
-	glColor3fv(attr_colors[bullet->attr]);
+	float *clr = attr_colors[bullet->attr];
+	float trans;
 
 	if(!((bullet_obj*)bullet)->is_valid)
 		return;
@@ -69,6 +79,7 @@ static void draw_each(bullet_t *bullet, void *throwaway)
 	case ATTR_MASS_EXPLOSIVE_HE:
 	case ATTR_MASS_EXPLOSIVE_HEAT:
 	case ATTR_MASS_EXPLOSIVE_HESH:
+		glColor3fv(clr);
 		glBegin(GL_QUADS);
 		glVertex2i(bullet->x, bullet->y);
 		glVertex2i(bullet->x, bullet->y + BULLET_SIZE);
@@ -80,6 +91,8 @@ static void draw_each(bullet_t *bullet, void *throwaway)
 	case ATTR_ENERGY_PARTICLE_PLASMA:
 	case ATTR_ENERGY_PARTICLE_LIGHTNING:
 	case ATTR_ENERGY_LASER_CW:
+		trans = 1.0 - bullet->age / bullet->max_age;
+		glColor4f(clr[0], clr[1], clr[2], trans);
 		glBegin(GL_LINES);
 		glVertex2i(bullet->x, bullet->y);
 		glVertex2i(bullet->dest->x, bullet->dest->y);
@@ -95,12 +108,8 @@ static void update_each(bullet_t *bullet, void *dtp)
 	float dest_x = bullet->dest->x, dest_y = bullet->dest->y;
 	float dt = *(float*)dtp;
 
-	if(bullet->age > BULLET_MAX_AGE) {
-		bullet_destroy(bullet);
-		return;
-	}
-
-	if(!((noob_obj*)bullet->dest)->is_valid) {
+	if(bullet->age > bullet->max_age ||
+	   !((noob_obj*)bullet->dest)->is_valid) {
 		bullet_destroy(bullet);
 		return;
 	}
@@ -150,10 +159,6 @@ static void update_each(bullet_t *bullet, void *dtp)
 		break;
 	case ATTR_ENERGY_LASER_PULSE:
 	case ATTR_ENERGY_PARTICLE_LIGHTNING:
-		if(bullet->age > BULLET_PULSE_MAX_AGE) {
-			bullet_destroy(bullet);
-			return;
-		}
 	case ATTR_ENERGY_PARTICLE_PLASMA:
 	case ATTR_ENERGY_LASER_CW:
 		damage_calc(bullet->dest, bullet->damage, dt, bullet->attr);
@@ -174,10 +179,9 @@ void bullet_draw_all()
 
 void bullet_traverse(void (*traverse_fn)(bullet_t *, void *), void *data)
 {
-	int i;
-	for(i = 0; i < BULLET_NUM_MAX; i++) {
-		if(bullets[i].is_valid) {
-			traverse_fn(&(bullets[i].b), data);
-		}		
+	bullet_t *cur;
+
+	Q_FOREACH(cur, &bullet_list, list) {
+		traverse_fn(cur, data);
 	}
 }
