@@ -11,11 +11,11 @@ void noob_init()
 	int i;
 
 	for(i = 0; i < NOOBS_NUM_MAX - 1; i++) {
-		noobs[i].is_valid = NOOB_INVALID;
+		noobs[i].is_valid = 0;
 		noobs[i].next = &(noobs[i+1]);
 	}
 
-	noobs[i].is_valid = NOOB_INVALID;
+	noobs[i].is_valid = 0;
 	noobs[i].next = NULL;
 	noob_first_free = noobs;
 }
@@ -50,12 +50,12 @@ void noob_destroy(noob_t *noob, state_t *state)
 		state->kills++;
 	else if(noob->is_dead == 2)
 		state->leaks++;
-	n_obj->is_valid = NOOB_INVALID;
+	n_obj->is_valid = 0;
 	n_obj->next = noob_first_free;
 	noob_first_free = n_obj;
 }
 
-static void draw_each(noob_t *noob)
+static void draw_each(noob_t *noob, void *bs)
 {
 	/* XXX */
 	if(noob->is_dead) {
@@ -121,7 +121,7 @@ void noob_update_all(float dt, state_t *state)
 {
 	int i;
 	for(i = 0; i < NOOBS_NUM_MAX; i++) {
-		if(noobs[i].is_valid >= 0) {
+		if(noobs[i].is_valid) {
 			update_each(&(noobs[i].n), dt, state);
 		}		
 	}
@@ -129,19 +129,14 @@ void noob_update_all(float dt, state_t *state)
 
 void noob_draw_all()
 {
-	int i;
-	for(i = 0; i < NOOBS_NUM_MAX; i++) {
-		if(noobs[i].is_valid >= 0) {
-			draw_each(&(noobs[i].n));
-		}		
-	}
+	noob_traverse(draw_each, NULL);
 }
 
 void noob_traverse(void (*traverse_fn)(noob_t *, void *), void *data)
 {
 	int i;
 	for(i = 0; i < NOOBS_NUM_MAX; i++) {
-		if(noobs[i].is_valid >= 0) {
+		if(noobs[i].is_valid) {
 			traverse_fn(&(noobs[i].n), data);
 		}		
 	}
@@ -157,12 +152,11 @@ noob_t *find_target(float x, float y, attr_t attr)
 
 	for(i = 0; i < NOOBS_NUM_MAX; i++) {
 		/* XXX separate */
-		if(noobs[i].is_valid >= 0) {
+		if(noobs[i].is_valid) {
 			float d_x, d_y, mag;
 
-			if(damage_not_worthwhile(&(noobs[i].n), attr)) {
+			if(damage_not_worthwhile(&(noobs[i].n), attr))
 				continue;
-			}
 
 			d_x = noobs[i].n.x - x;
 			d_y = noobs[i].n.y - y;

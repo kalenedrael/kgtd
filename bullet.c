@@ -10,11 +10,11 @@ void bullet_init()
 	int i;
 
 	for(i = 0; i < BULLET_NUM_MAX - 1; i++) {
-		bullets[i].is_valid = BULLET_INVALID;
+		bullets[i].is_valid = 0;
 		bullets[i].next = &(bullets[i+1]);
 	}
 
-	bullets[i].is_valid = BULLET_INVALID;
+	bullets[i].is_valid = 0;
 	bullets[i].next = NULL;
 	bullet_first_free = bullets;
 }
@@ -47,7 +47,7 @@ void bullet_destroy(bullet_t *bullet)
 	bullet_obj *b_obj = (bullet_obj*)bullet;
 
 	bullet->dest->refcnt--;
-	b_obj->is_valid = BULLET_INVALID;
+	b_obj->is_valid = 0;
 	b_obj->next = bullet_first_free;
 	bullet_first_free = b_obj;
 }
@@ -56,12 +56,10 @@ static void draw_each(bullet_t *bullet, void *throwaway)
 {
 	glColor3fv(attr_colors[bullet->attr]);
 
-	if(((bullet_obj*)bullet)->is_valid <= 0) {
+	if(!((bullet_obj*)bullet)->is_valid)
 		return;
-	}
-	if(((noob_obj*)bullet->dest)->is_valid <= 0) {
+	if(!((noob_obj*)bullet->dest)->is_valid)
 		return;
-	}
 
 	switch(bullet->attr) {
 	case ATTR_MASS_KINETIC:
@@ -102,7 +100,7 @@ static void update_each(bullet_t *bullet, void *dtp)
 		return;
 	}
 
-	if(((noob_obj*)bullet->dest)->is_valid <= 0) {
+	if(!((noob_obj*)bullet->dest)->is_valid) {
 		bullet_destroy(bullet);
 		return;
 	}
@@ -178,7 +176,7 @@ void bullet_traverse(void (*traverse_fn)(bullet_t *, void *), void *data)
 {
 	int i;
 	for(i = 0; i < BULLET_NUM_MAX; i++) {
-		if(bullets[i].is_valid >= 0) {
+		if(bullets[i].is_valid) {
 			traverse_fn(&(bullets[i].b), data);
 		}		
 	}
