@@ -5,7 +5,6 @@
 #include "noob.h"
 
 void damage_calc(noob_t *noob, float damage, float dt, attr_t attr);
-void damage_future_calc(noob_t *noob, float damage, attr_t attr);
 int damage_not_worthwhile(noob_t *noob, attr_t attr);
 
 #endif

@@ -33,7 +33,6 @@ noob_t *noob_new(float x, float y, state_t *state)
 	noob->x = x;
 	noob->y = y;
 	noob->hp = NOOB_DEFAULT_HP;
-	noob->future_hp = NOOB_DEFAULT_HP;
 	noob->future_stun = 0;
 	noob->stun_time = 0;
 	noob->is_dead = 0;

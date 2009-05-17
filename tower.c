@@ -76,7 +76,6 @@ static void update_each(tower_t *tower, void *dtp)
 	if(tower->energy > tower->energymax) {
 		tower->energy -= tower->energymax;
 
-		damage_future_calc(tower->target, tower->energymax, tower->attr);
 		bullet_new(tower->x + GRID_SIZE/2, tower->y + GRID_SIZE/2, 0.0, 0.0,
 		           tower->energymax, tower->attr, tower->target);
 	}	

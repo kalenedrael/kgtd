@@ -4,9 +4,11 @@
 #include "globals.h"
 #include "attr.h"
 
-#define SHIELD_HARD 0
-#define SHIELD_SOFT 1
-#define SHIELD_ADAPTIVE 2
+enum {
+	SHIELD_HARD = 0,
+	SHIELD_SOFT = 1,
+	SHIELD_ADAPTIVE = 2
+};
 
 #define ARMOR_COMPOSITE  1
 #define ARMOR_REACTIVE   2
@@ -18,8 +20,6 @@ struct noob_t {
 	float y;
 	float hp;
 	float shield;
-	float future_hp;
-	float future_shield;
 	unsigned int refcnt;
 	unsigned char future_stun;
 	unsigned char stun_time;
