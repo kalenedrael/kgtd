@@ -1,0 +1,15 @@
+#include "attr.h"
+
+float attr_colors[ATTR_NUM][3] = {
+	{0.4, 0.4, 0.3}, /* ATTR_MASS_KINETIC */
+	{0.5, 0.5, 1.0}, /* ATTR_ENERGY_PARTICLE_PLASMA */
+	{0.5, 0.8, 1.0}, /* ATTR_ENERGY_PARTICLE_LIGHTNING */
+	{1.0, 0.5, 0.4}, /* ATTR_ENERGY_LASER_PULSE */
+	{1.0, 0.0, 0.0}, /* ATTR_ENERGY_LASER_CW */
+	{0.5, 0.5, 0.5}, /* ATTR_MASS_KINETIC_APCR */
+	{0.9, 0.9, 0.9}, /* ATTR_MASS_KINETIC_APFSDS */
+	{0.3, 0.3, 0.3}, /* ATTR_MASS_KINETIC_DU */
+	{1.0, 0.5, 0.0}, /* ATTR_MASS_EXPLOSIVE_HE */
+	{1.0, 1.0, 0.2}, /* ATTR_MASS_EXPLOSIVE_HEAT */
+	{0.5, 1.0, 0.0}  /* ATTR_MASS_EXPLOSIVE_HESH */
+};
