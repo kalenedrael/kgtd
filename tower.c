@@ -3,7 +3,7 @@
 #include "bullet.h"
 #include "damage.h"
 
-tower_t *tower_first;
+static Q_HEAD(tower_t) tower_list;
 
 tower_t *tower_new(int x, int y, float power, attr_t attr)
 {
@@ -22,39 +22,20 @@ tower_t *tower_new(int x, int y, float power, attr_t attr)
 	tower->attr = attr;
 	tower->target = NULL;
 
-	if(tower_first == NULL) {
-		tower_first = tower;
-		tower->next = tower;
-		tower->prev = tower;
-	}
-	else {
-		tower->next = tower_first;
-		tower->prev = tower_first->prev;
-		tower_first->prev->next = tower;
-		tower_first->prev = tower;
-	}
+	Q_INSERT_HEAD(&tower_list, tower, list);
 
 	return tower;
 }
 
 void tower_init()
 {
-	tower_first = NULL;
+	Q_INIT_HEAD(&tower_list);
 }
 
 void tower_destroy(int x, int y)
 {
 	tower_t *tower = &(grid[x][y].t);
-
-	if(tower->next == tower) {
-		tower_first = NULL;
-	}
-	else {
-		tower_first = tower->next;
-		tower->next->prev = tower->prev;
-		tower->prev->next = tower->next;
-	}
-
+	Q_REMOVE(&tower_list, tower, list);
 	grid[x][y].type = GRID_TYPE_NONE;
 }
 
@@ -128,13 +109,10 @@ void tower_draw_all()
 
 void tower_traverse(void (*traverse_fn)(tower_t *, void *), void *data)
 {
-	tower_t *cur = tower_first, *first = tower_first;
+	tower_t *cur;
 
-	if(tower_first == NULL)
-		return;
-	do {
+	Q_FOREACH(cur, &tower_list, list) {
 		traverse_fn(cur, data);
-		cur = cur->next;
-	} while(cur != first);
+	}
 }
 

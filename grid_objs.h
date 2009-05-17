@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "attr.h"
+#include "variable_queue.h"
 
 typedef enum __attribute__((__packed__)) grid_type {
 	GRID_TYPE_NONE,
@@ -20,8 +21,7 @@ struct tower_t {
 	float range;
 	attr_t attr;
 	noob_t *target;
-	tower_t *next;
-	tower_t *prev;
+	Q_NEW_LINK(tower_t) list;
 };
 
 struct path_t {

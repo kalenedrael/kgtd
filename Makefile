@@ -16,10 +16,13 @@ attr.o: attr.c attr.h globals.h
 bullet.o: bullet.c bullet.h globals.h attr.h damage.h noob.h state.h
 controls.o: controls.c controls.h globals.h state.h attr.h
 damage.o: damage.c damage.h attr.h globals.h noob.h
-grid.o: grid.c grid_objs.h globals.h attr.h
-kgtd.o: kgtd.c globals.h grid_objs.h attr.h state.h controls.h noob.h \
-  bullet.h
-noob.o: noob.c noob.h globals.h attr.h state.h grid_objs.h damage.h
-path.o: path.c grid_objs.h globals.h attr.h state.h
+grid.o: grid.c grid_objs.h globals.h attr.h variable_queue.h
+kgtd.o: kgtd.c globals.h grid_objs.h attr.h variable_queue.h state.h \
+  controls.h noob.h bullet.h level.h
+noob.o: noob.c noob.h globals.h attr.h state.h grid_objs.h \
+  variable_queue.h damage.h
+path.o: path.c grid_objs.h globals.h attr.h variable_queue.h state.h \
+  level.h
 state.o: state.c state.h globals.h attr.h
-tower.o: tower.c grid_objs.h globals.h attr.h noob.h bullet.h damage.h
+tower.o: tower.c grid_objs.h globals.h attr.h variable_queue.h noob.h \
+  bullet.h damage.h
