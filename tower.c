@@ -62,14 +62,14 @@ static void update_each(tower_t *tower, void *dtp)
 {
 	float dt = *(float*)dtp;
 
-	tower->energy += tower->power * dt;
+	if(tower->energy < tower->energymax)
+		tower->energy += tower->power * dt;
 
 	if(damage_not_worthwhile(tower->target, tower->attr)) {
 		tower->target = find_target(tower->x + GRID_SIZE/2,
                                             tower->y + GRID_SIZE/2, tower->attr);
-		if(tower->target == NULL) {
+		if(tower->target == NULL)
 			return;
-		}
 	}
 
 	/* fire! */

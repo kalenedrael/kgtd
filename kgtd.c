@@ -10,8 +10,7 @@
 #include "bullet.h"
 #include "level.h"
 
-#define PATHLEN 11
-int path[PATHLEN] = {5, 10, 2, -10, 2, 10, 10, 3, -5, 3, 21};
+int path[] = {5, 10, 2, -10, 2, 10, 10, 3, -5, 3, 21};
 
 /* function prototypes */
 static void step();
@@ -24,7 +23,7 @@ SDL_TimerID update_timer;
 SDL_TimerID noobspawner;
 SDL_TimerID noobspawner2;
 
-map_t map = { path, PATHLEN, 0, 7 };
+map_t map = { path, sizeof(path)/sizeof(path[0]), 0, 7 };
 
 /* timekeeper */
 double oldtime;

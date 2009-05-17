@@ -59,9 +59,6 @@ static void draw_each(bullet_t *bullet, void *throwaway)
 	if(((bullet_obj*)bullet)->is_valid <= 0) {
 		return;
 	}
-	if(bullet->dest->is_dead) {
-		return;
-	}
 	if(((noob_obj*)bullet->dest)->is_valid <= 0) {
 		return;
 	}
