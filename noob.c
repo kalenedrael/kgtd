@@ -5,6 +5,7 @@
 
 static noob_obj noobs[NOOBS_NUM_MAX];
 static noob_obj *noob_first_free;
+static Q_HEAD(noob_t) noob_list;
 
 void noob_init()
 {
@@ -35,9 +36,11 @@ noob_t *noob_new(float x, float y, state_t *state)
 	noob->hp = NOOB_DEFAULT_HP;
 	noob->future_stun = 0;
 	noob->stun_time = 0;
-	noob->is_dead = 0;
+	noob->is_dead = NOOB_ALIVE;
 	noob->refcnt = 0;
 	state->total_noobs++;
+
+	Q_INSERT_HEAD(&noob_list, noob, list);
 
 	return noob;
 }
@@ -46,10 +49,12 @@ void noob_destroy(noob_t *noob, state_t *state)
 {
 	noob_obj *n_obj = (noob_obj*)noob;
 
-	if(noob->is_dead == 1)
+	if(noob->is_dead == NOOB_KILLED)
 		state->kills++;
-	else if(noob->is_dead == 2)
+	else if(noob->is_dead == NOOB_LEAKED)
 		state->leaks++;
+
+	Q_REMOVE(&noob_list, noob, list);
 	n_obj->is_valid = 0;
 	n_obj->next = noob_first_free;
 	noob_first_free = n_obj;
@@ -82,7 +87,7 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 	path_t *dest;
 
 	if(noob->hp <= 0 && !(noob->is_dead)) {
-		noob->is_dead = 1;
+		noob->is_dead = NOOB_KILLED;
 	}
 	if(noob->is_dead) {
 		if(noob->refcnt == 0)
@@ -105,7 +110,7 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 		if(dest == NULL || noob->y > YRES || noob->y < 0.0 ||
 		   noob->x > XRES || noob->x < 0.0)
 		{
-			noob->is_dead = 2;
+			noob->is_dead = NOOB_LEAKED;
 			return;
 		}
 
@@ -134,11 +139,10 @@ void noob_draw_all()
 
 void noob_traverse(void (*traverse_fn)(noob_t *, void *), void *data)
 {
-	int i;
-	for(i = 0; i < NOOBS_NUM_MAX; i++) {
-		if(noobs[i].is_valid) {
-			traverse_fn(&(noobs[i].n), data);
-		}		
+	noob_t *cur;
+
+	Q_FOREACH(cur, &noob_list, list) {
+		traverse_fn(cur, data);
 	}
 }
 
@@ -146,28 +150,23 @@ noob_t *find_target(float x, float y, attr_t attr)
 {
 	/* XXX max_range wtf */
 
-	int i;
 	float d_closest = BULLET_MAX_RANGE;
-	noob_t *n_closest = NULL;
+	noob_t *n_closest = NULL, *cur;
 
-	for(i = 0; i < NOOBS_NUM_MAX; i++) {
-		/* XXX separate */
-		if(noobs[i].is_valid) {
-			float d_x, d_y, mag;
+	Q_FOREACH(cur, &noob_list, list) {
+		float d_x, d_y, mag;
 
-			if(damage_not_worthwhile(&(noobs[i].n), attr))
-				continue;
+		if(damage_not_worthwhile(cur, attr))
+			continue;
 
-			d_x = noobs[i].n.x - x;
-			d_y = noobs[i].n.y - y;
-			mag = d_x * d_x + d_y * d_y;
-			if(mag < d_closest) {
-				d_closest = mag;
-				n_closest = &(noobs[i].n);
-			}
+		d_x = cur->x - x;
+		d_y = cur->y - y;
+		mag = d_x * d_x + d_y * d_y;
+		if(mag < d_closest) {
+			d_closest = mag;
+			n_closest = cur;
 		}
 	}
 
 	return n_closest;
 }
-

@@ -3,6 +3,13 @@
 
 #include "globals.h"
 #include "attr.h"
+#include "variable_queue.h"
+
+enum {
+	NOOB_ALIVE = 0,
+	NOOB_KILLED = 1,
+	NOOB_LEAKED = 2
+};
 
 enum {
 	SHIELD_HARD = 0,
@@ -20,6 +27,7 @@ struct noob_t {
 	float y;
 	float hp;
 	float shield;
+	Q_NEW_LINK(noob_t) list;
 	unsigned int refcnt;
 	unsigned char future_stun;
 	unsigned char stun_time;
