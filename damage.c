@@ -27,7 +27,8 @@ void damage_calc(noob_t *noob, float damage, float dt, attr_t attr)
 int damage_not_worthwhile(noob_t *noob, attr_t attr)
 {
 	if(noob == NULL || noob->hp <= 0.0 || noob->is_dead ||
-	   (noob->future_stun && attr == ATTR_ENERGY_PARTICLE_LIGHTNING))
+	   ((noob->future_stun || noob->stun_time) &&
+	    attr == ATTR_ENERGY_PARTICLE_LIGHTNING))
 		return 1;
 
 	return 0;

@@ -19,6 +19,7 @@ void noob_init()
 	noobs[i].is_valid = 0;
 	noobs[i].next = NULL;
 	noob_first_free = noobs;
+	Q_INIT_HEAD(&noob_list);
 }
 
 noob_t *noob_new(float x, float y, state_t *state)
