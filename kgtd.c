@@ -25,7 +25,7 @@ SDL_TimerID noobspawner;
 SDL_TimerID noobspawner2;
 
 /* timekeeper */
-double oldtime;
+int oldtime;
 
 /* game state */
 state_t kgtd_state;
@@ -52,7 +52,7 @@ static void handle_event(SDL_Event *ev)
 
 		/* XXX */
 		if(ev->button.button == SDL_BUTTON_LEFT)
-			tower_new(gx, gy, 524.0, kgtd_state.type_selected);
+			tower_new(gx, gy, 52, kgtd_state.type_selected);
 		return;
 	}
 	case SDL_USEREVENT: {
@@ -89,12 +89,13 @@ static Uint32 spawn_cb(Uint32 x, void* p)
 
 static void update(void)
 {
-	double newtime = (double)(SDL_GetTicks())/1000.0;
-	float dt = (float)(newtime - oldtime);
+	int newtime = SDL_GetTicks();
+	int idt = newtime - oldtime;
+	float dt = (float)idt / 1000.0;
 
 	noob_update_all(dt, &kgtd_state);
-	bullet_update_all(dt);
-	tower_update_all(dt);
+	bullet_update_all(dt, idt);
+	tower_update_all(dt, idt);
 
 	oldtime = newtime;
 }

@@ -5,7 +5,7 @@
 
 static Q_HEAD(tower_t) tower_list;
 
-tower_t *tower_new(int x, int y, float power, attr_t attr)
+tower_t *tower_new(int x, int y, int power, attr_t attr)
 {
 	if(grid[y][x].type != GRID_TYPE_NONE) {
 		return NULL;
@@ -39,12 +39,10 @@ void tower_destroy(int x, int y)
 	grid[x][y].type = GRID_TYPE_NONE;
 }
 
-static void update_each(tower_t *tower, void *dtp)
+static void update_each(tower_t *tower, float dt, int idt)
 {
-	float dt = *(float*)dtp;
-
 	if(tower->energy < tower->energymax)
-		tower->energy += tower->power * dt;
+		tower->energy += tower->power * idt;
 
 	if(damage_not_worthwhile(tower->target, tower->attr)) {
 		tower->target = find_target(tower->x + GRID_SIZE/2,
@@ -54,7 +52,7 @@ static void update_each(tower_t *tower, void *dtp)
 	}
 
 	/* fire! */
-	if(tower->energy > tower->energymax) {
+	if(tower->energy >= tower->energymax) {
 		tower->energy -= tower->energymax;
 
 		bullet_new(tower->x + GRID_SIZE/2, tower->y + GRID_SIZE/2, 0.0, 0.0,
@@ -62,11 +60,11 @@ static void update_each(tower_t *tower, void *dtp)
 	}	
 }
 
-static void draw_each(tower_t *tower, void* bs)
+static void draw_each(tower_t *tower)
 {
-	float r, g, b, scale, tx, txo, ty, tyo;
+	float r, g, b, scale, tx, ty;
 
-	scale = tower->energy / tower->energymax;
+	scale = (float)tower->energy / (float)tower->energymax;
 	if(scale >= 1.0) {
 		glColor3fv(attr_colors[tower->attr]);
 	} else {
@@ -78,41 +76,44 @@ static void draw_each(tower_t *tower, void* bs)
 
 	tx = tower->x;
 	ty = tower->y;
-	txo = tx + GRID_SIZE;
-	tyo = ty + GRID_SIZE;
 
 	glBegin(GL_QUADS);
 	glVertex2f(tx,  ty);
-	glVertex2f(tx,  tyo);
-	glVertex2f(txo, tyo);
-	glVertex2f(txo, ty);
+	glVertex2f(tx,  ty + GRID_SIZE);
+	glVertex2f(tx + GRID_SIZE, ty + GRID_SIZE);
+	glVertex2f(tx + GRID_SIZE, ty);
 	glEnd();
 	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_LINE_STRIP);
 	glVertex2f(tx,  ty);
-	glVertex2f(tx,  tyo);
-	glVertex2f(txo, tyo);
-	glVertex2f(txo, ty);
+	glVertex2f(tx,  ty + GRID_SIZE);
+	glVertex2f(tx + GRID_SIZE, ty + GRID_SIZE);
+	glVertex2f(tx + GRID_SIZE, ty);
 	glVertex2f(tx,  ty);
 	glEnd();
 }
 
-void tower_update_all(float dt)
+void tower_update_all(float dt, int idt)
 {
-	tower_traverse(&update_each, &dt);
+	tower_t *cur;
+
+	Q_FOREACH(cur, &tower_list, list)
+		update_each(cur, dt, idt);
 }
 
 void tower_draw_all()
 {
-	tower_traverse(&draw_each, NULL);
+	tower_t *cur;
+
+	Q_FOREACH(cur, &tower_list, list)
+		draw_each(cur);
 }
 
 void tower_traverse(void (*traverse_fn)(tower_t *, void *), void *data)
 {
 	tower_t *cur;
 
-	Q_FOREACH(cur, &tower_list, list) {
+	Q_FOREACH(cur, &tower_list, list)
 		traverse_fn(cur, data);
-	}
 }
 

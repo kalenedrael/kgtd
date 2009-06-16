@@ -25,8 +25,8 @@ enum {
 struct noob_t {
 	float x;
 	float y;
-	float hp;
-	float shield;
+	int hp;
+	int shield;
 	path_t *path;
 	Q_NEW_LINK(noob_t) list;
 	unsigned int refcnt;
@@ -39,10 +39,7 @@ struct noob_t {
 
 typedef union noob_obj {
 	noob_t n;
-	struct {
-		int is_valid;
-		union noob_obj *next;
-	};
+	union noob_obj *next;
 } noob_obj;
 
 void noob_init();

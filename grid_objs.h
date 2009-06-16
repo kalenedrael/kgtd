@@ -15,9 +15,9 @@ struct tower_t {
 	grid_type type;
 	float x;
 	float y;
-	float power;
-	float energy;
-	float energymax;
+	int power;
+	int energy;
+	int energymax;
 	float range;
 	attr_t attr;
 	noob_t *target;
@@ -41,9 +41,9 @@ extern grid_t grid[GRID_Y][GRID_X];
 void grid_init();
 
 /* tower stuff */
-tower_t *tower_new(int x, int y, float power, attr_t attr);
+tower_t *tower_new(int x, int y, int power, attr_t attr);
 void tower_destroy(int x, int y);
-void tower_update_all(float dt);
+void tower_update_all(float dt, int idt);
 void tower_draw_all();
 void tower_init();
 void tower_traverse(void (*traverse_fn)(tower_t *, void *), void *data);

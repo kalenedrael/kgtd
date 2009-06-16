@@ -12,11 +12,9 @@ void noob_init()
 	int i;
 
 	for(i = 0; i < NOOBS_NUM_MAX - 1; i++) {
-		noobs[i].is_valid = 0;
 		noobs[i].next = &(noobs[i+1]);
 	}
 
-	noobs[i].is_valid = 0;
 	noobs[i].next = NULL;
 	noob_first_free = noobs;
 	Q_INIT_HEAD(&noob_list);
@@ -62,7 +60,6 @@ void noob_destroy(noob_t *noob, state_t *state)
 		state->leaks++;
 
 	Q_REMOVE(&noob_list, noob, list);
-	n_obj->is_valid = 0;
 	n_obj->next = noob_first_free;
 	noob_first_free = n_obj;
 }
