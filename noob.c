@@ -24,11 +24,16 @@ void noob_init()
 
 noob_t *noob_new(float x, float y, state_t *state)
 {
+	path_t *path;
 	noob_obj *n_obj = noob_first_free;
 	if(n_obj == NULL) {
-		printf("Fuck, too many noobs.\n");
+		printf("Too many noobs...\n");
 		abort();
 	}
+	path = &(grid[(int)y/GRID_SIZE][(int)x/GRID_SIZE].p);
+	if(path->type != GRID_TYPE_PATH)
+		return NULL;
+
 	noob_first_free = n_obj->next;
 
 	noob_t *noob = &(n_obj->n);
@@ -39,8 +44,9 @@ noob_t *noob_new(float x, float y, state_t *state)
 	noob->stun_time = 0;
 	noob->is_dead = NOOB_ALIVE;
 	noob->refcnt = 0;
-	state->total_noobs++;
+	noob->path = path;
 
+	state->total_noobs++;
 	Q_INSERT_HEAD(&noob_list, noob, list);
 
 	return noob;
@@ -64,15 +70,13 @@ void noob_destroy(noob_t *noob, state_t *state)
 static void draw_each(noob_t *noob, void *bs)
 {
 	/* XXX */
-	if(noob->is_dead) {
+	if(noob->is_dead)
 		return;
-	}
-	if(noob->stun_time > 0) {
-		glColor3d(0.0, 0.0, 1.0);
-	}
-	else {
-		glColor4d(1.0, 1.0, 0.0, 0.4);
-	}
+	if(noob->stun_time > 0)
+		glColor3f(0.0, 0.0, 1.0);
+	else
+		glColor4f(1.0, 1.0, 0.0, 0.4);
+
 	glBegin(GL_QUADS);
 	glVertex2i(noob->x - NOOB_SIZE/2.0, noob->y - NOOB_SIZE/2.0);
 	glVertex2i(noob->x - NOOB_SIZE/2.0, noob->y + NOOB_SIZE/2.0);
@@ -81,15 +85,29 @@ static void draw_each(noob_t *noob, void *bs)
 	glEnd();
 }
 
+static inline float move_dir(float d, float *loc, float dest)
+{
+	float l;
+
+	if((l = abs(dest - *loc)) < d) {
+		*loc = dest;
+		return l;
+	}
+	if(dest > *loc)
+		*loc += d;
+	else
+		*loc -= d;
+	return d;
+}
+
 static void update_each(noob_t *noob, float dt, state_t *state)
 {
-	float dx, dy;
-	int x, y;
-	path_t *dest;
+	float dl;
+	path_t *path;
 
-	if(noob->hp <= 0 && !(noob->is_dead)) {
+	if(noob->hp <= 0 && !(noob->is_dead))
 		noob->is_dead = NOOB_KILLED;
-	}
+
 	if(noob->is_dead) {
 		if(noob->refcnt == 0)
 			noob_destroy(noob, state);
@@ -98,39 +116,36 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 
 	if(noob->stun_time > 0) {
 		noob->stun_time--;
-		if(noob->stun_time == 0) {
+		if(noob->stun_time == 0)
 			noob->future_stun = 0;
-		}
+		return;
 	}
-	else {
-		x = noob->x * (1.0/GRID_SIZE);
-		y = noob->y * (1.0/GRID_SIZE);
 
-		dest = grid[y][x].p.next;
-
-		if(dest == NULL || noob->y > YRES || noob->y < 0.0 ||
-		   noob->x > XRES || noob->x < 0.0)
-		{
+	for(dl = dt * NOOB_SPEED_MULT; dl > 0; /* no */) {
+		path = noob->path;
+		if(path->next == NULL) {
 			noob->is_dead = NOOB_LEAKED;
 			return;
 		}
-
-		dx = dest->x - noob->x;
-		dy = dest->y - noob->y;
-		noob->x += dx * dt * NOOB_SPEED_MULT;
-		noob->y += dy * dt * NOOB_SPEED_MULT;
-
+		if(noob->x == path->x) {
+			dl -= move_dir(dl, &noob->y, path->y);
+			if(noob->y == path->y)
+				noob->path = path->next;
+		}
+		else {
+			dl -= move_dir(dl, &noob->x, path->x);
+			if(noob->x == path->x)
+				noob->path = path->next;
+		}
 	}
 }
 
 void noob_update_all(float dt, state_t *state)
 {
-	int i;
-	for(i = 0; i < NOOBS_NUM_MAX; i++) {
-		if(noobs[i].is_valid) {
-			update_each(&(noobs[i].n), dt, state);
-		}		
-	}
+	noob_t *cur;
+
+	Q_FOREACH(cur, &noob_list, list)
+		update_each(cur, dt, state);
 }
 
 void noob_draw_all()
@@ -142,9 +157,8 @@ void noob_traverse(void (*traverse_fn)(noob_t *, void *), void *data)
 {
 	noob_t *cur;
 
-	Q_FOREACH(cur, &noob_list, list) {
+	Q_FOREACH(cur, &noob_list, list)
 		traverse_fn(cur, data);
-	}
 }
 
 noob_t *find_target(float x, float y, attr_t attr)

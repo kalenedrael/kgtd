@@ -27,6 +27,7 @@ struct noob_t {
 	float y;
 	float hp;
 	float shield;
+	path_t *path;
 	Q_NEW_LINK(noob_t) list;
 	unsigned int refcnt;
 	unsigned char future_stun;
