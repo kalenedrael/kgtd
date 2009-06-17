@@ -66,7 +66,8 @@ void noob_destroy(noob_t *noob, state_t *state)
 
 static void draw_each(noob_t *noob, void *bs)
 {
-	/* XXX */
+	int size;
+
 	if(noob->is_dead)
 		return;
 	if(noob->stun_time > 0)
@@ -74,11 +75,13 @@ static void draw_each(noob_t *noob, void *bs)
 	else
 		glColor4f(1.0, 1.0, 0.0, 0.4);
 
+	size = ((NOOB_SIZE * noob->hp) / NOOB_DEFAULT_HP + 1) / 2;
+
 	glBegin(GL_QUADS);
-	glVertex2i(noob->x - NOOB_SIZE/2.0, noob->y - NOOB_SIZE/2.0);
-	glVertex2i(noob->x - NOOB_SIZE/2.0, noob->y + NOOB_SIZE/2.0);
-	glVertex2i(noob->x + NOOB_SIZE/2.0, noob->y + NOOB_SIZE/2.0);
-	glVertex2i(noob->x + NOOB_SIZE/2.0, noob->y - NOOB_SIZE/2.0);
+	glVertex2i(noob->x - size, noob->y - size);
+	glVertex2i(noob->x - size, noob->y + size);
+	glVertex2i(noob->x + size, noob->y + size);
+	glVertex2i(noob->x + size, noob->y - size);
 	glEnd();
 }
 
@@ -120,7 +123,7 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 
 	for(dl = dt * NOOB_SPEED_MULT; dl > 0; /* no */) {
 		path = noob->path;
-		if(path->next == NULL) {
+		if(path == NULL) {
 			noob->is_dead = NOOB_LEAKED;
 			return;
 		}

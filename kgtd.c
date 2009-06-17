@@ -52,7 +52,7 @@ static void handle_event(SDL_Event *ev)
 
 		/* XXX */
 		if(ev->button.button == SDL_BUTTON_LEFT)
-			tower_new(gx, gy, 52, kgtd_state.type_selected);
+			tower_new(gx, gy, 252, kgtd_state.type_selected);
 		return;
 	}
 	case SDL_USEREVENT: {
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 	init();
 
 	/* XXX */
-	noobspawner = SDL_AddTimer(3002, spawn_cb, NULL);
+	noobspawner = SDL_AddTimer(302, spawn_cb, NULL);
 
 	while (SDL_WaitEvent(&ev)) {
 		handle_event(&ev);

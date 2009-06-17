@@ -72,7 +72,11 @@ void path_draw_all(state_t *state)
 		}
 		x = cur->x;
 		y = cur->y;
-		glColor3f(0.4, 0.4, 0.4);
+		if(cur->next == NULL)
+			glColor3f(0.9, 0.2, 0.2);
+		else
+			glColor3f(0.4, 0.4, 0.4);
+
 		glBegin(GL_QUADS);
 		glVertex2i(x - GRID_SIZE/2, y - GRID_SIZE/2);
 		glVertex2i(x + GRID_SIZE/2, y - GRID_SIZE/2);
@@ -80,6 +84,7 @@ void path_draw_all(state_t *state)
 		glVertex2i(x - GRID_SIZE/2, y + GRID_SIZE/2);
 		glEnd();
 		cur = cur->next;
+
 	}
 }
 
