@@ -18,6 +18,15 @@ void noob_init()
 	noobs[i].next = NULL;
 	noob_first_free = noobs;
 	Q_INIT_HEAD(&noob_list);
+
+	glNewList(DISPLAY_LIST_NOOB, GL_COMPILE);
+	glBegin(GL_QUADS);
+	glVertex2f(-NOOB_SIZE/2, -NOOB_SIZE/2);
+	glVertex2f(-NOOB_SIZE/2,  NOOB_SIZE/2);
+	glVertex2f( NOOB_SIZE/2,  NOOB_SIZE/2);
+	glVertex2f( NOOB_SIZE/2, -NOOB_SIZE/2);
+	glEnd();
+	glEndList();
 }
 
 noob_t *noob_new(float x, float y, state_t *state)
@@ -66,7 +75,7 @@ void noob_destroy(noob_t *noob, state_t *state)
 
 static void draw_each(noob_t *noob, void *bs)
 {
-	int size;
+	float scale;
 
 	if(noob->is_dead)
 		return;
@@ -75,14 +84,12 @@ static void draw_each(noob_t *noob, void *bs)
 	else
 		glColor4f(1.0, 1.0, 0.0, 0.4);
 
-	size = ((NOOB_SIZE * noob->hp) / NOOB_DEFAULT_HP + 1) / 2;
-
-	glBegin(GL_QUADS);
-	glVertex2i(noob->x - size, noob->y - size);
-	glVertex2i(noob->x - size, noob->y + size);
-	glVertex2i(noob->x + size, noob->y + size);
-	glVertex2i(noob->x + size, noob->y - size);
-	glEnd();
+	scale = 0.1 + (float)noob->hp / NOOB_DEFAULT_HP;
+	glPushMatrix();
+	glTranslatef(noob->x, noob->y, 0);
+	glScalef(scale, scale, 1.0);
+	glCallList(DISPLAY_LIST_NOOB);
+	glPopMatrix();
 }
 
 static inline float move_dir(float d, float *loc, float dest)

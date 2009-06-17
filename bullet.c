@@ -79,10 +79,10 @@ static void draw_each(bullet_t *bullet)
 	case ATTR_MASS_EXPLOSIVE_HESH:
 		glColor3fv(clr);
 		glBegin(GL_QUADS);
-		glVertex2i(bullet->x, bullet->y);
-		glVertex2i(bullet->x, bullet->y + BULLET_SIZE);
-		glVertex2i(bullet->x + BULLET_SIZE, bullet->y + BULLET_SIZE);
-		glVertex2i(bullet->x + BULLET_SIZE, bullet->y);
+		glVertex2f(bullet->x, bullet->y);
+		glVertex2f(bullet->x, bullet->y + BULLET_SIZE);
+		glVertex2f(bullet->x + BULLET_SIZE, bullet->y + BULLET_SIZE);
+		glVertex2f(bullet->x + BULLET_SIZE, bullet->y);
 		glEnd();
 		break;
 	case ATTR_ENERGY_LASER_PULSE:
@@ -92,8 +92,8 @@ static void draw_each(bullet_t *bullet)
 		trans = 1.0 - (float)bullet->age / (float)bullet->max_age;
 		glColor4f(clr[0], clr[1], clr[2], trans);
 		glBegin(GL_LINES);
-		glVertex2i(bullet->x, bullet->y);
-		glVertex2i(bullet->dest->x, bullet->dest->y);
+		glVertex2f(bullet->x, bullet->y);
+		glVertex2f(bullet->dest->x, bullet->dest->y);
 		glEnd();
 		break;
 	}

@@ -30,6 +30,23 @@ tower_t *tower_new(int x, int y, int power, attr_t attr)
 void tower_init()
 {
 	Q_INIT_HEAD(&tower_list);
+
+	glNewList(DISPLAY_LIST_TOWER, GL_COMPILE);
+	glBegin(GL_QUADS);
+	glVertex2f(0.0,       0.0);
+	glVertex2f(0.0,       GRID_SIZE);
+	glVertex2f(GRID_SIZE, GRID_SIZE);
+	glVertex2f(GRID_SIZE, 0.0);
+	glEnd();
+	glColor3f(1.0, 1.0, 1.0);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(0.0,       0.0);
+	glVertex2f(0.0,       GRID_SIZE);
+	glVertex2f(GRID_SIZE, GRID_SIZE);
+	glVertex2f(GRID_SIZE, 0.0);
+	glVertex2f(0.0,       0.0);
+	glEnd();
+	glEndList();
 }
 
 void tower_destroy(int x, int y)
@@ -62,7 +79,7 @@ static void update_each(tower_t *tower, float dt, int idt)
 
 static void draw_each(tower_t *tower)
 {
-	float r, g, b, scale, tx, ty;
+	float r, g, b, scale;
 
 	scale = (float)tower->energy / (float)tower->energymax;
 	if(scale >= 1.0) {
@@ -74,23 +91,10 @@ static void draw_each(tower_t *tower)
 		glColor3f(r, g, b);
 	}
 
-	tx = tower->x;
-	ty = tower->y;
-
-	glBegin(GL_QUADS);
-	glVertex2f(tx,  ty);
-	glVertex2f(tx,  ty + GRID_SIZE);
-	glVertex2f(tx + GRID_SIZE, ty + GRID_SIZE);
-	glVertex2f(tx + GRID_SIZE, ty);
-	glEnd();
-	glColor3f(1.0, 1.0, 1.0);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(tx,  ty);
-	glVertex2f(tx,  ty + GRID_SIZE);
-	glVertex2f(tx + GRID_SIZE, ty + GRID_SIZE);
-	glVertex2f(tx + GRID_SIZE, ty);
-	glVertex2f(tx,  ty);
-	glEnd();
+	glPushMatrix();
+	glTranslatef(tower->x, tower->y, 0);
+	glCallList(DISPLAY_LIST_TOWER);
+	glPopMatrix();
 }
 
 void tower_update_all(float dt, int idt)

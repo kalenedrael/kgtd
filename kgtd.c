@@ -105,7 +105,7 @@ static void step(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPushMatrix();
-	glTranslated(SIDEBAR_SIZE, 0, 0);
+	glTranslatef(SIDEBAR_SIZE, 0, 0);
 	path_draw_all(&kgtd_state);
 	noob_draw_all();
 	tower_draw_all();
@@ -150,11 +150,18 @@ static void init(void)
 	 */
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslated(-1, 1, 0.0);
-	glScaled(2.0/XRES, -2.0/YRES, 1.0);
+	glTranslatef(-1.0, 1.0, 0.0);
+	glScalef(2.0/XRES, -2.0/YRES, 1.0);
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	glDisable(GL_LIGHTING);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_COLOR_MATERIAL);
 
 	/* initialize data structures */
 	controls_init();

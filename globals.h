@@ -41,5 +41,11 @@ typedef struct state_t state_t;
 typedef struct map_t map_t;
 typedef struct level_t level_t;
 
+enum {
+	DISPLAY_LIST_TOWER = 1,
+	DISPLAY_LIST_NOOB = 2,
+	DISPLAY_LIST_PATH = 3
+};
+
 #endif
 

@@ -21,6 +21,7 @@ void path_load(state_t *state, map_t *map)
 	int new_x, new_y;
 	int length = map->length;
 	int *path = map->path;
+	float x, y;
 	state->path = path_new(map->x_start, map->y_start);
 	path_t *cur = state->path;
 
@@ -56,15 +57,12 @@ void path_load(state_t *state, map_t *map)
 			}
 		}
 	}
-
 	cur->next = NULL;
-}
 
-void path_draw_all(state_t *state)
-{
-	float x, y;
-	path_t *cur = state->path;
-
+	cur = state->path;
+	glNewList(DISPLAY_LIST_PATH, GL_COMPILE);
+	glColor3f(0.4, 0.4, 0.4);
+	glBegin(GL_QUADS);
 	while(cur != NULL) {
 		if(cur->type != GRID_TYPE_PATH) {
 			abort();
@@ -74,17 +72,19 @@ void path_draw_all(state_t *state)
 		y = cur->y;
 		if(cur->next == NULL)
 			glColor3f(0.9, 0.2, 0.2);
-		else
-			glColor3f(0.4, 0.4, 0.4);
 
-		glBegin(GL_QUADS);
-		glVertex2i(x - GRID_SIZE/2, y - GRID_SIZE/2);
-		glVertex2i(x + GRID_SIZE/2, y - GRID_SIZE/2);
-		glVertex2i(x + GRID_SIZE/2, y + GRID_SIZE/2);
-		glVertex2i(x - GRID_SIZE/2, y + GRID_SIZE/2);
-		glEnd();
+		glVertex2f(x - GRID_SIZE/2, y - GRID_SIZE/2);
+		glVertex2f(x + GRID_SIZE/2, y - GRID_SIZE/2);
+		glVertex2f(x + GRID_SIZE/2, y + GRID_SIZE/2);
+		glVertex2f(x - GRID_SIZE/2, y + GRID_SIZE/2);
 		cur = cur->next;
 
 	}
+	glEnd();
+	glEndList();
 }
 
+void path_draw_all(state_t *state)
+{
+	glCallList(DISPLAY_LIST_PATH);
+}
