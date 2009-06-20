@@ -84,7 +84,7 @@ static void draw_each(noob_t *noob, void *bs)
 	else
 		glColor4f(1.0, 1.0, 0.0, 0.4);
 
-	scale = 0.1 + (float)noob->hp / NOOB_DEFAULT_HP;
+	scale = 0.2 + (float)noob->hp / NOOB_DEFAULT_HP;
 	glPushMatrix();
 	glTranslatef(noob->x, noob->y, 0);
 	glScalef(scale, scale, 1.0);

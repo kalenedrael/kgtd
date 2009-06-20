@@ -1,3 +1,4 @@
+#include <float.h>
 #include "grid_objs.h"
 #include "noob.h"
 #include "bullet.h"
@@ -50,10 +51,18 @@ void tower_destroy(int x, int y)
 
 static void update_each(tower_t *tower, float dt, int idt)
 {
+	float cur_range = FLT_MAX, dx, dy;
+
 	if(tower->energy < tower->energymax)
 		tower->energy += tower->power * idt;
 
-	if(damage_not_worthwhile(tower->target, tower->attr)) {
+	if(tower->target != NULL) {
+		dx = tower->x - tower->target->x;
+		dy = tower->y - tower->target->y;
+		cur_range = dx * dx + dy * dy;
+	}
+	if(cur_range > BULLET_MAX_RANGE ||
+	   damage_not_worthwhile(tower->target, tower->attr)) {
 		tower->target = find_target(tower->x + GRID_SIZE/2,
                                             tower->y + GRID_SIZE/2,
 		                            tower->attr);
