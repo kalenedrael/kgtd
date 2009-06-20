@@ -2,7 +2,6 @@
 #define _GLOBALS_H_
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
 #include <GL/gl.h>
 #include <math.h>
 
@@ -44,7 +43,8 @@ typedef struct level_t level_t;
 enum {
 	DISPLAY_LIST_TOWER = 1,
 	DISPLAY_LIST_NOOB = 2,
-	DISPLAY_LIST_PATH = 3
+	DISPLAY_LIST_PATH = 3,
+	DISPLAY_LIST_NUM_BASE = 10,
 };
 
 #endif

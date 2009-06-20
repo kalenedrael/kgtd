@@ -2,104 +2,56 @@
 #include "state.h"
 
 #define SPACING 40
-
-TTF_Font *display_font;
-
-static inline unsigned int nextpoweroftwo(unsigned int x)
+/*
+struct {
+	int n;
+	float points[2][8];
+} glyphs[] = {
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}},
+	{ .n = 2, .points = {{0,0, 1,0, 1,1, 0,1},{2,0, 3,0, 3,1, 2,1}}}
+};
+*/
+static void draw_num(unsigned int num, float x, float y, float scale)
 {
-	x |= x >> 16;
-	x |= x >> 8;
-	x |= x >> 4;
-	x |= x >> 2;
-	x |= x >> 1;
-	return x + 1;
-}
-
-void SDL_GL_RenderText(char *text, 
-                      SDL_Color color,
-                      SDL_Rect *location)
-{
-	SDL_Surface *initial;
-	SDL_Surface *intermediary;
-	int w,h;
-	unsigned int texture;
-
-	/* Use SDL_TTF to render our text */
-	initial = TTF_RenderText_Blended(display_font, text, color);
-
-	/* Convert the rendered text to a known format */
-	w = nextpoweroftwo(initial->w);
-	h = nextpoweroftwo(initial->h);
-
-	intermediary = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SWSURFACE, w, h, 32, 0, 0, 0, 0);
-
-	SDL_BlitSurface(initial, 0, intermediary, 0);
-	
-	/* Tell GL about our new texture */
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, w, h, 0, GL_BGRA, 
-			GL_UNSIGNED_BYTE, intermediary->pixels );
-	
-	/* GL_NEAREST looks horrible, if scaled... */
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	/* prepare to render our texture */
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	/* Draw a quad at location */
-	glBlendFunc(GL_ONE, GL_ONE);
-	glBegin(GL_QUADS);
-		/* Recall that the origin is in the lower-left corner
-		   That is why the TexCoords specify different corners
-		   than the Vertex coors seem to. */
-		glTexCoord2f(0.0, 0.0); 
-		glVertex2f(location->x , location->y);
-		glTexCoord2f(1.0, 0.0); 
-		glVertex2f(location->x + w, location->y);
-		glTexCoord2f(1.0, 1.0);
-		glVertex2f(location->x + w, location->y + h);
-		glTexCoord2f(0.0, 1.0); 
-		glVertex2f(location->x , location->y + h);
-	glEnd();
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	/* Bad things happen if we delete the texture before it finishes */
-	glFinish();
-	
-	/* return the deltas in the unused w,h part of the rect */
-	location->w = initial->w;
-	location->h = initial->h;
-	
-	/* Clean up */
-	SDL_FreeSurface(initial);
-	SDL_FreeSurface(intermediary);
-	glDeleteTextures(1, &texture);
+/*
+	glPushMatrix();
+	glTranslatef(x, y, 0);
+	glScalef(scale, scale, 1.0);
+	do {
+		glTranslatef(-i, 0, 0);
+		glCallList(DISPLAY_LIST_NUM_BASE + num % 10);
+		i++;
+		num = num / 10;
+	} while (num);
+	glPopMatrix();
+*/
+	glPushMatrix();
+	glTranslatef(x, y, 0);
+	glScalef(scale, scale, 1.0);
+	for(; num; num = num >> 1) {
+		glTranslatef(-1.0, 0.0, 0.0);
+		if(num & 1)
+			glCallList(DISPLAY_LIST_NUM_BASE);
+	}
+	glPopMatrix();
 }
 
 static void draw_scores(state_t *state)
 {
-	char buf[256];
-	SDL_Rect rect;
-
-	rect.x = 10;
-	rect.y = 500;
-	SDL_Color color = {255,255,255};
-
-	sprintf(buf, "score: %d", state->score);
-	SDL_GL_RenderText(buf, color, &rect);
-	rect.y += rect.h;
-	sprintf(buf, "spawns: %d", state->total_noobs);
-	SDL_GL_RenderText(buf, color, &rect);
-	rect.y += rect.h;
-	sprintf(buf, "kills: %d", state->kills);
-	SDL_GL_RenderText(buf, color, &rect);
-	rect.y += rect.h;
-	sprintf(buf, "leaks: %d", state->leaks);
-	SDL_GL_RenderText(buf, color, &rect);
+//	draw_num(state->score, 600.0, 10.0, 10.0);
+	glColor3f(1.0, 1.0, 1.0);
+	draw_num(state->total_noobs, XRES, 0.0, 10.0);
+	draw_num(state->kills, XRES, 10.0, 10.0);
+	glColor3f(1.0, 0.1, 0.1);
+	draw_num(state->leaks, XRES, 20.0, 10.0);
 }
 
 static void draw_buttons(state_t *state)
@@ -140,13 +92,31 @@ static void draw_buttons(state_t *state)
 
 void controls_init(void)
 {
-	TTF_Init();
-	atexit(TTF_Quit);
-	if((display_font = TTF_OpenFont("arial.ttf", 12)) == NULL) {
-		printf("failed to open font\n");
-		exit(0);
+/*
+	int i, j;
+
+	for(i = 0; i < 10; i++) {
+		glNewList(DISPLAY_LIST_NUM_BASE + i, GL_COMPILE);
+		glBegin(GL_QUADS);
+		for(j = 0; j < glyphs[i].n; j++) {
+			glVertex2fv(glyphs[i].points[j]);
+			glVertex2fv(glyphs[i].points[j] + 2);
+			glVertex2fv(glyphs[i].points[j] + 4);
+			glVertex2fv(glyphs[i].points[j] + 6);
+		}
+		glEnd();
+		glEndList();
 	}
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+*/
+
+	glNewList(DISPLAY_LIST_NUM_BASE, GL_COMPILE);
+	glBegin(GL_QUADS);
+	glVertex2f(0.0, 0.0);
+	glVertex2f(0.0, 1.0);
+	glVertex2f(1.0, 1.0);
+	glVertex2f(1.0, 0.0);
+	glEnd();
+	glEndList();
 }
 
 void controls_draw(state_t *state)

@@ -7,6 +7,7 @@ struct state_t {
 	int kills;
 	int leaks;
 	int total_noobs;
+	int power_used;
 	attr_t type_selected;
 	path_t *path;
 };

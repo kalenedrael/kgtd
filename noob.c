@@ -96,7 +96,7 @@ static inline float move_dir(float d, float *loc, float dest)
 {
 	float l;
 
-	if((l = abs(dest - *loc)) < d) {
+	if((l = fabs(dest - *loc)) < d) {
 		*loc = dest;
 		return l;
 	}
