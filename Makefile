@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-g -O2 -mfpmath=sse -msse -mmmx -Wall -ffast-math
-LIBS=-lSDL -lGL -lSDL_ttf
+LIBS=-lSDL -lGL
 
 ALL_OBJS=tower.o bullet.o kgtd.o noob.o damage.o grid.o state.o controls.o attr.o path.o
 
