@@ -33,18 +33,10 @@ void tower_init()
 
 	glNewList(DISPLAY_LIST_TOWER, GL_COMPILE);
 	glBegin(GL_QUADS);
-	glVertex2f(0.0,       0.0);
-	glVertex2f(0.0,       GRID_SIZE);
-	glVertex2f(GRID_SIZE, GRID_SIZE);
-	glVertex2f(GRID_SIZE, 0.0);
-	glEnd();
-	glColor3f(1.0, 1.0, 1.0);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0.0,       0.0);
-	glVertex2f(0.0,       GRID_SIZE);
-	glVertex2f(GRID_SIZE, GRID_SIZE);
-	glVertex2f(GRID_SIZE, 0.0);
-	glVertex2f(0.0,       0.0);
+	glVertex2f(0.0,        0.0);
+	glVertex2f(0.0,        TOWER_SIZE);
+	glVertex2f(TOWER_SIZE, TOWER_SIZE);
+	glVertex2f(TOWER_SIZE, 0.0);
 	glEnd();
 	glEndList();
 }
@@ -63,7 +55,8 @@ static void update_each(tower_t *tower, float dt, int idt)
 
 	if(damage_not_worthwhile(tower->target, tower->attr)) {
 		tower->target = find_target(tower->x + GRID_SIZE/2,
-                                            tower->y + GRID_SIZE/2, tower->attr);
+                                            tower->y + GRID_SIZE/2,
+		                            tower->attr);
 		if(tower->target == NULL)
 			return;
 	}
@@ -74,7 +67,7 @@ static void update_each(tower_t *tower, float dt, int idt)
 
 		bullet_new(tower->x + GRID_SIZE/2, tower->y + GRID_SIZE/2, 0.0, 0.0,
 		           tower->energymax, tower->attr, tower->target);
-	}	
+	}
 }
 
 static void draw_each(tower_t *tower)
@@ -92,7 +85,8 @@ static void draw_each(tower_t *tower)
 	}
 
 	glPushMatrix();
-	glTranslatef(tower->x, tower->y, 0);
+	glTranslatef(tower->x + (GRID_SIZE - TOWER_SIZE) / 2,
+	             tower->y + (GRID_SIZE - TOWER_SIZE) / 2, 0);
 	glCallList(DISPLAY_LIST_TOWER);
 	glPopMatrix();
 }

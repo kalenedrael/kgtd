@@ -11,7 +11,7 @@
 #include "level.h"
 
 int path[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
-map_t map = { path, sizeof(path)/sizeof(path[0]), 0, 3 };
+map_t map = { path, sizeof(path)/sizeof(path[0]), 1, 3 };
 
 /* function prototypes */
 static void step();
@@ -61,7 +61,7 @@ static void handle_event(SDL_Event *ev)
 			update();
 		}
 		else if(ev->user.code == 1) {
-			noob_new(GRID_SIZE/2, 3 * GRID_SIZE + GRID_SIZE/2, &kgtd_state);
+			noob_new(GRID_SIZE + GRID_SIZE/2, 3 * GRID_SIZE + GRID_SIZE/2, &kgtd_state);
 		}
 	}
 	default:
