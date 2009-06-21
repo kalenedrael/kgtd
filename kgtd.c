@@ -89,7 +89,8 @@ static void handle_event(SDL_Event *ev)
 		int gy = y/GRID_SIZE;
 
 		/* XXX */
-		if(ev->button.button == SDL_BUTTON_LEFT)
+		if(ev->button.button == SDL_BUTTON_LEFT &&
+		   kgtd_state.type_selected != ATTR_NONE)
 			tower_new(gx, gy, 252, kgtd_state.type_selected);
 		return;
 	}

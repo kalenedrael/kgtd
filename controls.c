@@ -100,23 +100,23 @@ void controls_init(void)
 
 	glNewList(DISPLAY_LIST_GRID, GL_COMPILE);
 	glBegin(GL_LINES);
-	for(i = -3; i < 5; i++) {
+	for(i = -2; i < 4; i++) {
 		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(i * GRID_SIZE, -4.0 * GRID_SIZE);
-		glColor4f(1.0, 1.0, 1.0, (4.0 - fabs(i - 0.5)) / 4.0);
+		glVertex2f(i * GRID_SIZE, -3.0 * GRID_SIZE);
+		glColor4f(1.0, 1.0, 1.0, (3.0 - fabs(i - 0.5)) / 3.0);
 		glVertex2f(i * GRID_SIZE, 0.5 * GRID_SIZE);
 		glVertex2f(i * GRID_SIZE, 0.5 * GRID_SIZE);
 		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(i * GRID_SIZE, 5.0 * GRID_SIZE);
+		glVertex2f(i * GRID_SIZE, 4.0 * GRID_SIZE);
 	}
-	for(i = -3; i < 5; i++) {
+	for(i = -2; i < 4; i++) {
 		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(-4.0 * GRID_SIZE, i * GRID_SIZE);
-		glColor4f(1.0, 1.0, 1.0, (4.0 - fabs(i - 0.5)) / 4.0);
+		glVertex2f(-3.0 * GRID_SIZE, i * GRID_SIZE);
+		glColor4f(1.0, 1.0, 1.0, (3.0 - fabs(i - 0.5)) / 3.0);
 		glVertex2f(0.5 * GRID_SIZE, i * GRID_SIZE);
 		glVertex2f(0.5 * GRID_SIZE, i * GRID_SIZE);
 		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(5.0 * GRID_SIZE, i * GRID_SIZE);
+		glVertex2f(4.0 * GRID_SIZE, i * GRID_SIZE);
 	}
 	glEnd();
 	glEndList();
