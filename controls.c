@@ -2,6 +2,8 @@
 #include "state.h"
 
 #define SPACING 40
+#define NPOINTS 36
+#define PRELIGHT_SIZE 4
 
 float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
 float seg2[] = {0.45,0.1 , 0.55,0.1 , 0.55,0.45, 0.45,0.45};
@@ -74,9 +76,19 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	glPushMatrix();
 	glTranslatef(ax, ay, 0);
 	glCallList(DISPLAY_LIST_GRID);
-	glTranslatef((GRID_SIZE - TOWER_SIZE) / 2,
-	             (GRID_SIZE - TOWER_SIZE) / 2, 0);
+	glPopMatrix();
+
+	glPushMatrix();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glTranslatef(x, y, 0);
+	glCallList(DISPLAY_LIST_OCCLUDE);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(ax + (GRID_SIZE - TOWER_SIZE) / 2,
+	             ay + (GRID_SIZE - TOWER_SIZE) / 2, 0);
 	glColor3fv(attr_colors[state->type_selected]);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glCallList(DISPLAY_LIST_TOWER);
 	glPopMatrix();
 }
@@ -99,24 +111,27 @@ void controls_init(void)
 	}
 
 	glNewList(DISPLAY_LIST_GRID, GL_COMPILE);
+	glColor4f(1.0, 1.0, 1.0, 0.0);
 	glBegin(GL_LINES);
-	for(i = -2; i < 4; i++) {
-		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(i * GRID_SIZE, -3.0 * GRID_SIZE);
-		glColor4f(1.0, 1.0, 1.0, (3.0 - fabs(i - 0.5)) / 3.0);
-		glVertex2f(i * GRID_SIZE, 0.5 * GRID_SIZE);
-		glVertex2f(i * GRID_SIZE, 0.5 * GRID_SIZE);
-		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(i * GRID_SIZE, 4.0 * GRID_SIZE);
+	for(i = -PRELIGHT_SIZE + 1; i < PRELIGHT_SIZE + 1; i++) {
+		glVertex2f(i * GRID_SIZE, -PRELIGHT_SIZE * GRID_SIZE);
+		glVertex2f(i * GRID_SIZE, (PRELIGHT_SIZE + 1) * GRID_SIZE);
 	}
-	for(i = -2; i < 4; i++) {
-		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(-3.0 * GRID_SIZE, i * GRID_SIZE);
-		glColor4f(1.0, 1.0, 1.0, (3.0 - fabs(i - 0.5)) / 3.0);
-		glVertex2f(0.5 * GRID_SIZE, i * GRID_SIZE);
-		glVertex2f(0.5 * GRID_SIZE, i * GRID_SIZE);
-		glColor4f(1.0, 1.0, 1.0, 0.0);
-		glVertex2f(4.0 * GRID_SIZE, i * GRID_SIZE);
+	for(i = -3; i < 5; i++) {
+		glVertex2f(-PRELIGHT_SIZE * GRID_SIZE, i * GRID_SIZE);
+		glVertex2f((PRELIGHT_SIZE + 1) * GRID_SIZE, i * GRID_SIZE);
+	}
+	glEnd();
+	glEndList();
+
+	glNewList(DISPLAY_LIST_OCCLUDE, GL_COMPILE);
+	glBegin(GL_TRIANGLE_FAN);
+	glColor4f(0.0, 0.0, 0.0, 0.0);
+	glVertex2f(0.0, 0.0);
+	glColor4f(0.0, 0.0, 0.0, 1.0);
+	for(i = 0; i <= NPOINTS; i++) {
+		glVertex2f(PRELIGHT_SIZE * GRID_SIZE * sinf(i * (2 * M_PI / NPOINTS)),
+		           PRELIGHT_SIZE * GRID_SIZE * cosf(i * (2 * M_PI / NPOINTS)));
 	}
 	glEnd();
 	glEndList();

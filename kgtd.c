@@ -147,13 +147,11 @@ static void step(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glPushMatrix();
+	controls_draw(mouse_x, mouse_y, &kgtd_state);
 	path_draw_all(&kgtd_state);
 	noob_draw_all();
 	tower_draw_all();
 	bullet_draw_all();
-	glPopMatrix();
-	controls_draw(mouse_x, mouse_y, &kgtd_state);
 
 	SDL_GL_SwapBuffers();
 }
