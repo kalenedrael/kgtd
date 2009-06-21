@@ -20,6 +20,9 @@ void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 	case ATTR_ENERGY_PARTICLE_PLASMA:
 	case ATTR_ENERGY_LASER_CW:
 		noob->hp -= (damage * dt) / 1000;
+		break;
+	case ATTR_NONE:
+		printf("ATTR_NONE: fail?\n");
 	}
 
 }

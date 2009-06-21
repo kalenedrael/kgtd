@@ -10,8 +10,8 @@
 #include "bullet.h"
 #include "level.h"
 
-int path[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
-map_t map = { path, sizeof(path)/sizeof(path[0]), 1, 3 };
+static int path[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
+static map_t map = { path, sizeof(path)/sizeof(path[0]), 2, 3 };
 
 /* function prototypes */
 static void step();
@@ -19,13 +19,14 @@ static void update();
 static void reset();
 
 /* SDL stuff */
-SDL_Surface *screen;
-SDL_TimerID update_timer;
-SDL_TimerID noobspawner;
-SDL_TimerID noobspawner2;
+static SDL_Surface *screen;
+static SDL_TimerID update_timer;
+static SDL_TimerID noobspawner;
 
 /* timekeeper */
-int oldtime;
+static int oldtime;
+/* mouse position */
+static int mouse_x, mouse_y;
 
 /* game state */
 state_t kgtd_state;
@@ -36,18 +37,55 @@ static void handle_event(SDL_Event *ev)
 	case SDL_QUIT:
 		exit(0);
 	case SDL_KEYUP: {
-		if(ev->key.keysym.sym == SDLK_r)
+		SDLKey sym = ev->key.keysym.sym;
+		switch(sym) {
+		case SDLK_0:
+			kgtd_state.type_selected = ATTR_MASS_KINETIC;
+			break;
+		case SDLK_1:
+			kgtd_state.type_selected = ATTR_ENERGY_PARTICLE_PLASMA;
+			break;
+		case SDLK_2:
+			kgtd_state.type_selected = ATTR_ENERGY_PARTICLE_LIGHTNING;
+			break;
+		case SDLK_3:
+			kgtd_state.type_selected = ATTR_ENERGY_LASER_PULSE;
+			break;
+		case SDLK_4:
+			kgtd_state.type_selected = ATTR_ENERGY_LASER_CW;
+			break;
+		case SDLK_5:
+			kgtd_state.type_selected = ATTR_MASS_KINETIC_APCR;
+			break;
+		case SDLK_6:
+			kgtd_state.type_selected = ATTR_MASS_KINETIC_APFSDS;
+			break;
+		case SDLK_7:
+			kgtd_state.type_selected = ATTR_MASS_KINETIC_DU;
+			break;
+		case SDLK_8:
+			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HE;
+			break;
+		case SDLK_9:
+			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HEAT;
+			break;
+		case SDLK_MINUS:
+			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HESH;
+			break;
+		case SDLK_EQUALS:
+			kgtd_state.type_selected = ATTR_NONE;
+			break;
+		case SDLK_r:
 			reset();
+			break;
+		default: break;
+		}
 		return;
 	}
 	case SDL_MOUSEBUTTONUP: {
 		int x = ev->button.x;
 		int y = ev->button.y;
-		if(x < SIDEBAR_SIZE) {
-			controls_click(x, y, &kgtd_state);
-			return;
-		}
-		int gx = (x - SIDEBAR_SIZE)/GRID_SIZE;
+		int gx = x/GRID_SIZE;
 		int gy = y/GRID_SIZE;
 
 		/* XXX */
@@ -55,13 +93,17 @@ static void handle_event(SDL_Event *ev)
 			tower_new(gx, gy, 252, kgtd_state.type_selected);
 		return;
 	}
+	case SDL_MOUSEMOTION:
+		mouse_x = ev->motion.x;
+		mouse_y = ev->motion.y;
+		return;
 	case SDL_USEREVENT: {
 		if(ev->user.code == 0) {
 			step();
 			update();
 		}
 		else if(ev->user.code == 1) {
-			noob_new(GRID_SIZE + GRID_SIZE/2, 3 * GRID_SIZE + GRID_SIZE/2, &kgtd_state);
+			noob_new(GRID_SIZE * 2 + GRID_SIZE/2, 3 * GRID_SIZE + GRID_SIZE/2, &kgtd_state);
 		}
 	}
 	default:
@@ -105,13 +147,12 @@ static void step(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPushMatrix();
-	glTranslatef(SIDEBAR_SIZE, 0, 0);
 	path_draw_all(&kgtd_state);
 	noob_draw_all();
 	tower_draw_all();
 	bullet_draw_all();
 	glPopMatrix();
-	controls_draw(&kgtd_state);
+	controls_draw(mouse_x, mouse_y, &kgtd_state);
 
 	SDL_GL_SwapBuffers();
 }
@@ -185,9 +226,9 @@ int main(int argc, char **argv)
 	/* XXX */
 	noobspawner = SDL_AddTimer(302, spawn_cb, NULL);
 
-	while (SDL_WaitEvent(&ev)) {
+	while (SDL_WaitEvent(&ev))
 		handle_event(&ev);
-	}
+
 	return 1;
 }
 

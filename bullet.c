@@ -4,7 +4,7 @@
 
 static bullet_obj bullets[BULLET_NUM_MAX];
 static bullet_obj *bullet_first_free;
-static Q_HEAD(bullet_t) bullet_list = Q_STATIC_INITIALIZER;
+static Q_HEAD(bullet_t) bullet_list;
 
 void bullet_init()
 {
@@ -18,6 +18,7 @@ void bullet_init()
 	bullets[i].is_valid = 0;
 	bullets[i].next = NULL;
 	bullet_first_free = bullets;
+	Q_INIT_HEAD(&bullet_list);
 }
 
 bullet_t *bullet_new(float x, float y, float xv, float yv, int damage, attr_t attr, noob_t *dest)
@@ -96,6 +97,8 @@ static void draw_each(bullet_t *bullet)
 		glVertex2f(bullet->dest->x, bullet->dest->y);
 		glEnd();
 		break;
+	case ATTR_NONE:
+		printf("ATTR_NONE: fail?\n");
 	}
 }
 
@@ -161,6 +164,9 @@ static void update_each(bullet_t *bullet, float dt, int idt)
 	case ATTR_ENERGY_PARTICLE_PLASMA:
 	case ATTR_ENERGY_LASER_CW:
 		damage_calc(bullet->dest, bullet->damage, idt, bullet->attr);
+		break;
+	case ATTR_NONE:
+		printf("ATTR_NONE: fail?\n");
 	}
 
 }
