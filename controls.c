@@ -72,12 +72,10 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	ay = (y / GRID_SIZE) * GRID_SIZE;
 
 	glPushMatrix();
-	glTranslatef(x - GRID_SIZE/2, y - GRID_SIZE/2, 0);
+	glTranslatef(ax, ay, 0);
 	glCallList(DISPLAY_LIST_GRID);
-	glPopMatrix();
-	glPushMatrix();
-	glTranslatef(ax + (GRID_SIZE - TOWER_SIZE) / 2,
-	             ay + (GRID_SIZE - TOWER_SIZE) / 2, 0);
+	glTranslatef((GRID_SIZE - TOWER_SIZE) / 2,
+	             (GRID_SIZE - TOWER_SIZE) / 2, 0);
 	glColor3fv(attr_colors[state->type_selected]);
 	glCallList(DISPLAY_LIST_TOWER);
 	glPopMatrix();
