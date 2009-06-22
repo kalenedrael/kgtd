@@ -38,6 +38,7 @@ typedef struct tower_t tower_t;
 typedef struct path_t path_t;
 typedef struct state_t state_t;
 typedef struct map_t map_t;
+typedef struct wave_t wave_t;
 typedef struct level_t level_t;
 
 enum {

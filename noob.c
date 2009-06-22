@@ -29,29 +29,30 @@ void noob_init()
 	glEndList();
 }
 
-noob_t *noob_new(float x, float y, state_t *state)
+noob_t *noob_spawn(int hp, int shield, unsigned char armor_type,
+                   unsigned char shield_type, state_t *state)
 {
-	path_t *path;
 	noob_obj *n_obj = noob_first_free;
 	if(n_obj == NULL) {
 		printf("Too many noobs...\n");
 		abort();
 	}
-	path = &(grid[(int)y/GRID_SIZE][(int)x/GRID_SIZE].p);
-	if(path->type != GRID_TYPE_PATH)
-		return NULL;
-
 	noob_first_free = n_obj->next;
 
 	noob_t *noob = &(n_obj->n);
-	noob->x = x;
-	noob->y = y;
-	noob->hp = NOOB_DEFAULT_HP;
+	noob->x = state->path->x;
+	noob->y = state->path->y;
+	noob->hp = hp;
+	noob->max_hp = hp;
+	noob->shield = shield;
+	noob->max_shield = shield;
+	noob->armor_type = armor_type;
+	noob->shield_type = shield_type;
 	noob->future_stun = 0;
 	noob->stun_time = 0;
 	noob->is_dead = NOOB_ALIVE;
 	noob->refcnt = 0;
-	noob->path = path;
+	noob->path = state->path;
 
 	state->total_noobs++;
 	Q_INSERT_HEAD(&noob_list, noob, list);
@@ -84,7 +85,7 @@ static void draw_each(noob_t *noob, void *bs)
 	else
 		glColor4f(1.0, 1.0, 0.0, 0.4);
 
-	scale = 0.2 + (float)noob->hp / NOOB_DEFAULT_HP;
+	scale = 0.2 + (float)noob->hp / noob->max_hp;
 	glPushMatrix();
 	glTranslatef(noob->x, noob->y, 0);
 	glScalef(scale, scale, 1.0);
@@ -168,7 +169,7 @@ void noob_traverse(void (*traverse_fn)(noob_t *, void *), void *data)
 		traverse_fn(cur, data);
 }
 
-noob_t *find_target(float x, float y, attr_t attr)
+noob_t *noob_find_target(float x, float y, attr_t attr)
 {
 	/* XXX max_range wtf */
 

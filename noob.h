@@ -26,15 +26,17 @@ struct noob_t {
 	float x;
 	float y;
 	int hp;
+	int max_hp;
 	int shield;
+	int max_shield;
 	path_t *path;
 	Q_NEW_LINK(noob_t) list;
+	unsigned char armor_type;
+	unsigned char shield_type;
 	unsigned int refcnt;
 	unsigned char future_stun;
 	unsigned char stun_time;
 	unsigned char is_dead;
-	unsigned char armor_type;
-	unsigned char shield_type;
 };
 
 typedef union noob_obj {
@@ -43,7 +45,8 @@ typedef union noob_obj {
 } noob_obj;
 
 void noob_init();
-noob_t *noob_new(float x, float y, state_t *state);
+noob_t *noob_spawn(int hp, int shield, unsigned char armor_type,
+                   unsigned char shield_type, state_t *state);
 void noob_destroy(noob_t *noob, state_t *state);
 
 void noob_draw_all();
@@ -51,7 +54,7 @@ void noob_update_all(float dt, state_t *state);
 
 void noob_traverse(void (*traverse_fn)(noob_t*, void*), void *data);
 
-noob_t *find_target(float x, float y, attr_t attr);
+noob_t *noob_find_target(float x, float y, attr_t attr);
 
 #endif
 

@@ -63,9 +63,9 @@ static void update_each(tower_t *tower, float dt, int idt)
 	}
 	if(cur_range > BULLET_MAX_RANGE ||
 	   damage_not_worthwhile(tower->target, tower->attr)) {
-		tower->target = find_target(tower->x + GRID_SIZE/2,
-                                            tower->y + GRID_SIZE/2,
-		                            tower->attr);
+		tower->target = noob_find_target(tower->x + GRID_SIZE/2,
+                                                 tower->y + GRID_SIZE/2,
+		                                 tower->attr);
 		if(tower->target == NULL)
 			return;
 	}

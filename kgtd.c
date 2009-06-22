@@ -10,18 +10,16 @@
 #include "bullet.h"
 #include "level.h"
 
-static int path[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
-static map_t map = { path, sizeof(path)/sizeof(path[0]), 2, 3 };
+#define EV_UPDATE 0
+#define EV_SPAWN 1
 
 /* function prototypes */
-static void step();
+static void draw();
 static void update();
 static void reset();
 
 /* SDL stuff */
 static SDL_Surface *screen;
-static SDL_TimerID update_timer;
-static SDL_TimerID noobspawner;
 
 /* timekeeper */
 static int oldtime;
@@ -99,12 +97,12 @@ static void handle_event(SDL_Event *ev)
 		mouse_y = ev->motion.y;
 		return;
 	case SDL_USEREVENT: {
-		if(ev->user.code == 0) {
-			step();
+		if(ev->user.code == EV_UPDATE) {
+			draw();
 			update();
 		}
-		else if(ev->user.code == 1) {
-			noob_new(GRID_SIZE * 2 + GRID_SIZE/2, 3 * GRID_SIZE + GRID_SIZE/2, &kgtd_state);
+		else if(ev->user.code == EV_SPAWN) {
+			level_spawn(&kgtd_state);
 		}
 	}
 	default:
@@ -116,7 +114,7 @@ static Uint32 timer_cb(Uint32 x, void* p)
 {
 	SDL_Event tev;
 	tev.user.type = SDL_USEREVENT;
-	tev.user.code = 0;
+	tev.user.code = EV_UPDATE;
 	SDL_PushEvent(&tev);
 	return x;
 }
@@ -125,7 +123,7 @@ static Uint32 spawn_cb(Uint32 x, void* p)
 {
 	SDL_Event tev;
 	tev.user.type = SDL_USEREVENT;
-	tev.user.code = 1;
+	tev.user.code = EV_SPAWN;
 	SDL_PushEvent(&tev);
 	return x;
 }
@@ -139,11 +137,12 @@ static void update(void)
 	noob_update_all(dt, &kgtd_state);
 	bullet_update_all(dt, idt);
 	tower_update_all(dt, idt);
+	level_update(&kgtd_state);
 
 	oldtime = newtime;
 }
 
-static void step(void)
+static void draw(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -163,8 +162,7 @@ static void reset(void)
 	noob_init();
 	tower_init();
 	state_reset(&kgtd_state);
-	/* XXX */
-	path_load(&kgtd_state, &map);
+	level_init(&kgtd_state);
 }
 
 static void init(void)
@@ -208,10 +206,13 @@ static void init(void)
 	reset();
 
 	/* timer for updates */
-	oldtime = ((double)clock())/(double)CLOCKS_PER_SEC;
-	update_timer = SDL_AddTimer(25, timer_cb, NULL);
-	if(update_timer == NULL) {
-		printf("Error setting timer...\n");
+	oldtime = SDL_GetTicks();
+	if(SDL_AddTimer(25, timer_cb, NULL) == NULL) {
+		printf("Error setting update timer...\n");
+		exit(1);
+	}
+	if(SDL_AddTimer(302, spawn_cb, NULL) == NULL) {
+		printf("Error setting spawn timer...\n");
 		exit(1);
 	}
 }
@@ -221,9 +222,6 @@ int main(int argc, char **argv)
 	SDL_Event ev;
 
 	init();
-
-	/* XXX */
-	noobspawner = SDL_AddTimer(302, spawn_cb, NULL);
 
 	while (SDL_WaitEvent(&ev))
 		handle_event(&ev);
