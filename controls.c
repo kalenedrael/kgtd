@@ -3,7 +3,7 @@
 
 #define SPACING 40
 #define NPOINTS 36
-#define PRELIGHT_SIZE 4
+#define PRELIGHT_SIZE 5
 
 float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
 float seg2[] = {0.45,0.1 , 0.55,0.1 , 0.55,0.45, 0.45,0.45};
@@ -74,14 +74,14 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	ay = (y / GRID_SIZE) * GRID_SIZE;
 
 	glPushMatrix();
-	glTranslatef(ax, ay, 0);
-	glCallList(DISPLAY_LIST_GRID);
+	glTranslatef(x, y, 0);
+	glCallList(DISPLAY_LIST_OCCLUDE);
 	glPopMatrix();
 
 	glPushMatrix();
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glTranslatef(x, y, 0);
-	glCallList(DISPLAY_LIST_OCCLUDE);
+	glBlendFunc(GL_DST_ALPHA, GL_ZERO);
+	glTranslatef(ax, ay, 0);
+	glCallList(DISPLAY_LIST_GRID);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -126,9 +126,9 @@ void controls_init(void)
 
 	glNewList(DISPLAY_LIST_OCCLUDE, GL_COMPILE);
 	glBegin(GL_TRIANGLE_FAN);
-	glColor4f(0.0, 0.0, 0.0, 0.0);
-	glVertex2f(0.0, 0.0);
 	glColor4f(0.0, 0.0, 0.0, 1.0);
+	glVertex2f(0.0, 0.0);
+	glColor4f(0.0, 0.0, 0.0, 0.0);
 	for(i = 0; i <= NPOINTS; i++) {
 		glVertex2f(PRELIGHT_SIZE * GRID_SIZE * sinf(i * (2 * M_PI / NPOINTS)),
 		           PRELIGHT_SIZE * GRID_SIZE * cosf(i * (2 * M_PI / NPOINTS)));
@@ -139,8 +139,8 @@ void controls_init(void)
 
 void controls_draw(int x, int y, state_t *state)
 {
-	draw_scores(state);
 	draw_prelight_grid(x, y, state);
+	draw_scores(state);
 }
 
 void controls_click(int x, int y, state_t *state)
