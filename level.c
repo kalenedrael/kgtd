@@ -3,8 +3,6 @@
 #include "state.h"
 #include "grid_objs.h"
 
-static int path[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
-
 static wave_t wave_2 = {
 	.next = NULL,
 	.noobs = 50,
@@ -23,6 +21,7 @@ static wave_t wave_1 = {
 	.shield_type = SHIELD_HARD
 };
 
+static int path[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
 static level_t level_1 = {
 	.next = NULL,
 	.map = { path, sizeof(path)/sizeof(*path), 2, 3 },

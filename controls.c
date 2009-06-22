@@ -117,7 +117,7 @@ void controls_init(void)
 		glVertex2f(i * GRID_SIZE, -PRELIGHT_SIZE * GRID_SIZE);
 		glVertex2f(i * GRID_SIZE, (PRELIGHT_SIZE + 1) * GRID_SIZE);
 	}
-	for(i = -3; i < 5; i++) {
+	for(i = -PRELIGHT_SIZE + 1; i < PRELIGHT_SIZE + 1; i++) {
 		glVertex2f(-PRELIGHT_SIZE * GRID_SIZE, i * GRID_SIZE);
 		glVertex2f((PRELIGHT_SIZE + 1) * GRID_SIZE, i * GRID_SIZE);
 	}
