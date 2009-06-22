@@ -3,7 +3,7 @@
 
 #define SPACING 40
 #define NPOINTS 36
-#define PRELIGHT_SIZE 5
+#define PRELIGHT_SIZE 4
 
 float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
 float seg2[] = {0.45,0.1 , 0.55,0.1 , 0.55,0.45, 0.45,0.45};
@@ -73,15 +73,25 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	ax = (x / GRID_SIZE) * GRID_SIZE;
 	ay = (y / GRID_SIZE) * GRID_SIZE;
 
+	glStencilFunc(GL_ALWAYS, 1, 1);
+	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 	glPushMatrix();
 	glTranslatef(x, y, 0);
 	glCallList(DISPLAY_LIST_OCCLUDE);
 	glPopMatrix();
+	glStencilFunc(GL_EQUAL, 1, 1);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
 	glPushMatrix();
-	glBlendFunc(GL_DST_ALPHA, GL_ZERO);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glTranslatef(ax, ay, 0);
 	glCallList(DISPLAY_LIST_GRID);
+	glPopMatrix();
+	glStencilFunc(GL_ALWAYS, 1, 1);
+
+	glPushMatrix();
+	glTranslatef(x, y, 0);
+	glCallList(DISPLAY_LIST_OCCLUDE);
 	glPopMatrix();
 
 	glPushMatrix();
@@ -111,7 +121,7 @@ void controls_init(void)
 	}
 
 	glNewList(DISPLAY_LIST_GRID, GL_COMPILE);
-	glColor4f(1.0, 1.0, 1.0, 0.0);
+	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
 	for(i = -PRELIGHT_SIZE + 1; i < PRELIGHT_SIZE + 1; i++) {
 		glVertex2f(i * GRID_SIZE, -PRELIGHT_SIZE * GRID_SIZE);
@@ -126,9 +136,9 @@ void controls_init(void)
 
 	glNewList(DISPLAY_LIST_OCCLUDE, GL_COMPILE);
 	glBegin(GL_TRIANGLE_FAN);
-	glColor4f(0.0, 0.0, 0.0, 1.0);
-	glVertex2f(0.0, 0.0);
 	glColor4f(0.0, 0.0, 0.0, 0.0);
+	glVertex2f(0.0, 0.0);
+	glColor4f(0.0, 0.0, 0.0, 1.0);
 	for(i = 0; i <= NPOINTS; i++) {
 		glVertex2f(PRELIGHT_SIZE * GRID_SIZE * sinf(i * (2 * M_PI / NPOINTS)),
 		           PRELIGHT_SIZE * GRID_SIZE * cosf(i * (2 * M_PI / NPOINTS)));

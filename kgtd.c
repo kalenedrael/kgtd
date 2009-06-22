@@ -144,7 +144,8 @@ static void update(void)
 
 static void draw(void)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+	        GL_STENCIL_BUFFER_BIT);
 
 	controls_draw(mouse_x, mouse_y, &kgtd_state);
 	path_draw_all(&kgtd_state);
@@ -173,8 +174,9 @@ static void init(void)
 		printf("Init failed: %s\n", SDL_GetError());
 		exit(1);
 	}
-	screen = SDL_SetVideoMode(XRES, YRES, 32, SDL_OPENGL);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	screen = SDL_SetVideoMode(XRES, YRES, 32, SDL_OPENGL | SDL_HWSURFACE);
 	if(!screen) {
 		printf("Video mode init failed: %s\n", SDL_GetError());
 		exit(1);
@@ -193,6 +195,7 @@ static void init(void)
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glEnable(GL_BLEND);
+	glEnable(GL_STENCIL_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	glDisable(GL_LIGHTING);
