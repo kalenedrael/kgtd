@@ -22,7 +22,6 @@ struct wave_t {
 struct level_t {
 	level_t *next;
 	map_t map;
-	int n_waves;
 	wave_t *waves;
 };
 

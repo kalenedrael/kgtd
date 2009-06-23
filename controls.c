@@ -96,10 +96,13 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 
 	glPushMatrix();
 	glTranslatef(ax + (GRID_SIZE - TOWER_SIZE) / 2,
-	             ay + (GRID_SIZE - TOWER_SIZE) / 2, 0);
+	             ay + (GRID_SIZE - TOWER_SIZE) / 2, 0.0);
 	glColor3fv(attr_colors[state->type_selected]);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glCallList(DISPLAY_LIST_TOWER);
+	glTranslatef(TOWER_SIZE/2, TOWER_SIZE/2, 0.0);
+	glScalef(200.0, 200.0, 0);
+	glCallList(DISPLAY_LIST_CIRCLE);
 	glPopMatrix();
 }
 
@@ -142,6 +145,15 @@ void controls_init(void)
 	for(i = 0; i <= NPOINTS; i++) {
 		glVertex2f(PRELIGHT_SIZE * GRID_SIZE * sinf(i * (2 * M_PI / NPOINTS)),
 		           PRELIGHT_SIZE * GRID_SIZE * cosf(i * (2 * M_PI / NPOINTS)));
+	}
+	glEnd();
+	glEndList();
+
+	glNewList(DISPLAY_LIST_CIRCLE, GL_COMPILE);
+	glBegin(GL_LINE_STRIP);
+	for(i = 0; i <= NPOINTS; i++) {
+		glVertex2f(sinf(i * (2 * M_PI / NPOINTS)),
+		           cosf(i * (2 * M_PI / NPOINTS)));
 	}
 	glEnd();
 	glEndList();
