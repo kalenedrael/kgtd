@@ -1,40 +1,48 @@
 #include "damage.h"
 
-#if 0
 /* all are /128 */
-static int damage_table[][] = {
-	{}, /* ATTR_MASS_KINETIC */
-	{}, /* ATTR_MASS_KINETIC_APCR */
-	{}, /* ATTR_MASS_KINETIC_APFSDS */
-	{}, /* ATTR_MASS_KINETIC_DU */
+static int armor_dmg[][5] = {
+	/* base, composite, reactive, reflective, regen */
+	{128,  96, 128, 140,   0}, /* ENERGY_PARTICLE_PLASMA */
+	{128, 128, 168, 168, -32}, /* ENERGY_PARTICLE_LIGHTNING */
+	{128,  72,  72,  32, -32}, /* ENERGY_LASER_CW */
+	{12800, 128, 128, 128, 128}, /* ENERGY_LASER_PULSE */
+	{128,  96, 128, 140, 128}, /* MASS_KINETIC_APCR */
+	{128, 128, 168, 168, 192}, /* MASS_KINETIC_APFSDS */
+	{128, 168, 180, 192, 192}, /* MASS_KINETIC_DU */
+	{128,  72,  72, 128, 128}, /* MASS_EXPLOSIVE_HE */
+	{128,  96, 128, 128, 128}, /* MASS_EXPLOSIVE_HEAT */
+	{128, 128,  96, 128, 128}, /* MASS_EXPLOSIVE_HESH */
 };
-#endif
 
+static inline int dmg_normalize_armor(noob_t *noob, int damage, attr_t attr)
+{
+	int i;
+
+	damage = (damage * armor_dmg[attr][0]) / 128;
+	for(i = 0; i < 4; i++) {
+		if(noob->armor_type & (1 << i))
+			damage = (damage * armor_dmg[attr][i+1]) / 128;
+	}
+	return damage;
+}
+
+/* XXX no shield damage yet */
 void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 {
-	switch(attr) {
-	case ATTR_MASS_KINETIC:
-	case ATTR_MASS_KINETIC_APCR:
-	case ATTR_MASS_KINETIC_APFSDS:
-	case ATTR_MASS_KINETIC_DU:
-	case ATTR_MASS_EXPLOSIVE_HE:
-	case ATTR_MASS_EXPLOSIVE_HEAT:
-		noob->hp -= damage;
-		break;
-	case ATTR_MASS_EXPLOSIVE_HESH:
-	case ATTR_ENERGY_LASER_PULSE:
-		noob->hp -= damage;
-		break;
-	case ATTR_ENERGY_PARTICLE_LIGHTNING:
-		noob->stun_time = 50;
-	case ATTR_ENERGY_PARTICLE_PLASMA:
-	case ATTR_ENERGY_LASER_CW:
-		noob->hp -= (damage * dt) / 1000;
-		break;
-	case ATTR_NONE:
+	if(attr == ATTR_NONE) {
 		printf("ATTR_NONE: fail?\n");
+		return;
 	}
 
+	if(attr == ATTR_ENERGY_PARTICLE_LIGHTNING)
+		noob->stun_time = 50;
+
+	damage = dmg_normalize_armor(noob, damage, attr);
+	if(attr <= ATTR_ENERGY_LASER_PULSE)
+		noob->hp -= (damage * dt) / 1024;
+	else
+		noob->hp -= damage;
 }
 
 int damage_not_worthwhile(noob_t *noob, attr_t attr)
@@ -46,4 +54,3 @@ int damage_not_worthwhile(noob_t *noob, attr_t attr)
 
 	return 0;
 }
-

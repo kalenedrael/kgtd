@@ -2,7 +2,7 @@
 
 void state_reset(state_t *state)
 {
-	state->type_selected = ATTR_MASS_KINETIC;
+	state->type_selected = ATTR_MASS_KINETIC_APCR;
 	state->gil = 0;
 	state->score = 0;
 	state->kills = 0;

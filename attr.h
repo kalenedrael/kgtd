@@ -3,31 +3,28 @@
 
 #include "globals.h"
 
-#define ATTR_NUM 11
+#define ATTR_NUM 10
 
 typedef enum attr {
-	/* mass base type */
-	ATTR_MASS_KINETIC = 0,
-
 	/* energy -> particle types */
-	ATTR_ENERGY_PARTICLE_PLASMA = 1,
-	ATTR_ENERGY_PARTICLE_LIGHTNING = 2,
+	ATTR_ENERGY_PARTICLE_PLASMA = 0,
+	ATTR_ENERGY_PARTICLE_LIGHTNING = 1,
 
 	/* energy -> laser types */
+	ATTR_ENERGY_LASER_CW = 2,
 	ATTR_ENERGY_LASER_PULSE = 3,
-	ATTR_ENERGY_LASER_CW = 4,
 
 	/* mass -> kinetic */
-	ATTR_MASS_KINETIC_APCR = 5,
-	ATTR_MASS_KINETIC_APFSDS = 6,
-	ATTR_MASS_KINETIC_DU = 7,
+	ATTR_MASS_KINETIC_APCR = 4,
+	ATTR_MASS_KINETIC_APFSDS = 5,
+	ATTR_MASS_KINETIC_DU = 6,
 
 	/* mass -> explosive */
-	ATTR_MASS_EXPLOSIVE_HE = 8,
-	ATTR_MASS_EXPLOSIVE_HEAT = 9,
-	ATTR_MASS_EXPLOSIVE_HESH = 10,
+	ATTR_MASS_EXPLOSIVE_HE = 7,
+	ATTR_MASS_EXPLOSIVE_HEAT = 8,
+	ATTR_MASS_EXPLOSIVE_HESH = 9,
 
-	ATTR_NONE = 11
+	ATTR_NONE = 10
 } attr_t;
 
 extern float attr_colors[ATTR_NUM][3];

@@ -38,36 +38,33 @@ static void handle_event(SDL_Event *ev)
 		SDLKey sym = ev->key.keysym.sym;
 		switch(sym) {
 		case SDLK_0:
-			kgtd_state.type_selected = ATTR_MASS_KINETIC;
-			break;
-		case SDLK_1:
 			kgtd_state.type_selected = ATTR_ENERGY_PARTICLE_PLASMA;
 			break;
-		case SDLK_2:
+		case SDLK_1:
 			kgtd_state.type_selected = ATTR_ENERGY_PARTICLE_LIGHTNING;
 			break;
-		case SDLK_3:
+		case SDLK_2:
 			kgtd_state.type_selected = ATTR_ENERGY_LASER_PULSE;
 			break;
-		case SDLK_4:
+		case SDLK_3:
 			kgtd_state.type_selected = ATTR_ENERGY_LASER_CW;
 			break;
-		case SDLK_5:
+		case SDLK_4:
 			kgtd_state.type_selected = ATTR_MASS_KINETIC_APCR;
 			break;
-		case SDLK_6:
+		case SDLK_5:
 			kgtd_state.type_selected = ATTR_MASS_KINETIC_APFSDS;
 			break;
-		case SDLK_7:
+		case SDLK_6:
 			kgtd_state.type_selected = ATTR_MASS_KINETIC_DU;
 			break;
-		case SDLK_8:
+		case SDLK_7:
 			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HE;
 			break;
-		case SDLK_9:
+		case SDLK_8:
 			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HEAT;
 			break;
-		case SDLK_MINUS:
+		case SDLK_9:
 			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HESH;
 			break;
 		case SDLK_EQUALS:
@@ -214,7 +211,7 @@ static void init(void)
 		printf("Error setting update timer...\n");
 		exit(1);
 	}
-	if(SDL_AddTimer(302, spawn_cb, NULL) == NULL) {
+	if(SDL_AddTimer(150, spawn_cb, NULL) == NULL) {
 		printf("Error setting spawn timer...\n");
 		exit(1);
 	}

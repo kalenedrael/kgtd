@@ -71,7 +71,6 @@ static void draw_each(bullet_t *bullet)
 		return;
 
 	switch(bullet->attr) {
-	case ATTR_MASS_KINETIC:
 	case ATTR_MASS_KINETIC_APCR:
 	case ATTR_MASS_KINETIC_APFSDS:
 	case ATTR_MASS_KINETIC_DU:
@@ -117,7 +116,6 @@ static void update_each(bullet_t *bullet, float dt, int idt)
 		idt = bullet->age - bullet->max_age;
 
 	switch(bullet->attr) {
-	case ATTR_MASS_KINETIC:
 	case ATTR_MASS_KINETIC_APCR:
 	case ATTR_MASS_KINETIC_APFSDS:
 	case ATTR_MASS_KINETIC_DU:
