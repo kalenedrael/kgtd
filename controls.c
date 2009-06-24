@@ -3,7 +3,7 @@
 
 #define SPACING 40
 #define NPOINTS 36
-#define PRELIGHT_SIZE 4
+#define PRELIGHT_SIZE 7
 
 float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
 float seg2[] = {0.45,0.1 , 0.55,0.1 , 0.55,0.45, 0.45,0.45};

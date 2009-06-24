@@ -1,5 +1,15 @@
 #include "damage.h"
 
+#if 0
+/* all are /128 */
+static int damage_table[][] = {
+	{}, /* ATTR_MASS_KINETIC */
+	{}, /* ATTR_MASS_KINETIC_APCR */
+	{}, /* ATTR_MASS_KINETIC_APFSDS */
+	{}, /* ATTR_MASS_KINETIC_DU */
+};
+#endif
+
 void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 {
 	switch(attr) {

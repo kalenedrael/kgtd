@@ -29,7 +29,7 @@ void noob_init()
 	glEndList();
 }
 
-noob_t *noob_spawn(int hp, int shield, unsigned char armor_type,
+noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
                    unsigned char shield_type, state_t *state)
 {
 	noob_obj *n_obj = noob_first_free;
@@ -42,6 +42,7 @@ noob_t *noob_spawn(int hp, int shield, unsigned char armor_type,
 	noob_t *noob = &(n_obj->n);
 	noob->x = state->path->x;
 	noob->y = state->path->y;
+	noob->speed = speed;
 	noob->hp = hp;
 	noob->max_hp = hp;
 	noob->shield = shield;
@@ -129,7 +130,7 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 		return;
 	}
 
-	for(dl = dt * NOOB_SPEED_MULT; dl > 0; /* no */) {
+	for(dl = dt * noob->speed; dl > 0; /* no */) {
 		path = noob->path;
 		if(path == NULL) {
 			noob->is_dead = NOOB_LEAKED;

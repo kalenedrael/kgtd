@@ -25,6 +25,7 @@ enum {
 struct noob_t {
 	float x;
 	float y;
+	float speed;
 	int hp;
 	int max_hp;
 	int shield;
@@ -45,7 +46,7 @@ typedef union noob_obj {
 } noob_obj;
 
 void noob_init();
-noob_t *noob_spawn(int hp, int shield, unsigned char armor_type,
+noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
                    unsigned char shield_type, state_t *state);
 void noob_destroy(noob_t *noob, state_t *state);
 
@@ -57,4 +58,3 @@ void noob_traverse(void (*traverse_fn)(noob_t*, void*), void *data);
 noob_t *noob_find_target(float x, float y, attr_t attr);
 
 #endif
-
