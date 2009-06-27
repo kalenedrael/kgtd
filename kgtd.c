@@ -211,7 +211,7 @@ static void init(void)
 		printf("Error setting update timer...\n");
 		exit(1);
 	}
-	if(SDL_AddTimer(150, spawn_cb, NULL) == NULL) {
+	if(SDL_AddTimer(250, spawn_cb, NULL) == NULL) {
 		printf("Error setting spawn timer...\n");
 		exit(1);
 	}

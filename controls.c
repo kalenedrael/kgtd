@@ -1,9 +1,12 @@
 #include "controls.h"
 #include "state.h"
+#include "grid_objs.h"
 
 #define SPACING 40
 #define NPOINTS 36
-#define PRELIGHT_SIZE 7
+#define PRELIGHT_SIZE 4
+#define X_WIDTH 2
+#define X_SIZE 20
 
 float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
 float seg2[] = {0.45,0.1 , 0.55,0.1 , 0.55,0.45, 0.45,0.45};
@@ -99,10 +102,17 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	             ay + (GRID_SIZE - TOWER_SIZE) / 2, 0.0);
 	glColor3fv(attr_colors[state->type_selected]);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glCallList(DISPLAY_LIST_TOWER);
-	glTranslatef(TOWER_SIZE/2, TOWER_SIZE/2, 0.0);
-	glScalef(200.0, 200.0, 0);
-	glCallList(DISPLAY_LIST_CIRCLE);
+
+	if(grid[ay/GRID_SIZE][ax/GRID_SIZE].type != GRID_TYPE_NONE) {
+		glTranslatef(TOWER_SIZE/2, TOWER_SIZE/2, 0.0);
+		glCallList(DISPLAY_LIST_X);
+	}
+	else {
+		glCallList(DISPLAY_LIST_TOWER);
+		glTranslatef(TOWER_SIZE/2, TOWER_SIZE/2, 0.0);
+		glScalef(200.0, 200.0, 0);
+		glCallList(DISPLAY_LIST_CIRCLE);
+	}
 	glPopMatrix();
 }
 
@@ -155,6 +165,30 @@ void controls_init(void)
 		glVertex2f(sinf(i * (2 * M_PI / NPOINTS)),
 		           cosf(i * (2 * M_PI / NPOINTS)));
 	}
+	glEnd();
+	glEndList();
+
+	glNewList(DISPLAY_LIST_X, GL_COMPILE);
+	glColor3f(1.0, 0.0, 0.0);
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex2f(0.0, 0.0);
+	glVertex2f(X_WIDTH, 0.0);
+	glVertex2f(X_SIZE + X_WIDTH, X_SIZE);
+	glVertex2f(X_SIZE + X_WIDTH, X_SIZE + X_WIDTH);
+	glVertex2f(X_SIZE, X_SIZE + X_WIDTH);
+	glVertex2f(0.0, X_WIDTH);
+	glVertex2f(-X_SIZE, X_SIZE + X_WIDTH);
+	glVertex2f(-X_SIZE - X_WIDTH, X_SIZE + X_WIDTH);
+	glVertex2f(-X_SIZE - X_WIDTH, X_SIZE);
+	glVertex2f(-X_WIDTH, 0.0);
+	glVertex2f(-X_SIZE - X_WIDTH, -X_SIZE);
+	glVertex2f(-X_SIZE - X_WIDTH, -X_SIZE - X_WIDTH);
+	glVertex2f(-X_SIZE, -X_SIZE - X_WIDTH);
+	glVertex2f(0.0, -X_WIDTH);
+	glVertex2f(X_SIZE, -X_SIZE - X_WIDTH);
+	glVertex2f(X_SIZE + X_WIDTH, -X_SIZE - X_WIDTH);
+	glVertex2f(X_SIZE + X_WIDTH, -X_SIZE);
+	glVertex2f(X_WIDTH, 0.0);
 	glEnd();
 	glEndList();
 }

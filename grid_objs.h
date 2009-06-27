@@ -5,7 +5,7 @@
 #include "attr.h"
 #include "variable_queue.h"
 
-typedef enum __attribute__((__packed__)) grid_type {
+typedef enum grid_type {
 	GRID_TYPE_NONE,
 	GRID_TYPE_TOWER,
 	GRID_TYPE_PATH

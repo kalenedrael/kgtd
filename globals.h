@@ -42,12 +42,18 @@ typedef struct wave_t wave_t;
 typedef struct level_t level_t;
 
 enum {
+	/* various objects */
 	DISPLAY_LIST_TOWER = 1,
 	DISPLAY_LIST_NOOB = 2,
 	DISPLAY_LIST_PATH = 3,
+
+	/* controls */
 	DISPLAY_LIST_GRID = 4,
 	DISPLAY_LIST_OCCLUDE = 5,
 	DISPLAY_LIST_CIRCLE = 6,
+	DISPLAY_LIST_X = 7,
+
+	/* numerals */
 	DISPLAY_LIST_NUM_BASE = 10,
 };
 
