@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "attr.h"
+#include "util.h"
 #include "variable_queue.h"
 
 typedef enum grid_type {
@@ -13,21 +14,20 @@ typedef enum grid_type {
 
 struct tower_t {
 	grid_type type;
-	float x;
-	float y;
-	int power;
-	int energy;
-	int energymax;
+	pos_t pos;
+	unsigned int power;
+	unsigned int energy;
+	unsigned int energymax;
 	float range;
 	attr_t attr;
 	noob_t *target;
+	void (*update)(tower_t*, int);
 	Q_NEW_LINK(tower_t) list;
 };
 
 struct path_t {
 	grid_type type;
-	float x;
-	float y;
+	pos_t pos;
 	struct path_t *next;
 };
 
@@ -41,12 +41,13 @@ extern grid_t grid[GRID_Y][GRID_X];
 void grid_init();
 
 /* tower stuff */
-tower_t *tower_new(int x, int y, int power, attr_t attr);
+tower_t *tower_new_cw(int x, int y, unsigned int power, attr_t attr);
+tower_t *tower_new_pulse(int x, int y, unsigned int power, attr_t attr);
+tower_t *tower_new_proj(int x, int y, unsigned int power, attr_t attr);
 void tower_destroy(int x, int y);
-void tower_update_all(float dt, int idt);
+void tower_update_all(int dt);
 void tower_draw_all();
 void tower_init();
-void tower_traverse(void (*traverse_fn)(tower_t *, void *), void *data);
 
 /* path stuff */
 path_t *path_new(int x, int y);
@@ -55,4 +56,3 @@ void path_load(state_t *state, map_t *map);
 void path_draw_all(state_t *state);
 
 #endif
-

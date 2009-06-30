@@ -98,18 +98,15 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(ax + (GRID_SIZE - TOWER_SIZE) / 2,
-	             ay + (GRID_SIZE - TOWER_SIZE) / 2, 0.0);
+	glTranslatef(ax + GRID_SIZE/2, ay + GRID_SIZE/2, 0.0);
 	glColor3fv(attr_colors[state->type_selected]);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	if(grid[ay/GRID_SIZE][ax/GRID_SIZE].type != GRID_TYPE_NONE) {
-		glTranslatef(TOWER_SIZE/2, TOWER_SIZE/2, 0.0);
 		glCallList(DISPLAY_LIST_X);
 	}
 	else {
 		glCallList(DISPLAY_LIST_TOWER);
-		glTranslatef(TOWER_SIZE/2, TOWER_SIZE/2, 0.0);
 		glScalef(200.0, 200.0, 0);
 		glCallList(DISPLAY_LIST_CIRCLE);
 	}

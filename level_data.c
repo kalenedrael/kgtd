@@ -39,7 +39,7 @@ static wave_t wave12 = {
 	.speed = NOOB_DEFAULT_SPEED/2,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.shield = 0,
-	.armor_type = 0,
+	.armor_type = ARMOR_REGEN,
 	.shield_type = SHIELD_HARD
 };
 

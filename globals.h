@@ -20,7 +20,7 @@
 #define BULLET_SIZE 3
 #define BULLET_MAX_AGE 1000
 #define BULLET_PULSE_MAX_AGE 100
-#define BULLET_DEFAULT_SPEED 320.1
+#define BULLET_SPEED 320.1
 
 /* XXX */
 #define BULLET_MAX_RANGE 40000.0
@@ -28,7 +28,7 @@
 /* noob constants */
 #define NOOBS_NUM_MAX 1024
 #define NOOB_DEFAULT_HP 932256
-#define NOOB_DEFAULT_SPEED 50.0
+#define NOOB_DEFAULT_SPEED 20.0
 #define NOOB_SIZE 15
 
 /* some forward declarations */

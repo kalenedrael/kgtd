@@ -40,8 +40,7 @@ noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
 	noob_first_free = n_obj->next;
 
 	noob_t *noob = &(n_obj->n);
-	noob->x = state->path->x;
-	noob->y = state->path->y;
+	noob->pos = state->path->pos;
 	noob->speed = speed;
 	noob->hp = hp;
 	noob->max_hp = hp;
@@ -75,7 +74,7 @@ void noob_destroy(noob_t *noob, state_t *state)
 	noob_first_free = n_obj;
 }
 
-static void draw_each(noob_t *noob, void *bs)
+static void draw_each(noob_t *noob)
 {
 	float scale;
 
@@ -88,7 +87,7 @@ static void draw_each(noob_t *noob, void *bs)
 
 	scale = 0.2 + (float)noob->hp / noob->max_hp;
 	glPushMatrix();
-	glTranslatef(noob->x, noob->y, 0);
+	glTranslatef(noob->pos.x, noob->pos.y, 0);
 	glScalef(scale, scale, 1.0);
 	glCallList(DISPLAY_LIST_NOOB);
 	glPopMatrix();
@@ -136,14 +135,14 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 			noob->is_dead = NOOB_LEAKED;
 			return;
 		}
-		if(noob->x == path->x) {
-			dl -= move_dir(dl, &noob->y, path->y);
-			if(noob->y == path->y)
+		if(noob->pos.x == path->pos.x) {
+			dl -= move_dir(dl, &noob->pos.y, path->pos.y);
+			if(noob->pos.y == path->pos.y)
 				noob->path = path->next;
 		}
 		else {
-			dl -= move_dir(dl, &noob->x, path->x);
-			if(noob->x == path->x)
+			dl -= move_dir(dl, &noob->pos.x, path->pos.x);
+			if(noob->pos.x == path->pos.x)
 				noob->path = path->next;
 		}
 	}
@@ -159,38 +158,28 @@ void noob_update_all(float dt, state_t *state)
 
 void noob_draw_all()
 {
-	noob_traverse(draw_each, NULL);
-}
-
-void noob_traverse(void (*traverse_fn)(noob_t *, void *), void *data)
-{
 	noob_t *cur;
 
 	Q_FOREACH(cur, &noob_list, list)
-		traverse_fn(cur, data);
+		draw_each(cur);
 }
 
-noob_t *noob_find_target(float x, float y, attr_t attr)
+noob_t *noob_find_target(pos_t *pos, attr_t attr)
 {
 	/* XXX max_range wtf */
 
-	float d_closest = BULLET_MAX_RANGE;
-	noob_t *n_closest = NULL, *cur;
+	float min_range = BULLET_MAX_RANGE, mag;
+	noob_t *noob = NULL, *cur;
 
 	Q_FOREACH(cur, &noob_list, list) {
-		float d_x, d_y, mag;
-
 		if(damage_not_worthwhile(cur, attr))
 			continue;
 
-		d_x = cur->x - x;
-		d_y = cur->y - y;
-		mag = d_x * d_x + d_y * d_y;
-		if(mag < d_closest) {
-			d_closest = mag;
-			n_closest = cur;
+		mag = distance2(pos, &cur->pos);
+		if(mag < min_range) {
+			min_range = mag;
+			noob = cur;
 		}
 	}
-
-	return n_closest;
+	return noob;
 }

@@ -13,8 +13,8 @@ enum {
 path_t *path_new(int x, int y)
 {
 	grid[y][x].type = GRID_TYPE_PATH;
-	grid[y][x].p.x = x * GRID_SIZE + GRID_SIZE/2;
-	grid[y][x].p.y = y * GRID_SIZE + GRID_SIZE/2;
+	grid[y][x].p.pos.x = x * GRID_SIZE + GRID_SIZE/2;
+	grid[y][x].p.pos.y = y * GRID_SIZE + GRID_SIZE/2;
 	return &(grid[y][x].p);
 }
 
@@ -44,7 +44,7 @@ static int rel_dir(int x, int y, path_t *rel)
 static void draw_one(int cx, int cy, path_t *cur, path_t *prev)
 {
 	int rel_prev, rel_next;
-	float x = cur->x, y = cur->y;
+	float x = cur->pos.x, y = cur->pos.y;
 
 	rel_prev = rel_dir(cx, cy, prev);
 	rel_next = rel_dir(cx, cy, cur->next);
@@ -138,8 +138,8 @@ void path_load(state_t *state, map_t *map)
 	glNewList(DISPLAY_LIST_PATH, GL_COMPILE);
 	glBegin(GL_QUADS);
 	for(cur = state->path; cur != NULL; cur = cur->next) {
-		x = cur->x;
-		y = cur->y;
+		x = cur->pos.x;
+		y = cur->pos.y;
 		if(cur->next == NULL)
 			glColor3f(0.9, 0.2, 0.2);
 		else if(cur == state->path)

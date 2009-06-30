@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "attr.h"
+#include "util.h"
 #include "variable_queue.h"
 
 enum {
@@ -23,8 +24,7 @@ enum {
 #define ARMOR_REGEN      8
 
 struct noob_t {
-	float x;
-	float y;
+	pos_t pos;
 	float speed;
 	int hp;
 	int max_hp;
@@ -32,9 +32,9 @@ struct noob_t {
 	int max_shield;
 	path_t *path;
 	Q_NEW_LINK(noob_t) list;
+	unsigned int refcnt;
 	unsigned char armor_type;
 	unsigned char shield_type;
-	unsigned int refcnt;
 	unsigned char future_stun;
 	unsigned char stun_time;
 	unsigned char is_dead;
@@ -53,8 +53,6 @@ void noob_destroy(noob_t *noob, state_t *state);
 void noob_draw_all();
 void noob_update_all(float dt, state_t *state);
 
-void noob_traverse(void (*traverse_fn)(noob_t*, void*), void *data);
-
-noob_t *noob_find_target(float x, float y, attr_t attr);
+noob_t *noob_find_target(pos_t *pos, attr_t attr);
 
 #endif

@@ -29,6 +29,29 @@ static int mouse_x, mouse_y;
 /* game state */
 state_t kgtd_state;
 
+void _tower_new(int x, int y, unsigned int power, attr_t attr)
+{
+	switch(attr) {
+	case ATTR_ENERGY_PARTICLE_LIGHTNING:
+	case ATTR_ENERGY_LASER_PULSE:
+		tower_new_pulse(x, y, power, attr);
+		break;
+	case ATTR_ENERGY_LASER_CW:
+	case ATTR_ENERGY_PARTICLE_PLASMA:
+		tower_new_cw(x, y, power, attr);
+		break;
+	case ATTR_MASS_KINETIC_APCR:
+	case ATTR_MASS_KINETIC_APFSDS:
+	case ATTR_MASS_KINETIC_DU:
+	case ATTR_MASS_EXPLOSIVE_HE:
+	case ATTR_MASS_EXPLOSIVE_HEAT:
+	case ATTR_MASS_EXPLOSIVE_HESH:
+		tower_new_proj(x, y, power, attr);
+	case ATTR_NONE:
+		break;
+	}
+}
+
 static void handle_event(SDL_Event *ev)
 {
 	switch(ev->type) {
@@ -36,45 +59,22 @@ static void handle_event(SDL_Event *ev)
 		exit(0);
 	case SDL_KEYUP: {
 		SDLKey sym = ev->key.keysym.sym;
+		attr_t type = ATTR_NONE;
 		switch(sym) {
-		case SDLK_0:
-			kgtd_state.type_selected = ATTR_ENERGY_PARTICLE_PLASMA;
-			break;
-		case SDLK_1:
-			kgtd_state.type_selected = ATTR_ENERGY_PARTICLE_LIGHTNING;
-			break;
-		case SDLK_2:
-			kgtd_state.type_selected = ATTR_ENERGY_LASER_PULSE;
-			break;
-		case SDLK_3:
-			kgtd_state.type_selected = ATTR_ENERGY_LASER_CW;
-			break;
-		case SDLK_4:
-			kgtd_state.type_selected = ATTR_MASS_KINETIC_APCR;
-			break;
-		case SDLK_5:
-			kgtd_state.type_selected = ATTR_MASS_KINETIC_APFSDS;
-			break;
-		case SDLK_6:
-			kgtd_state.type_selected = ATTR_MASS_KINETIC_DU;
-			break;
-		case SDLK_7:
-			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HE;
-			break;
-		case SDLK_8:
-			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HEAT;
-			break;
-		case SDLK_9:
-			kgtd_state.type_selected = ATTR_MASS_EXPLOSIVE_HESH;
-			break;
-		case SDLK_EQUALS:
-			kgtd_state.type_selected = ATTR_NONE;
-			break;
-		case SDLK_r:
-			reset();
-			break;
+		case SDLK_0: type = ATTR_ENERGY_PARTICLE_PLASMA; break;
+		case SDLK_1: type = ATTR_ENERGY_PARTICLE_LIGHTNING; break;
+		case SDLK_2: type = ATTR_ENERGY_LASER_PULSE; break;
+		case SDLK_3: type = ATTR_ENERGY_LASER_CW; break;
+		case SDLK_4: type = ATTR_MASS_KINETIC_APCR; break;
+		case SDLK_5: type = ATTR_MASS_KINETIC_APFSDS; break;
+		case SDLK_6: type = ATTR_MASS_KINETIC_DU; break;
+		case SDLK_7: type = ATTR_MASS_EXPLOSIVE_HE; break;
+		case SDLK_8: type = ATTR_MASS_EXPLOSIVE_HEAT; break;
+		case SDLK_9: type = ATTR_MASS_EXPLOSIVE_HESH; break;
+		case SDLK_r: reset(); break;
 		default: break;
 		}
+		kgtd_state.type_selected = type;
 		return;
 	}
 	case SDL_MOUSEBUTTONUP: {
@@ -86,7 +86,7 @@ static void handle_event(SDL_Event *ev)
 		/* XXX */
 		if(ev->button.button == SDL_BUTTON_LEFT &&
 		   kgtd_state.type_selected != ATTR_NONE)
-			tower_new(gx, gy, 252, kgtd_state.type_selected);
+			_tower_new(gx, gy, 252, kgtd_state.type_selected);
 		return;
 	}
 	case SDL_MOUSEMOTION:
@@ -133,7 +133,7 @@ static void update(void)
 
 	noob_update_all(dt, &kgtd_state);
 	bullet_update_all(dt, idt);
-	tower_update_all(dt, idt);
+	tower_update_all(idt);
 	level_update(&kgtd_state);
 
 	oldtime = newtime;
