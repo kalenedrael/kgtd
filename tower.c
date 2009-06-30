@@ -93,14 +93,14 @@ static void update_cw(tower_t *tower, int dt)
 		return;
 	}
 
-	if(tower->target != NULL) {
-		cur_range = distance2(&tower->pos, &tower->target->pos);
-	}
-	else {
+	if(tower->target == NULL) {
 		tower->target = noob_find_target(&tower->pos, tower->attr);
 		if(tower->target == NULL)
 			return;
+		bullet_new_cw(&tower->pos, tower->power * 3000,
+		              tower->attr, tower->target);
 	}
+	cur_range = distance2(&tower->pos, &tower->target->pos);
 
 	if(cur_range > BULLET_MAX_RANGE ||
 	   damage_not_worthwhile(tower->target, tower->attr)) {

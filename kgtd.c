@@ -86,7 +86,7 @@ static void handle_event(SDL_Event *ev)
 		/* XXX */
 		if(ev->button.button == SDL_BUTTON_LEFT &&
 		   kgtd_state.type_selected != ATTR_NONE)
-			_tower_new(gx, gy, 252, kgtd_state.type_selected);
+			_tower_new(gx, gy, 100, kgtd_state.type_selected);
 		return;
 	}
 	case SDL_MOUSEMOTION:
