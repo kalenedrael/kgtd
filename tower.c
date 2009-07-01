@@ -21,6 +21,15 @@ void tower_init()
 	glVertex2f( TOWER_SIZE/2,  TOWER_SIZE/2);
 	glVertex2f( TOWER_SIZE/2, -TOWER_SIZE/2);
 	glEnd();
+
+	glColor3f(1.0, 1.0, 1.0);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
+	glVertex2f(-TOWER_SIZE/2,  TOWER_SIZE/2);
+	glVertex2f( TOWER_SIZE/2,  TOWER_SIZE/2);
+	glVertex2f( TOWER_SIZE/2, -TOWER_SIZE/2);
+	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
+	glEnd();
 	glEndList();
 }
 
