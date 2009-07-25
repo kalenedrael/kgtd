@@ -1,3 +1,7 @@
+/* @file bullet.h
+ * @brief bullet_t and bullet function declarations
+ */
+
 #ifndef _BULLET_H_
 #define _BULLET_H_
 

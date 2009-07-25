@@ -1,3 +1,9 @@
+/* @file attr.c
+ * @brief tower/bullet colors by attribute
+ *
+ * This will probably need to be eliminated soon.
+ */
+ 
 #include "attr.h"
 
 float attr_colors[ATTR_NUM][3] = {

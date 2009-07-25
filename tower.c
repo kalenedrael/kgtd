@@ -1,3 +1,7 @@
+/* @file tower.c
+ * @brief tower management functions
+ */
+
 #include <float.h>
 #include "grid_objs.h"
 #include "noob.h"
@@ -10,6 +14,7 @@ static void update_cw(tower_t *tower, int dt);
 static void update_pulse(tower_t *tower, int dt);
 static void update_proj(tower_t *tower, int dt);
 
+/* @brief initialize towers and tower display lists */
 void tower_init()
 {
 	Q_INIT_HEAD(&tower_list);
@@ -33,6 +38,7 @@ void tower_init()
 	glEndList();
 }
 
+/* @brief common tower init function */
 static tower_t *tower_new_common(int x, int y, unsigned int power, attr_t attr,
                                  void (*update)(tower_t*, int))
 {
@@ -56,21 +62,25 @@ static tower_t *tower_new_common(int x, int y, unsigned int power, attr_t attr,
 	return tower;
 }
 
+/* @brief creates a continuous-beam tower (red laser, blue plasma) */
 tower_t *tower_new_cw(int x, int y, unsigned int power, attr_t attr)
 {
 	return tower_new_common(x, y, power, attr, update_cw);
 }
 
+/* @brief creates a pulse-firing tower (pink laser, stun) */
 tower_t *tower_new_pulse(int x, int y, unsigned int power, attr_t attr)
 {
 	return tower_new_common(x, y, power, attr, update_pulse);
 }
 
+/* @brief creates a projectile tower */
 tower_t *tower_new_proj(int x, int y, unsigned int power, attr_t attr)
 {
 	return tower_new_common(x, y, power, attr, update_proj);
 }
 
+/* @brief destroys a tower */
 void tower_destroy(int x, int y)
 {
 	tower_t *tower = &(grid[x][y].t);
@@ -78,6 +88,7 @@ void tower_destroy(int x, int y)
 	grid[x][y].type = GRID_TYPE_NONE;
 }
 
+/* @brief common update function */
 static void update_common(tower_t *tower, int dt)
 {
 	float cur_range = FLT_MAX;
@@ -93,6 +104,12 @@ static void update_common(tower_t *tower, int dt)
 		tower->target = noob_find_target(&tower->pos, tower->attr);
 }
 
+/* @brief updates a continuous-beam tower
+ * 
+ * A continuous-beam tower fires until the target dies or goes out of range.
+ * Switching targets is not instantaneous since the tower must accumulate enough
+ * energy to fire before firing another beam.
+ */
 static void update_cw(tower_t *tower, int dt)
 {
 	float cur_range = FLT_MAX;
@@ -102,22 +119,31 @@ static void update_cw(tower_t *tower, int dt)
 		return;
 	}
 
+	/* no target; find one and fire at it */
 	if(tower->target == NULL) {
 		tower->target = noob_find_target(&tower->pos, tower->attr);
 		if(tower->target == NULL)
 			return;
-		bullet_new_cw(&tower->pos, tower->power * 3000,
+		bullet_new_cw(&tower->pos, tower->power * 3000 /* XXX damage fix */,
 		              tower->attr, tower->target);
+		return;
 	}
 	cur_range = distance2(&tower->pos, &tower->target->pos);
 
+	/* need to find new target */
 	if(cur_range > BULLET_MAX_RANGE ||
 	   damage_not_worthwhile(tower->target, tower->attr)) {
+		/* set target to NULL to search for new target */
 		tower->target = NULL;
 		tower->energy -= tower->energymax;
 	}
 }
 
+/* @brief update for pulse-type towers
+ * 
+ * The only difference between this and update_proj is the type of bullet
+ * created
+ */
 static void update_pulse(tower_t *tower, int dt)
 {
 	update_common(tower, dt);
@@ -128,6 +154,7 @@ static void update_pulse(tower_t *tower, int dt)
 	}
 }
 
+/* @brief update for projectile towers */
 static void update_proj(tower_t *tower, int dt)
 {
 	update_common(tower, dt);
@@ -138,6 +165,11 @@ static void update_proj(tower_t *tower, int dt)
 	}
 }
 
+/* @brief common tower draw function
+ *
+ * This probably needs to be changed in the future to draw different icons for
+ * different tower types.
+ */
 static void draw_each(tower_t *tower)
 {
 	float *clr = attr_colors[tower->attr];

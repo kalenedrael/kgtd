@@ -1,6 +1,9 @@
 #include "damage.h"
 
-/* all are /128 */
+/* @brief damage table
+ * all are fractions out of 128; 128 means no penalty or bonus
+ * this may be need to be refactored
+ */
 static int armor_dmg[][5] = {
 	/* base, composite, reactive, reflective, regen */
 	{128,  96, 128, 140,   0}, /* ENERGY_PARTICLE_PLASMA */
@@ -15,6 +18,7 @@ static int armor_dmg[][5] = {
 	{128, 128,  96, 128, 128}, /* MASS_EXPLOSIVE_HESH */
 };
 
+/* calculates damage after armor bonuses/penalties */
 static inline int dmg_normalize_armor(noob_t *noob, int damage, attr_t attr)
 {
 	int i;
@@ -40,11 +44,13 @@ void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 
 	damage = dmg_normalize_armor(noob, damage, attr);
 	if(attr <= ATTR_ENERGY_LASER_PULSE)
+		/* sort of like 1000, except power of two for speed -.- */
 		noob->hp -= (damage * dt) / 1024;
 	else
 		noob->hp -= damage;
 }
 
+/* @brief calculates if a target is worth firing at */
 int damage_not_worthwhile(noob_t *noob, attr_t attr)
 {
 	if(noob == NULL || noob->hp <= 0 || noob->is_dead ||

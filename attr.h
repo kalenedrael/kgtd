@@ -1,3 +1,9 @@
+/* @file attr.h
+ * @brief attribute declarations
+ *
+ * This file may be eliminated depending on various architectural changes.
+ */
+
 #ifndef _ATTR_H_
 #define _ATTR_H_
 

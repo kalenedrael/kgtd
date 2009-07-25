@@ -107,7 +107,7 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	}
 	else {
 		glCallList(DISPLAY_LIST_TOWER);
-		glScalef(200.0, 200.0, 0);
+		glScalef(150.0, 150.0, 0);
 		glCallList(DISPLAY_LIST_CIRCLE);
 	}
 	glPopMatrix();

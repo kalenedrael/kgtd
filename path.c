@@ -1,3 +1,7 @@
+/* @file path.c
+ * @brief path functions
+ */
+
 #include "grid_objs.h"
 #include "state.h"
 #include "level.h"
@@ -23,6 +27,7 @@ void path_destroy(int x, int y)
 	grid[y][x].type = GRID_TYPE_NONE;
 }
 
+/* @brief finds the relative direction from the path to the given x/y */
 static int rel_dir(int x, int y, path_t *rel)
 {
 	if(rel == &(grid[y + 1][x].p)) {
@@ -40,7 +45,9 @@ static int rel_dir(int x, int y, path_t *rel)
 	return DIR_NONE;
 }
 
-/* XXX lame - alternate algorithms gladly accepted */
+/* @brief draws one path square
+ *
+ * XXX lame - alternate algorithms gladly accepted */
 static void draw_one(int cx, int cy, path_t *cur, path_t *prev)
 {
 	int rel_prev, rel_next;
@@ -90,6 +97,10 @@ static void draw_one(int cx, int cy, path_t *cur, path_t *prev)
 	}
 }
 
+/* @brief loads the path onto the board and generates the relevant display list
+ *
+ * see level_data.c for path format description
+ */
 void path_load(state_t *state, map_t *map)
 {
 	int cur_x = map->x_start, cur_y = map->y_start, i;

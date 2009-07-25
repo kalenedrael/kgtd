@@ -23,7 +23,7 @@
 #define BULLET_SPEED 320.1
 
 /* XXX */
-#define BULLET_MAX_RANGE 40000.0
+#define BULLET_MAX_RANGE 22500.0
 
 /* noob constants */
 #define NOOBS_NUM_MAX 1024

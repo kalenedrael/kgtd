@@ -1,3 +1,9 @@
+/* @file bullet.c
+ * @brief bullet management functions
+ *
+ * 'bullet' here refers to anything that a tower fires, including beams.
+ */
+
 #include "bullet.h"
 #include "damage.h"
 #include "state.h"
@@ -12,6 +18,7 @@ static void update_proj(bullet_t *bullet, float dt, int idt);
 static void draw_beam(bullet_t *bullet);
 static void draw_proj(bullet_t *bullet);
 
+/* @brief initialize bullet list */
 void bullet_init()
 {
 	int i;
@@ -24,6 +31,7 @@ void bullet_init()
 	Q_INIT_HEAD(&bullet_list);
 }
 
+/* @brief bullet common initialization function */
 static bullet_t *bullet_new_common(float x, float y, unsigned int damage,
                                    attr_t attr, noob_t *dest, unsigned int max_age,
                                    void (*update)(bullet_t*, float, int),
@@ -52,18 +60,21 @@ static bullet_t *bullet_new_common(float x, float y, unsigned int damage,
 	return bullet;
 }
 
+/* @brief creates a new pulse-beam bullet */
 bullet_t *bullet_new_pulse(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
 {
 	return bullet_new_common(pos->x, pos->y, damage, attr, dest,
 	                         BULLET_PULSE_MAX_AGE, update_pulse, draw_beam);
 }
 
+/* @brief creates a new continuous-beam bullet */
 bullet_t *bullet_new_cw(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
 {
 	return bullet_new_common(pos->x, pos->y, damage, attr, dest,
 	                         BULLET_MAX_AGE, update_cw, draw_beam);
 }
 
+/* @brief creates a new projectile-type bullet */
 bullet_t *bullet_new_proj(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
 {
 	return bullet_new_common(pos->x, pos->y, damage, attr, dest,
@@ -80,6 +91,7 @@ void bullet_destroy(bullet_t *bullet)
 	bullet_first_free = b_obj;
 }
 
+/* @brief draw a projectile-type bullet */
 static void draw_proj(bullet_t *bullet)
 {
 	glColor3fv(attr_colors[bullet->attr]);
@@ -91,6 +103,7 @@ static void draw_proj(bullet_t *bullet)
 	glEnd();
 }
 
+/* @brief draws a beam-type bullet */
 static void draw_beam(bullet_t *bullet)
 {
 	float *clr = attr_colors[bullet->attr];
@@ -103,12 +116,16 @@ static void draw_beam(bullet_t *bullet)
 	glEnd();
 }
 
+/* @brief updates a projectile-type bullet */
 static void update_proj(bullet_t *bullet, float dt, int idt)
 {
 	float new_x, new_y, dy, dx, dm;
 	float xv, yv;
 	float dest_x = bullet->dest->pos.x, dest_y = bullet->dest->pos.y;
 
+	/* calculate new position of bullet - moves by BULLET_SPEED * dt in the
+	 * direction of the target
+	 */
 	dx = dest_x - bullet->pos.x;
 	dy = dest_y - bullet->pos.y;
 	dm = sqrt(dx * dx + dy * dy);
@@ -117,6 +134,7 @@ static void update_proj(bullet_t *bullet, float dt, int idt)
 	new_x = bullet->pos.x + xv * dt;
 	new_y = bullet->pos.y + yv * dt;
 
+	/* see if we hit the target */
 	if(((bullet->pos.x >= dest_x && new_x <= dest_x) ||
 	    (bullet->pos.x <= dest_x && new_x >= dest_x)) &&
 	   ((bullet->pos.y >= dest_y && new_y <= dest_y) ||
@@ -131,21 +149,31 @@ static void update_proj(bullet_t *bullet, float dt, int idt)
 	}
 }
 
+/* @brief updates a continuous-beam bullet
+ *
+ * in a cw bullet, age represents the time after the beam stops firing in ms;
+ * this is used to fade the bullet
+ */
 static void update_cw(bullet_t *bullet, float dt, int idt)
 {
+	/* bullet has completely faded; kill */
 	if(bullet->age > bullet->max_age) {
 		bullet_destroy(bullet);
 		return;
 	}
+	/* target dead or out of range; fade the beam by incrementing age */
 	if(bullet->dest->is_dead || distance2(&bullet->pos, &bullet->dest->pos) > BULLET_MAX_RANGE)
 		bullet->age += idt;
-
-	damage_calc(bullet->dest, bullet->damage, idt, bullet->attr);
+	else
+		/* do damage every frame */
+		damage_calc(bullet->dest, bullet->damage, idt, bullet->attr);
 }
 
+/* @brief updates a pulse bullet */
 static void update_pulse(bullet_t *bullet, float dt, int idt)
 {
 	bullet->age += idt;
+	/* bullet lasts a fixed time */
 	if(bullet->age > bullet->max_age)
 		bullet_destroy(bullet);
 	else
