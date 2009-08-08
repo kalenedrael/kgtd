@@ -1,6 +1,8 @@
 #include "controls.h"
 #include "state.h"
 #include "grid_objs.h"
+#include "ui/sglui.h"
+#include "ui/button.h"
 
 #define SPACING 40
 #define NPOINTS 36
@@ -8,26 +10,30 @@
 #define X_WIDTH 2
 #define X_SIZE 20
 
-float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
-float seg2[] = {0.45,0.1 , 0.55,0.1 , 0.55,0.45, 0.45,0.45};
-float seg3[] = {0.45,0.55, 0.55,0.55, 0.55,0.9 , 0.45,0.9 };
-float seg4[] = {0.1 ,0.9 , 0.45,0.9 , 0.45,1.0 , 0.1 ,1.0 };
-float seg5[] = {0.0 ,0.55, 0.1 ,0.55, 0.1 ,0.9 , 0.0 ,0.9 };
-float seg6[] = {0.0 ,0.1 , 0.1 ,0.1 , 0.1 ,0.45, 0.0 ,0.45};
-float seg7[] = {0.1 ,0.45, 0.45,0.45, 0.45,0.55, 0.1 ,0.55};
+#define BTN_SIZE 24
+#define BTN_SPACING 8
+#define BTN_OFFSET (BTN_SIZE + BTN_SPACING)
 
-float *p0[] = {seg1, seg2, seg3, seg4, seg5, seg6};
-float *p1[] = {seg2, seg3};
-float *p2[] = {seg1, seg2, seg4, seg5, seg7};
-float *p3[] = {seg1, seg2, seg3, seg4, seg7};
-float *p4[] = {seg2, seg3, seg6, seg7};
-float *p5[] = {seg1, seg3, seg4, seg6, seg7};
-float *p6[] = {seg1, seg3, seg4, seg5, seg6, seg7};
-float *p7[] = {seg1, seg2, seg3};
-float *p8[] = {seg1, seg2, seg3, seg4, seg5, seg6, seg7};
-float *p9[] = {seg1, seg2, seg3, seg4, seg6, seg7};
+static float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
+static float seg2[] = {0.45,0.1 , 0.55,0.1 , 0.55,0.45, 0.45,0.45};
+static float seg3[] = {0.45,0.55, 0.55,0.55, 0.55,0.9 , 0.45,0.9 };
+static float seg4[] = {0.1 ,0.9 , 0.45,0.9 , 0.45,1.0 , 0.1 ,1.0 };
+static float seg5[] = {0.0 ,0.55, 0.1 ,0.55, 0.1 ,0.9 , 0.0 ,0.9 };
+static float seg6[] = {0.0 ,0.1 , 0.1 ,0.1 , 0.1 ,0.45, 0.0 ,0.45};
+static float seg7[] = {0.1 ,0.45, 0.45,0.45, 0.45,0.55, 0.1 ,0.55};
 
-struct {
+static float *p0[] = {seg1, seg2, seg3, seg4, seg5, seg6};
+static float *p1[] = {seg2, seg3};
+static float *p2[] = {seg1, seg2, seg4, seg5, seg7};
+static float *p3[] = {seg1, seg2, seg3, seg4, seg7};
+static float *p4[] = {seg2, seg3, seg6, seg7};
+static float *p5[] = {seg1, seg3, seg4, seg6, seg7};
+static float *p6[] = {seg1, seg3, seg4, seg5, seg6, seg7};
+static float *p7[] = {seg1, seg2, seg3};
+static float *p8[] = {seg1, seg2, seg3, seg4, seg5, seg6, seg7};
+static float *p9[] = {seg1, seg2, seg3, seg4, seg6, seg7};
+
+static struct {
 	int n;
 	float **points;
 } glyphs[10] = {
@@ -42,6 +48,8 @@ struct {
 	{ .n = sizeof(p8)/sizeof(*p8), .points = p8 },
 	{ .n = sizeof(p9)/sizeof(*p9), .points = p9 }
 };
+
+static sglui_btn tower_buttons[4][4];
 
 static void draw_num(unsigned int num, float x, float y, float scale)
 {
@@ -75,6 +83,8 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 
 	ax = (x / GRID_SIZE) * GRID_SIZE;
 	ay = (y / GRID_SIZE) * GRID_SIZE;
+	if(ax > GRID_X * GRID_SIZE || ay > GRID_Y * GRID_SIZE)
+		return;
 
 	glStencilFunc(GL_ALWAYS, 1, 1);
 	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
@@ -113,10 +123,29 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	glPopMatrix();
 }
 
+static int btn_draw(struct sglui_obj *obj)
+{
+	sglui_btn *btn = (sglui_btn*)obj;
+
+	glColor3f(1.0, 1.0, 1.0);
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(btn->x, btn->y);
+	glVertex2f(btn->x + btn->w, btn->y);
+	glVertex2f(btn->x + btn->w, btn->y + btn->h);
+	glVertex2f(btn->x, btn->y + btn->h);
+	glVertex2f(btn->x, btn->y);
+	glEnd();
+
+	return 0;
+}
+
+static void btn_cb() {}
+
 void controls_init(void)
 {
 	int i, j;
 
+	/* compile glyphs */
 	for(i = 0; i < 10; i++) {
 		glNewList(DISPLAY_LIST_NUM_BASE + i, GL_COMPILE);
 		glBegin(GL_QUADS);
@@ -130,6 +159,7 @@ void controls_init(void)
 		glEndList();
 	}
 
+	/* compile prelight grid */
 	glNewList(DISPLAY_LIST_GRID, GL_COMPILE);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glBegin(GL_LINES);
@@ -144,6 +174,7 @@ void controls_init(void)
 	glEnd();
 	glEndList();
 
+	/* compile prelight occlusion thing */
 	glNewList(DISPLAY_LIST_OCCLUDE, GL_COMPILE);
 	glBegin(GL_TRIANGLE_FAN);
 	glColor4f(0.0, 0.0, 0.0, 0.0);
@@ -156,6 +187,7 @@ void controls_init(void)
 	glEnd();
 	glEndList();
 
+	/* compile range circle */
 	glNewList(DISPLAY_LIST_CIRCLE, GL_COMPILE);
 	glBegin(GL_LINE_STRIP);
 	for(i = 0; i <= NPOINTS; i++) {
@@ -165,6 +197,7 @@ void controls_init(void)
 	glEnd();
 	glEndList();
 
+	/* compile the X */
 	glNewList(DISPLAY_LIST_X, GL_COMPILE);
 	glColor3f(1.0, 0.0, 0.0);
 	glBegin(GL_TRIANGLE_FAN);
@@ -188,14 +221,34 @@ void controls_init(void)
 	glVertex2f(X_WIDTH, 0.0);
 	glEnd();
 	glEndList();
+
+	sglui_init(sglui_ixn_always);
+
+	/* init buttons */
+	for(i = 0; i < 4; i++) {
+		for(j = 0; j < 4; j++) {
+			sglui_button_init(&(tower_buttons[i][j]), NULL,
+			                  i * BTN_OFFSET + BTN_SPACING,
+			                  YRES - ((j + 1) * BTN_OFFSET),
+			                  BTN_SIZE, BTN_SIZE, btn_draw, btn_cb);
+		}
+	}
 }
 
 void controls_draw(int x, int y, state_t *state)
 {
-	draw_prelight_grid(x, y, state);
+	if(x > BUTTONS_X || y < BUTTONS_Y)
+		draw_prelight_grid(x, y, state);
 	draw_scores(state);
+	sglui_draw_all();
 }
 
-void controls_click(int x, int y, state_t *state)
+int controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 {
+	if(ev->x > BUTTONS_X || ev->y < BUTTONS_Y)
+		return 0;
+
+	sglui_handle_ev((SDL_Event*)ev);
+
+	return 1;
 }

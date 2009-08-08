@@ -77,18 +77,17 @@ static void handle_event(SDL_Event *ev)
 		kgtd_state.type_selected = type;
 		return;
 	}
-	case SDL_MOUSEBUTTONUP: {
-		int x = ev->button.x;
-		int y = ev->button.y;
-		int gx = x/GRID_SIZE;
-		int gy = y/GRID_SIZE;
+	case SDL_MOUSEBUTTONUP:
+		if(controls_click(&ev->button, &kgtd_state) == 0) {
+			int gx = ev->button.x/GRID_SIZE;
+			int gy = ev->button.y/GRID_SIZE;
 
-		/* XXX */
-		if(ev->button.button == SDL_BUTTON_LEFT &&
-		   kgtd_state.type_selected != ATTR_NONE)
-			_tower_new(gx, gy, 100, kgtd_state.type_selected);
+			/* XXX */
+			if(ev->button.button == SDL_BUTTON_LEFT &&
+			   kgtd_state.type_selected != ATTR_NONE)
+				_tower_new(gx, gy, 100, kgtd_state.type_selected);
+		}
 		return;
-	}
 	case SDL_MOUSEMOTION:
 		mouse_x = ev->motion.x;
 		mouse_y = ev->motion.y;

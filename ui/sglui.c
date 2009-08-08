@@ -130,9 +130,9 @@ void sglui_handle_ev(SDL_Event *ev)
 	switch(ev->type) {
 	case SDL_MOUSEBUTTONUP:
 	case SDL_MOUSEBUTTONDOWN:
-		traverse_click(&head, (SDL_MouseButtonEvent*)ev);
+		traverse_click(&head, &ev->button);
 	case SDL_MOUSEMOTION:
-		traverse_move(&head, (SDL_MouseMotionEvent*)ev);
+		traverse_move(&head, &ev->motion);
 	default:
 		return;
 	}
