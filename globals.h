@@ -2,14 +2,14 @@
 #define _GLOBALS_H_
 
 #include <SDL/SDL.h>
-#include <GL/gl.h>
+#include <SDL/SDL_opengl.h>
 #include <math.h>
 
 /* global constants */
 #define XRES 800
 #define YRES 600
-#define GRID_SIZE 30
-#define TOWER_SIZE 22
+#define GRID_SIZE 32
+#define TOWER_SIZE 26
 #define GRID_X (XRES/GRID_SIZE)
 #define GRID_Y (YRES/GRID_SIZE)
 
