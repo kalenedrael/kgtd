@@ -18,24 +18,6 @@ static void update_proj(tower_t *tower, int dt);
 void tower_init()
 {
 	Q_INIT_HEAD(&tower_list);
-
-	glNewList(DISPLAY_LIST_TOWER, GL_COMPILE);
-	glBegin(GL_QUADS);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2, -TOWER_SIZE/2);
-	glEnd();
-
-	glColor3f(1.0, 1.0, 1.0);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glEnd();
-	glEndList();
 }
 
 /* @brief common tower init function */
