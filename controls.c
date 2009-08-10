@@ -232,7 +232,7 @@ void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 		if(x % BTN_SIZE > BTN_OFFSET && y % BTN_SIZE > BTN_OFFSET)
 			sel_click(x / BTN_SIZE, y / BTN_SIZE, state);
 	}
-	else if(ev->x < SEL_X + SEL_BUFFER && ev->y < SEL_Y - SEL_BUFFER) {
+	else if(ev->x > SEL_X + SEL_BUFFER || ev->y < SEL_Y - SEL_BUFFER) {
 		gx = ev->x/GRID_SIZE;
 		gy = ev->y/GRID_SIZE;
 		if(ev->button == SDL_BUTTON_LEFT && state->type_selected != ATTR_NONE) {
