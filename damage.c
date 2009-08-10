@@ -16,6 +16,7 @@ static int armor_dmg[][5] = {
 	{128,  72,  72, 128, 128}, /* MASS_EXPLOSIVE_HE */
 	{128,  96, 128, 128, 128}, /* MASS_EXPLOSIVE_HEAT */
 	{128, 128,  96, 128, 128}, /* MASS_EXPLOSIVE_HESH */
+	{128,  96, 128, 140,   0}, /* BASIC */
 };
 
 /* calculates damage after armor bonuses/penalties */

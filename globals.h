@@ -7,7 +7,7 @@
 
 /* global constants */
 #define XRES 800
-#define YRES 600
+#define YRES 608
 #define GRID_SIZE 32
 #define TOWER_SIZE 26
 #define GRID_X (XRES/GRID_SIZE)

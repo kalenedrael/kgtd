@@ -16,5 +16,6 @@ float attr_colors[ATTR_NUM][3] = {
 	{0.3, 0.3, 0.3}, /* ATTR_MASS_KINETIC_DU */
 	{1.0, 0.5, 0.0}, /* ATTR_MASS_EXPLOSIVE_HE */
 	{1.0, 1.0, 0.2}, /* ATTR_MASS_EXPLOSIVE_HEAT */
-	{0.5, 1.0, 0.0}  /* ATTR_MASS_EXPLOSIVE_HESH */
+	{0.5, 1.0, 0.0}, /* ATTR_MASS_EXPLOSIVE_HESH */
+	{1.0, 1.0, 1.0}  /* ATTR_BASIC */
 };

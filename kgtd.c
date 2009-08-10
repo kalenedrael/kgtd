@@ -35,27 +35,6 @@ static void handle_event(SDL_Event *ev)
 	switch(ev->type) {
 	case SDL_QUIT:
 		exit(0);
-	/* TODO replace with buttons */
-	case SDL_KEYUP: {
-		SDLKey sym = ev->key.keysym.sym;
-		attr_t type = ATTR_NONE;
-		switch(sym) {
-		case SDLK_0: type = ATTR_ENERGY_PARTICLE_PLASMA; break;
-		case SDLK_1: type = ATTR_ENERGY_PARTICLE_LIGHTNING; break;
-		case SDLK_2: type = ATTR_ENERGY_LASER_PULSE; break;
-		case SDLK_3: type = ATTR_ENERGY_LASER_CW; break;
-		case SDLK_4: type = ATTR_MASS_KINETIC_APCR; break;
-		case SDLK_5: type = ATTR_MASS_KINETIC_APFSDS; break;
-		case SDLK_6: type = ATTR_MASS_KINETIC_DU; break;
-		case SDLK_7: type = ATTR_MASS_EXPLOSIVE_HE; break;
-		case SDLK_8: type = ATTR_MASS_EXPLOSIVE_HEAT; break;
-		case SDLK_9: type = ATTR_MASS_EXPLOSIVE_HESH; break;
-		case SDLK_r: reset(); break;
-		default: break;
-		}
-		kgtd_state.type_selected = type;
-		return;
-	}
 	case SDL_MOUSEBUTTONUP:
 		controls_click(&ev->button, &kgtd_state);
 		return;
