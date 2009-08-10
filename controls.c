@@ -158,7 +158,7 @@ static void sel_draw()
 		}
 	}
 
-	glColor3f(0.2, 0.2, 0.2);
+	glColor3f(0.3, 0.3, 0.3);
 	glBegin(GL_LINE_STRIP);
 	glVertex2f(0, SEL_Y - BTN_OFFSET);
 	glVertex2f(SEL_X + BTN_OFFSET, SEL_Y - BTN_OFFSET);
@@ -226,20 +226,18 @@ void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 {
 	int gx, gy;
 
-	if(ev->x <= SEL_X && ev->y >= SEL_Y) {
+	if(ev->x < SEL_X && ev->y > SEL_Y) {
 		int x = ev->x;
 		int y = YRES - ev->y;
 		if(x % BTN_SIZE > BTN_OFFSET && y % BTN_SIZE > BTN_OFFSET)
 			sel_click(x / BTN_SIZE, y / BTN_SIZE, state);
-		return;
 	}
-
-	gx = ev->x/GRID_SIZE;
-	gy = ev->y/GRID_SIZE;
-	if(ev->button == SDL_BUTTON_LEFT && state->type_selected != ATTR_NONE) {
-		place_tower(gx, gy, 100, state->type_selected);
-		state->type_selected = ATTR_NONE;
+	else if(ev->x < SEL_X + SEL_BUFFER && ev->y < SEL_Y - SEL_BUFFER) {
+		gx = ev->x/GRID_SIZE;
+		gy = ev->y/GRID_SIZE;
+		if(ev->button == SDL_BUTTON_LEFT && state->type_selected != ATTR_NONE) {
+			place_tower(gx, gy, 100, state->type_selected);
+			state->type_selected = ATTR_NONE;
+		}
 	}
-
-	return;
 }
