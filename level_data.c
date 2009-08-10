@@ -4,8 +4,8 @@
 /* path format is distance in x, distance in y, distance in x, ...
  * no builtin intersection detection or out of bounds detection
  */
-static int path1[] = {3, 7, 2, -7, 2, 5, 4, 6, 12};
-static int path2[] = {8, 5, 2, -10, 2, 5, 8};
+static int path1[] = {3, 7, 2, -7, 2, 5, 4, 6, 10};
+static int path2[] = {8, 5, 2, -10, 2, 5, 9};
 
 static level_t level1, level2;
 static wave_t wave11, wave12, wave13, wave14,
@@ -69,7 +69,7 @@ static wave_t wave14 = {
 
 static level_t level2 = {
 	.next = NULL,
-	.map = { path2, sizeof(path2)/sizeof(*path2), 3, 9 },
+	.map = { path2, sizeof(path2)/sizeof(*path2), 2, 9 },
 	.waves = &wave21
 };
 

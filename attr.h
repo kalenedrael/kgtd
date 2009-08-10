@@ -9,7 +9,7 @@
 
 #include "globals.h"
 
-#define ATTR_NUM 10
+#define ATTR_NUM 11
 
 typedef enum attr {
 	/* energy -> particle types */
@@ -30,7 +30,8 @@ typedef enum attr {
 	ATTR_MASS_EXPLOSIVE_HEAT = 8,
 	ATTR_MASS_EXPLOSIVE_HESH = 9,
 
-	ATTR_NONE = 10
+	ATTR_BASIC = 10,
+	ATTR_NONE = 11
 } attr_t;
 
 extern float attr_colors[ATTR_NUM][3];

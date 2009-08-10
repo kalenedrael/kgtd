@@ -11,22 +11,12 @@ void noob_init()
 {
 	int i;
 
-	for(i = 0; i < NOOBS_NUM_MAX - 1; i++) {
+	for(i = 0; i < NOOBS_NUM_MAX - 1; i++)
 		noobs[i].next = &(noobs[i+1]);
-	}
 
 	noobs[i].next = NULL;
 	noob_first_free = noobs;
 	Q_INIT_HEAD(&noob_list);
-
-	glNewList(DISPLAY_LIST_NOOB, GL_COMPILE);
-	glBegin(GL_QUADS);
-	glVertex2f(-NOOB_SIZE/2, -NOOB_SIZE/2);
-	glVertex2f(-NOOB_SIZE/2,  NOOB_SIZE/2);
-	glVertex2f( NOOB_SIZE/2,  NOOB_SIZE/2);
-	glVertex2f( NOOB_SIZE/2, -NOOB_SIZE/2);
-	glEnd();
-	glEndList();
 }
 
 noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
@@ -167,7 +157,6 @@ void noob_draw_all()
 noob_t *noob_find_target(pos_t *pos, attr_t attr)
 {
 	/* XXX max_range wtf */
-
 	float min_range = BULLET_MAX_RANGE, mag;
 	noob_t *noob = NULL, *cur;
 
