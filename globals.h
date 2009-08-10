@@ -2,7 +2,7 @@
 #define _GLOBALS_H_
 
 #include <SDL/SDL.h>
-#include <GL/gl.h>
+#include <SDL/SDL_opengl.h>
 #include <math.h>
 
 /* global constants */
