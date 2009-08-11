@@ -97,7 +97,7 @@ static void update_cw(tower_t *tower, int dt)
 	float cur_range = FLT_MAX;
 
 	if(tower->energy < tower->energymax) {
-		tower->energy += tower->power * dt;
+		tower->energy += (tower->power * dt) / 4;
 		return;
 	}
 
@@ -106,7 +106,7 @@ static void update_cw(tower_t *tower, int dt)
 		tower->target = noob_find_target(&tower->pos, tower->attr);
 		if(tower->target == NULL)
 			return;
-		bullet_new_cw(&tower->pos, tower->power * 3000 /* XXX damage fix */,
+		bullet_new_cw(&tower->pos, tower->power * 1024 /* damage fix */,
 		              tower->attr, tower->target);
 		return;
 	}

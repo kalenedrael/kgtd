@@ -7,8 +7,8 @@
 static int armor_dmg[][5] = {
 	/* base, composite, reactive, reflective, regen */
 	{128,  96, 128, 140,   0}, /* ENERGY_PARTICLE_PLASMA */
-	{128, 128, 168, 168, -32}, /* ENERGY_PARTICLE_LIGHTNING */
-	{128,  72,  72,  32, -32}, /* ENERGY_LASER_CW */
+	{128, 128, 168, 168, 32}, /* ENERGY_PARTICLE_LIGHTNING */
+	{12800,  72,  72,  32, 32}, /* ENERGY_LASER_CW */
 	{12800, 128, 128, 128, 128}, /* ENERGY_LASER_PULSE */
 	{128,  96, 128, 140, 128}, /* MASS_KINETIC_APCR */
 	{128, 128, 168, 168, 192}, /* MASS_KINETIC_APFSDS */
