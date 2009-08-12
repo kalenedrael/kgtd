@@ -4,7 +4,7 @@
 /* path format is distance in x, distance in y, distance in x, ...
  * no builtin intersection detection or out of bounds detection
  */
-static int path1[] = {3, 7, 2, -7, 2, 5, 4, 6, 10};
+static int path1[] = {5, 6, 2, -6, 2, 6, 8, -6, -6};
 static int path2[] = {8, 5, 2, -10, 2, 5, 9};
 
 static level_t level1, level2;
@@ -19,7 +19,7 @@ level_t *levels = &level1;
 
 static level_t level1 = {
 	.next = &level2,
-	.map = { path1, sizeof(path1)/sizeof(*path1), 2, 3 },
+	.map = { path1, sizeof(path1)/sizeof(*path1), 3, 5 },
 	.waves = &wave11
 };
 
@@ -69,7 +69,7 @@ static wave_t wave14 = {
 
 static level_t level2 = {
 	.next = NULL,
-	.map = { path2, sizeof(path2)/sizeof(*path2), 2, 9 },
+	.map = { path2, sizeof(path2)/sizeof(*path2), 2, 8 },
 	.waves = &wave21
 };
 

@@ -1,3 +1,7 @@
+/* @file controls.c
+ * @brief I hate user interfaces
+ */
+
 #include "controls.h"
 #include "state.h"
 #include "grid_objs.h"
@@ -12,7 +16,9 @@ typedef struct sel_t {
 #define UPG_UP 1
 #define UPG_DIAG 2
 #define UPG_LEFT 4
+#define SEL_BOX_SIZE 20
 
+/* @brief the tower selector */
 static sel_t sel_arr[4][4] = {
 	{
 		{ ATTR_BASIC, 1, UPG_UP | UPG_DIAG | UPG_LEFT, NULL },
@@ -75,6 +81,7 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	if(ax > GRID_X * GRID_SIZE || ay > GRID_Y * GRID_SIZE)
 		return;
 
+	/* this whole stencil dance is to draw that fancy lit grid */
 	glStencilFunc(GL_ALWAYS, 1, 1);
 	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 	glPushMatrix();
@@ -112,53 +119,61 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	glPopMatrix();
 }
 
-static void sel_draw()
+/* @brief draw one selector button */
+static void sel_draw_one(sel_t *cur, int x, int y, attr_t selected)
+{
+	if(cur->attr == ATTR_NONE)
+		return;
+	/* draw if active or can be upgraded next */
+	if(cur->unlocked || cur->dep->unlocked) {
+		glPushMatrix();
+		if(cur->unlocked)
+			glColor3fv(attr_colors[cur->attr]);
+		else
+			glColor3f(0.0, 0.0, 0.0);
+		glTranslatef(x - TOWER_SIZE/2, YRES - y + TOWER_SIZE/2, 0);
+		glCallList(DISPLAY_LIST_TOWER);
+		if(cur->attr == selected) {
+			glBegin(GL_LINE_STRIP);
+			glVertex2f( SEL_BOX_SIZE,  SEL_BOX_SIZE);
+			glVertex2f(-SEL_BOX_SIZE,  SEL_BOX_SIZE);
+			glVertex2f(-SEL_BOX_SIZE, -SEL_BOX_SIZE);
+			glVertex2f( SEL_BOX_SIZE, -SEL_BOX_SIZE);
+			glVertex2f( SEL_BOX_SIZE,  SEL_BOX_SIZE);
+			glEnd();
+		}
+		glPopMatrix();
+	}
+	/* draw the upgrade lines */
+	if(cur->unlocked) {
+		glBegin(GL_LINES);
+		if(cur->upgrades & UPG_LEFT) {
+			glVertex2f(x, YRES - y + TOWER_SIZE/2);
+			glVertex2f(x + BTN_OFFSET, YRES - y + TOWER_SIZE/2);
+		}
+		if(cur->upgrades & UPG_UP) {
+			glVertex2f(x - TOWER_SIZE/2, YRES - y);
+			glVertex2f(x - TOWER_SIZE/2, YRES - y - BTN_OFFSET);
+		}
+		if(cur->upgrades & UPG_DIAG) {
+			glVertex2f(x, YRES - y);
+			glVertex2f(x + BTN_OFFSET, YRES - y - BTN_OFFSET);
+		}
+		glEnd();
+	}
+}
+
+/* @brief draw the selectors and the box around them */
+static void sel_draw(state_t *state)
 {
 	int i, j;
-	sel_t *cur;
 
-	for(i = 0; i < 4; i++) {
-		for(j = 0; j < 4; j++) {
-			cur = &sel_arr[j][i];
-			if(cur->attr == ATTR_NONE)
-				continue;
-			if(cur->unlocked || cur->dep->unlocked) {
-				glPushMatrix();
-				if(cur->unlocked)
-					glColor3fv(attr_colors[cur->attr]);
-				else
-					glColor3f(0.0, 0.0, 0.0);
-				glTranslatef((i + 1) * BTN_SIZE - TOWER_SIZE/2,
-				             YRES - (j + 1) * BTN_SIZE + TOWER_SIZE/2, 0);
-				glCallList(DISPLAY_LIST_TOWER);
-				glPopMatrix();
-			}
-			if(cur->unlocked) {
-				glBegin(GL_LINES);
-				if(cur->upgrades & UPG_LEFT) {
-					glVertex2f((i + 1) * BTN_SIZE,
-					           YRES - (j + 1) * BTN_SIZE + TOWER_SIZE/2);
-					glVertex2f((i + 1) * BTN_SIZE + BTN_OFFSET,
-					           YRES - (j + 1) * BTN_SIZE + TOWER_SIZE/2);
-				}
-				if(cur->upgrades & UPG_UP) {
-					glVertex2f((i + 1) * BTN_SIZE - TOWER_SIZE/2,
-					           YRES - (j + 1) * BTN_SIZE);
-					glVertex2f((i + 1) * BTN_SIZE - TOWER_SIZE/2,
-					           YRES - (j + 1) * BTN_SIZE - BTN_OFFSET);
-				}
-				if(cur->upgrades & UPG_DIAG) {
-					glVertex2f((i + 1) * BTN_SIZE,
-					           YRES - (j + 1) * BTN_SIZE);
-					glVertex2f((i + 1) * BTN_SIZE + BTN_OFFSET,
-					           YRES - (j + 1) * BTN_SIZE - BTN_OFFSET);
-				}
-				glEnd();
-			}
-		}
-	}
+	for(i = 0; i < 4; i++)
+		for(j = 0; j < 4; j++)
+			sel_draw_one(&sel_arr[j][i], (i + 1) * BTN_SIZE,
+			             (j + 1) * BTN_SIZE, state->type_selected);
 
-	glColor3f(0.2, 0.2, 0.2);
+	glColor3f(0.3, 0.3, 0.3);
 	glBegin(GL_LINE_STRIP);
 	glVertex2f(0, SEL_Y - BTN_OFFSET);
 	glVertex2f(SEL_X + BTN_OFFSET, SEL_Y - BTN_OFFSET);
@@ -176,6 +191,15 @@ static void sel_click(int x, int y, state_t *state)
 		cur->unlocked = 1;
 
 	return;
+}
+
+static void bar_draw(state_t *state)
+{
+	glColor3f(0.3, 0.3, 0.3);
+	glBegin(GL_LINES);
+	glVertex2f(SEL_X + BTN_OFFSET, BOT_BAR);
+	glVertex2f(XRES, BOT_BAR);
+	glEnd();
 }
 
 static void place_tower(int x, int y, unsigned int power, attr_t attr)
@@ -216,30 +240,33 @@ void controls_init(void)
 
 void controls_draw(int x, int y, state_t *state)
 {
-	if(x > SEL_X + SEL_BUFFER || y < SEL_Y - SEL_BUFFER)
+	if((x > SEL_X + SEL_BUFFER || y < SEL_Y - SEL_BUFFER) &&
+	   y < BOT_BAR - BOT_BAR_BUFFER)
 		draw_prelight_grid(x, y, state);
 	draw_scores(state);
-	sel_draw();
+	bar_draw(state);
+	sel_draw(state);
 }
 
+/* @brief mouse event dispatcher... might want an improved architecture later */
 void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 {
-	int gx, gy;
-
-	if(ev->x <= SEL_X && ev->y >= SEL_Y) {
+	if(ev->button == SDL_BUTTON_RIGHT) {
+		state->type_selected = ATTR_NONE;
+	}
+	else if((ev->x > SEL_X + SEL_BUFFER || ev->y < SEL_Y - SEL_BUFFER) &&
+	        ev->y < BOT_BAR - BOT_BAR_BUFFER) {
+		int gx = ev->x/GRID_SIZE;
+		int gy = ev->y/GRID_SIZE;
+		if(ev->button == SDL_BUTTON_LEFT && state->type_selected != ATTR_NONE)
+			place_tower(gx, gy, 100, state->type_selected);
+	}
+	else if(ev->x < SEL_X && ev->y > SEL_Y) {
 		int x = ev->x;
 		int y = YRES - ev->y;
 		if(x % BTN_SIZE > BTN_OFFSET && y % BTN_SIZE > BTN_OFFSET)
 			sel_click(x / BTN_SIZE, y / BTN_SIZE, state);
-		return;
 	}
-
-	gx = ev->x/GRID_SIZE;
-	gy = ev->y/GRID_SIZE;
-	if(ev->button == SDL_BUTTON_LEFT && state->type_selected != ATTR_NONE) {
-		place_tower(gx, gy, 100, state->type_selected);
-		state->type_selected = ATTR_NONE;
+	else if(ev->y > BOT_BAR) {
 	}
-
-	return;
 }
