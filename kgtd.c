@@ -10,6 +10,7 @@
 #include "bullet.h"
 #include "level.h"
 #include "graphics.h"
+#include "text.h"
 
 #define EV_UPDATE 0
 #define EV_SPAWN 1
@@ -153,6 +154,7 @@ static void init(void)
 	/* initialize data structures */
 	controls_init();
 	graphics_init();
+	text_init();
 	reset();
 
 	/* timer for updates */

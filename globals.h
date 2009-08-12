@@ -55,6 +55,9 @@ enum {
 
 	/* numerals */
 	DISPLAY_LIST_NUM_BASE = 10,
+
+	/* font */
+	DISPLAY_LIST_FONT_BASE = 20
 };
 
 #endif

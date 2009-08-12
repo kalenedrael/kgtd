@@ -5,6 +5,7 @@
 #include "controls.h"
 #include "state.h"
 #include "grid_objs.h"
+#include "text.h"
 
 typedef struct sel_t {
 	attr_t attr;
@@ -200,6 +201,12 @@ static void bar_draw(state_t *state)
 	glVertex2f(SEL_X + BTN_OFFSET, BOT_BAR);
 	glVertex2f(XRES, BOT_BAR);
 	glEnd();
+
+	glColor3f(0.9, 0.9, 0.9);
+	text_draw("This is a test of the text rendering system.", 184, 550);
+	text_draw("Click a tower type to select it.", 184, 563);
+	text_draw("Click a blank tower to unlock it.", 184, 576);
+	text_draw("`1234567890~!@#$%^&*()QWERTYUIOP{}|qwertyuiop[]\\ASDFGHJKL:\"asdfghjkl;'ZXCVBNM<>?zxcvbnm,./", 184, 589);
 }
 
 static void place_tower(int x, int y, unsigned int power, attr_t attr)
