@@ -27,7 +27,7 @@
 
 /* noob constants */
 #define NOOBS_NUM_MAX 1024
-#define NOOB_DEFAULT_HP 932256
+#define NOOB_DEFAULT_HP 93225
 #define NOOB_DEFAULT_SPEED 35.0
 #define NOOB_SIZE 15
 

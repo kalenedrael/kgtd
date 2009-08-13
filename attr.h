@@ -35,5 +35,6 @@ typedef enum attr {
 } attr_t;
 
 extern float attr_colors[ATTR_NUM][3];
+extern char *attr_dscr[ATTR_NUM];
 
 #endif

@@ -18,6 +18,11 @@ typedef struct sel_t {
 #define UPG_DIAG 2
 #define UPG_LEFT 4
 #define SEL_BOX_SIZE 20
+#define BUF_SIZE 256
+
+#define in_sel_box(x,y) ((x) < SEL_X && (y) > SEL_Y)
+#define in_main_area(x,y) (((x) > SEL_X + SEL_BUFFER || (y) < SEL_Y - \
+                           SEL_BUFFER) && (y) < BOT_BAR - BOT_BAR_BUFFER)
 
 /* @brief the tower selector */
 static sel_t sel_arr[4][4] = {
@@ -74,7 +79,7 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 {
 	int ax, ay;
 
-	if(state->type_selected == ATTR_NONE)
+	if(state->selected == ATTR_NONE)
 		return;
 
 	ax = (x / GRID_SIZE) * GRID_SIZE;
@@ -106,7 +111,7 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 
 	glPushMatrix();
 	glTranslatef(ax + GRID_SIZE/2, ay + GRID_SIZE/2, 0.0);
-	glColor3fv(attr_colors[state->type_selected]);
+	glColor3fv(attr_colors[state->selected]);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	if(grid[ay/GRID_SIZE][ax/GRID_SIZE].type != GRID_TYPE_NONE) {
@@ -172,7 +177,7 @@ static void sel_draw(state_t *state)
 	for(i = 0; i < 4; i++)
 		for(j = 0; j < 4; j++)
 			sel_draw_one(&sel_arr[j][i], (i + 1) * BTN_SIZE,
-			             (j + 1) * BTN_SIZE, state->type_selected);
+			             (j + 1) * BTN_SIZE, state->selected);
 
 	glColor3f(0.3, 0.3, 0.3);
 	glBegin(GL_LINE_STRIP);
@@ -187,39 +192,58 @@ static void sel_click(int x, int y, state_t *state)
 	sel_t *cur = &sel_arr[y][x];
 
 	if(cur->unlocked)
-		state->type_selected = cur->attr;
-	else if(cur->dep->unlocked)
+		state->selected = cur->attr;
+	else if(cur->dep && cur->dep->unlocked)
 		cur->unlocked = 1;
 
 	return;
 }
 
-static void bar_draw(state_t *state)
+static void bar_draw(int x, int y, state_t *state)
 {
+	char buf[BUF_SIZE];
+
 	glColor3f(0.3, 0.3, 0.3);
 	glBegin(GL_LINES);
 	glVertex2f(SEL_X + BTN_OFFSET, BOT_BAR);
 	glVertex2f(XRES, BOT_BAR);
 	glEnd();
 
+	buf[0] = '\0';
 	glColor3f(0.9, 0.9, 0.9);
-	text_draw("This is a test of the text rendering system.", 184, 550);
-	text_draw("Click a tower type to select it.", 184, 563);
-	text_draw("Click a blank tower to unlock it.", 184, 576);
-	text_draw("`1234567890~!@#$%^&*()QWERTYUIOP{}|qwertyuiop[]\\ASDFGHJKL:\"asdfghjkl;'ZXCVBNM<>?zxcvbnm,./", 184, 589);
+	if(in_main_area(x, y)) {
+		if(state->selected != ATTR_NONE)
+			snprintf(buf, sizeof(buf), "Click to place %s tower",
+			         attr_dscr[state->selected]);
+		else
+			strcpy(buf, "Select a tower type from the lower left");
+	}
+	else if(in_sel_box(x, y)) {
+		int sy = YRES - y;
+		if(x % BTN_SIZE > BTN_OFFSET && sy % BTN_SIZE > BTN_OFFSET) {
+			sel_t *sel = &sel_arr[sy / BTN_SIZE][x / BTN_SIZE];
+			if(sel->unlocked)
+				snprintf(buf, sizeof(buf), "Click to select %s tower",
+				         attr_dscr[sel->attr]);
+			else if(sel->dep && sel->dep->unlocked)
+				snprintf(buf, sizeof(buf), "Click to unlock %s tower",
+				         attr_dscr[sel->attr]);
+		}
+	}
+	text_draw(buf, 184, 550);
+	snprintf(buf, sizeof(buf), "Total power used: %d", state->power_used);
+	text_draw(buf, 184, 576);
 }
 
-static void place_tower(int x, int y, unsigned int power, attr_t attr)
+static tower_t *place_tower(int x, int y, unsigned int power, attr_t attr)
 {
 	switch(attr) {
 	case ATTR_ENERGY_PARTICLE_LIGHTNING:
 	case ATTR_ENERGY_LASER_PULSE:
-		tower_new_pulse(x, y, power, attr);
-		break;
+		return tower_new_pulse(x, y, power, attr);
 	case ATTR_ENERGY_LASER_CW:
 	case ATTR_ENERGY_PARTICLE_PLASMA:
-		tower_new_cw(x, y, power, attr);
-		break;
+		return tower_new_cw(x, y, power, attr);
 	case ATTR_BASIC:
 	case ATTR_MASS_KINETIC_APCR:
 	case ATTR_MASS_KINETIC_APFSDS:
@@ -227,9 +251,10 @@ static void place_tower(int x, int y, unsigned int power, attr_t attr)
 	case ATTR_MASS_EXPLOSIVE_HE:
 	case ATTR_MASS_EXPLOSIVE_HEAT:
 	case ATTR_MASS_EXPLOSIVE_HESH:
-		tower_new_proj(x, y, power, attr);
+		return tower_new_proj(x, y, power, attr);
 	case ATTR_NONE:
-		break;
+	default:
+		return NULL;
 	}
 }
 
@@ -247,11 +272,10 @@ void controls_init(void)
 
 void controls_draw(int x, int y, state_t *state)
 {
-	if((x > SEL_X + SEL_BUFFER || y < SEL_Y - SEL_BUFFER) &&
-	   y < BOT_BAR - BOT_BAR_BUFFER)
+	if(in_main_area(x, y))
 		draw_prelight_grid(x, y, state);
 	draw_scores(state);
-	bar_draw(state);
+	bar_draw(x, y, state);
 	sel_draw(state);
 }
 
@@ -259,21 +283,23 @@ void controls_draw(int x, int y, state_t *state)
 void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 {
 	if(ev->button == SDL_BUTTON_RIGHT) {
-		state->type_selected = ATTR_NONE;
+		state->selected = ATTR_NONE;
 	}
-	else if((ev->x > SEL_X + SEL_BUFFER || ev->y < SEL_Y - SEL_BUFFER) &&
-	        ev->y < BOT_BAR - BOT_BAR_BUFFER) {
+	else if(in_main_area(ev->x, ev->y)) {
 		int gx = ev->x/GRID_SIZE;
 		int gy = ev->y/GRID_SIZE;
-		if(ev->button == SDL_BUTTON_LEFT && state->type_selected != ATTR_NONE)
-			place_tower(gx, gy, 100, state->type_selected);
+		if(ev->button == SDL_BUTTON_LEFT && state->selected != ATTR_NONE) {
+			tower_t *tower = place_tower(gx, gy, 100, state->selected);
+			if(tower != NULL) {
+				state->towers++;
+				state->power_used += tower->power;
+			}
+		}
 	}
-	else if(ev->x < SEL_X && ev->y > SEL_Y) {
+	else if(in_sel_box(ev->x, ev->y)) {
 		int x = ev->x;
 		int y = YRES - ev->y;
 		if(x % BTN_SIZE > BTN_OFFSET && y % BTN_SIZE > BTN_OFFSET)
 			sel_click(x / BTN_SIZE, y / BTN_SIZE, state);
-	}
-	else if(ev->y > BOT_BAR) {
 	}
 }

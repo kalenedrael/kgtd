@@ -26,6 +26,8 @@ void level_update(state_t *state)
 				state->wave = state->level->waves;
 				tower_init();
 				grid_init();
+				state->towers = 0;
+				state->power_used = 0;
 				path_load(state, &level->next->map);
 			}
 		}
