@@ -119,6 +119,8 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	}
 	else {
 		glCallList(DISPLAY_LIST_TOWER);
+		glColor3f(1.0, 1.0, 1.0);
+		glCallList(DISPLAY_LIST_TOWER_BASE + state->selected);
 		glScalef(150.0, 150.0, 0);
 		glCallList(DISPLAY_LIST_CIRCLE);
 	}
@@ -133,12 +135,16 @@ static void sel_draw_one(sel_t *cur, int x, int y, attr_t selected)
 	/* draw if active or can be upgraded next */
 	if(cur->unlocked || cur->dep->unlocked) {
 		glPushMatrix();
-		if(cur->unlocked)
-			glColor3fv(attr_colors[cur->attr]);
-		else
-			glColor3f(0.0, 0.0, 0.0);
 		glTranslatef(x - TOWER_SIZE/2, YRES - y + TOWER_SIZE/2, 0);
-		glCallList(DISPLAY_LIST_TOWER);
+		glColor3f(1.0, 1.0, 1.0);
+		if(cur->unlocked) {
+			glCallList(DISPLAY_LIST_TOWER_BASE + cur->attr);
+			glColor3fv(attr_colors[cur->attr]);
+			glCallList(DISPLAY_LIST_TOWER);
+		}
+		else {
+			glCallList(DISPLAY_LIST_TOWER_BASE + cur->attr);
+		}
 		if(cur->attr == selected) {
 			glBegin(GL_LINE_STRIP);
 			glVertex2f( SEL_BOX_SIZE,  SEL_BOX_SIZE);

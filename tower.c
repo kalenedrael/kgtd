@@ -164,6 +164,8 @@ static void draw_each(tower_t *tower)
 	glPushMatrix();
 	glTranslatef(tower->pos.x, tower->pos.y, 0);
 	glCallList(DISPLAY_LIST_TOWER);
+	glColor4f(1.0, 1.0, 1.0, scale);
+	glCallList(DISPLAY_LIST_TOWER_BASE + tower->attr);
 	glPopMatrix();
 }
 

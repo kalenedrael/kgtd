@@ -7,6 +7,7 @@
 
 #include "globals.h"
 #include "graphics.h"
+#include "attr.h"
 
 /* @brief 7-seg segments - glyphs are meant to be 1 x 0.6 units */
 static float seg1[] = {0.1 ,0.0 , 0.45,0.0 , 0.45,0.1 , 0.1 ,0.1 };
@@ -44,6 +45,23 @@ static struct {
 	{ .n = sizeof(p8)/sizeof(*p8), .points = p8 },
 	{ .n = sizeof(p9)/sizeof(*p9), .points = p9 }
 };
+
+static float icon_plasma[] = {-4,-10, 4,-7, -4,-4, 4,-1, -4,2, 4,5, -4,8, 4,11};
+static float icon_ltng[]   = {-1,9, 2,-1, -4,1, -1,-9};
+static float icon_cw[]     = {-6,7, 5,7, 0,10, 0,-10, -3,10, 4,3, 2,10, -5,3};
+static float icon_pulse[]  = {8,0, -9,0, 0,9, 0,-8, 5,6, -6,-5, -6,6, 5,-5};
+static float icon_apcr[]   = {10,1, 2,5, -10,5, -10,-4, 1,-4, 10,1};
+static float icon_apfsds[] = {-7,2, 8,2, 10,1, 8,-1, -7,-1, -10,-3, -10,4, -7,2};
+static float icon_he[]     = {0,-10, 2,-4, 8,-5, 2,0, 8,7, 1,3, 0,10, -2,4, -8,4,
+                              -3,2, -8,-6, -3,-3, 0,-10};
+static float icon_heat[]   = {2,12, 2,5, -8,8, -1,2, -9,0, -1,-2, -8,-8, 2,-5,
+                              2,-12, 2,-2, 10,0, 2,2, 2,12};
+static float icon_hesh[]   = {5,-12, 5,12, 5,5, -5,8, 2,2, -6,0, 2,-2, -5,-8,
+                              5,-5, 5,-12};
+static float icon_basic[]  = {0,4, -4,0, 0,-4, 4,0, 0,4};
+
+static float icon_du[] = {-10,-10, -10,10, 10,-10, 10,10, -3,-3, -3,3, 3,-3, 3,3};
+static GLubyte icon_du_points[] = {0,5, 5,3, 3,6, 6,0, 1,4, 4,2, 2,7, 7,1};
 
 #define NPOINTS 64       /* number of points in the prelight and range circles */
 #define PRELIGHT_SIZE 4  /* diameter of prelight grid */
@@ -138,10 +156,7 @@ static void init_prelight()
 	glEndList();
 }
 
-/* @brief compiles the display list for a tower
- *
- * will be updated to draw different icons for different towers
- */
+/* @brief compiles the display lists for towers*/
 static void init_tower()
 {
 	glNewList(DISPLAY_LIST_TOWER, GL_COMPILE);
@@ -151,16 +166,67 @@ static void init_tower()
 	glVertex2f( TOWER_SIZE/2,  TOWER_SIZE/2);
 	glVertex2f( TOWER_SIZE/2, -TOWER_SIZE/2);
 	glEnd();
-
-	glColor3f(1.0, 1.0, 1.0);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glEnd();
 	glEndList();
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_plasma);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_ENERGY_PARTICLE_PLASMA, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_plasma) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_ltng);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_ENERGY_PARTICLE_LIGHTNING, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_ltng) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_cw);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_ENERGY_LASER_CW, GL_COMPILE);
+	glDrawArrays(GL_LINES, 0, sizeof(icon_cw) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_pulse);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_ENERGY_LASER_PULSE, GL_COMPILE);
+	glDrawArrays(GL_LINES, 0, sizeof(icon_pulse) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_apcr);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_MASS_KINETIC_APCR, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_apcr) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_apfsds);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_MASS_KINETIC_APFSDS, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_apfsds) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_du);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_MASS_KINETIC_DU, GL_COMPILE);
+	glDrawElements(GL_LINES, sizeof(icon_du_points), GL_UNSIGNED_BYTE,
+	               icon_du_points);
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_he);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_MASS_EXPLOSIVE_HE, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_he) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_heat);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_MASS_EXPLOSIVE_HEAT, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_heat) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_hesh);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_MASS_EXPLOSIVE_HESH, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_hesh) / (2 * sizeof(float)));
+	glEndList();
+
+	glVertexPointer(2, GL_FLOAT, 0, icon_basic);
+	glNewList(DISPLAY_LIST_TOWER_BASE + ATTR_BASIC, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, sizeof(icon_basic) / (2 * sizeof(float)));
+	glEndList();
+
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 /* @brief compiles the display list for a noob */

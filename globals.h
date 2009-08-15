@@ -53,11 +53,14 @@ enum {
 	DISPLAY_LIST_CIRCLE = 6,
 	DISPLAY_LIST_X = 7,
 
+	/* tower individual graphics */
+	DISPLAY_LIST_TOWER_BASE = 10,
+
 	/* numerals */
-	DISPLAY_LIST_NUM_BASE = 10,
+	DISPLAY_LIST_NUM_BASE = 21,
 
 	/* font */
-	DISPLAY_LIST_FONT_BASE = 20
+	DISPLAY_LIST_FONT_BASE = 31
 };
 
 #endif

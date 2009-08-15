@@ -156,7 +156,7 @@ void path_load(state_t *state, map_t *map)
 		else if(cur == state->path)
 			glColor3f(0.1, 0.5, 0.1);
 		else
-			glColor3f(0.2, 0.2, 0.2);
+			glColor3f(0.1, 0.1, 0.1);
 
 		glVertex2f(x - GRID_SIZE/2, y - GRID_SIZE/2);
 		glVertex2f(x + GRID_SIZE/2, y - GRID_SIZE/2);
