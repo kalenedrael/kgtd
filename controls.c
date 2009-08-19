@@ -128,14 +128,18 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 }
 
 /* @brief draw one selector button */
-static void sel_draw_one(sel_t *cur, int x, int y, attr_t selected)
+static void sel_draw_one(sel_t *cur, int i, int j, attr_t selected)
 {
+	int x = (i + 1) * BTN_SIZE;
+	int y = YRES - (j + 1) * BTN_SIZE;
+
 	if(cur->attr == ATTR_NONE)
 		return;
+
 	/* draw if active or can be upgraded next */
 	if(cur->unlocked || cur->dep->unlocked) {
 		glPushMatrix();
-		glTranslatef(x - TOWER_SIZE/2, YRES - y + TOWER_SIZE/2, 0);
+		glTranslatef(x - TOWER_SIZE/2, y + TOWER_SIZE/2, 0);
 		glColor3f(1.0, 1.0, 1.0);
 		if(cur->unlocked) {
 			glCallList(DISPLAY_LIST_TOWER_BASE + cur->attr);
@@ -160,16 +164,21 @@ static void sel_draw_one(sel_t *cur, int x, int y, attr_t selected)
 	if(cur->unlocked) {
 		glBegin(GL_LINES);
 		if(cur->upgrades & UPG_LEFT) {
-			glVertex2f(x, YRES - y + TOWER_SIZE/2);
-			glVertex2f(x + BTN_OFFSET, YRES - y + TOWER_SIZE/2);
+			glVertex2f(x, y + TOWER_SIZE/2);
+			glColor3fv(attr_colors[sel_arr[j][i+1].attr]);
+			glVertex2f(x + BTN_OFFSET, y + TOWER_SIZE/2);
 		}
 		if(cur->upgrades & UPG_UP) {
-			glVertex2f(x - TOWER_SIZE/2, YRES - y);
-			glVertex2f(x - TOWER_SIZE/2, YRES - y - BTN_OFFSET);
+			glColor3fv(attr_colors[cur->attr]);
+			glVertex2f(x - TOWER_SIZE/2, y);
+			glColor3fv(attr_colors[sel_arr[j+1][i].attr]);
+			glVertex2f(x - TOWER_SIZE/2, y - BTN_OFFSET);
 		}
 		if(cur->upgrades & UPG_DIAG) {
-			glVertex2f(x, YRES - y);
-			glVertex2f(x + BTN_OFFSET, YRES - y - BTN_OFFSET);
+			glColor3fv(attr_colors[cur->attr]);
+			glVertex2f(x, y);
+			glColor3fv(attr_colors[sel_arr[j+1][i+1].attr]);
+			glVertex2f(x + BTN_OFFSET, y - BTN_OFFSET);
 		}
 		glEnd();
 	}
@@ -182,8 +191,7 @@ static void sel_draw(state_t *state)
 
 	for(i = 0; i < 4; i++)
 		for(j = 0; j < 4; j++)
-			sel_draw_one(&sel_arr[j][i], (i + 1) * BTN_SIZE,
-			             (j + 1) * BTN_SIZE, state->selected);
+			sel_draw_one(&sel_arr[j][i], i, j, state->selected);
 
 	glColor3f(0.3, 0.3, 0.3);
 	glBegin(GL_LINE_STRIP);
