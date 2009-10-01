@@ -1,5 +1,7 @@
 #include "damage.h"
 
+extern Q_HEAD(noob_t) noob_list;
+
 /* @brief damage table
  * all are fractions out of 128; 128 means no penalty or bonus
  * this may be need to be refactored
@@ -19,8 +21,11 @@ static int armor_dmg[][5] = {
 	{128,  96, 128, 140,   0}, /* BASIC */
 };
 
+/* @brief splash range table */
+static float splash_range[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1600.0, 400.0, 900.0};
+
 /* calculates damage after armor bonuses/penalties */
-static inline int dmg_normalize_armor(noob_t *noob, int damage, attr_t attr)
+static inline int dmg_normalize(noob_t *noob, int damage, attr_t attr)
 {
 	int i;
 
@@ -35,6 +40,10 @@ static inline int dmg_normalize_armor(noob_t *noob, int damage, attr_t attr)
 /* XXX no shield damage yet */
 void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 {
+	noob_t *cur;
+	float splash;
+	int norm_damage;
+
 	if(attr == ATTR_NONE) {
 		printf("ATTR_NONE: fail?\n");
 		return;
@@ -43,12 +52,28 @@ void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 	if(attr == ATTR_ENERGY_PARTICLE_LIGHTNING)
 		noob->stun_time = 50;
 
-	damage = dmg_normalize_armor(noob, damage, attr);
+	norm_damage = dmg_normalize(noob, damage, attr);
+	/* XXX HACK: all cw types must be less than ATTR_ENERGY_LASER_PULSE */
 	if(attr <= ATTR_ENERGY_LASER_PULSE)
 		/* sort of like 1000, except power of two for speed -.- */
-		noob->hp -= (damage * dt) / 1024;
+		noob->hp -= (norm_damage * dt) / 1024;
 	else
-		noob->hp -= damage;
+		noob->hp -= norm_damage;
+
+	/* do splash damage */
+	splash = splash_range[attr];
+	if(splash == 0.0)
+		return;
+
+	Q_FOREACH(cur, &noob_list, list) {
+		if(noob == cur)
+			continue;
+		float d = distance2(&cur->pos, &noob->pos);
+		if(d < splash) {
+			norm_damage = dmg_normalize(cur, damage, attr);
+			cur->hp -= (norm_damage * (int)(splash - d)) / ((int)splash * 2);
+		}
+	}
 }
 
 /* @brief calculates if a target is worth firing at */

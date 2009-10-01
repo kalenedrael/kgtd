@@ -5,7 +5,7 @@
 
 static noob_obj noobs[NOOBS_NUM_MAX];
 static noob_obj *noob_first_free;
-static Q_HEAD(noob_t) noob_list;
+Q_HEAD(noob_t) noob_list;
 
 void noob_init()
 {
