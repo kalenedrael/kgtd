@@ -75,7 +75,7 @@ static void update(void)
 	int idt = newtime - oldtime;
 	float dt = (float)idt / 1000.0;
 
-	noob_update_all(dt, &kgtd_state);
+	noob_update_all(dt, idt, &kgtd_state);
 	bullet_update_all(dt, idt);
 	tower_update_all(idt);
 	controls_update(idt, &kgtd_state);

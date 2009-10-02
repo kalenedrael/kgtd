@@ -30,13 +30,13 @@ struct noob_t {
 	int max_hp;
 	int shield;
 	int max_shield;
+	int stun_time;
 	path_t *path;
 	Q_NEW_LINK(noob_t) list;
 	unsigned int refcnt;
 	unsigned char armor_type;
 	unsigned char shield_type;
 	unsigned char future_stun;
-	unsigned char stun_time;
 	unsigned char is_dead;
 };
 
@@ -51,7 +51,7 @@ noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
 void noob_ref_destroy(noob_t *noob, state_t *state);
 
 void noob_draw_all();
-void noob_update_all(float dt, state_t *state);
+void noob_update_all(float dt, int idt, state_t *state);
 
 noob_t *noob_find_target(pos_t *pos, attr_t attr);
 

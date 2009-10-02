@@ -98,7 +98,7 @@ static inline float move_dir(float d, float *loc, float dest)
 	return d;
 }
 
-static void update_each(noob_t *noob, float dt, state_t *state)
+static void update_each(noob_t *noob, float dt, int idt, state_t *state)
 {
 	float dl;
 	path_t *path;
@@ -113,8 +113,8 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 	}
 
 	if(noob->stun_time > 0) {
-		noob->stun_time--;
-		if(noob->stun_time == 0)
+		noob->stun_time -= idt;
+		if(noob->stun_time <= 0)
 			noob->future_stun = 0;
 		return;
 	}
@@ -138,12 +138,12 @@ static void update_each(noob_t *noob, float dt, state_t *state)
 	}
 }
 
-void noob_update_all(float dt, state_t *state)
+void noob_update_all(float dt, int idt, state_t *state)
 {
 	noob_t *cur;
 
 	Q_FOREACH(cur, &noob_list, list)
-		update_each(cur, dt, state);
+		update_each(cur, dt, idt, state);
 }
 
 void noob_draw_all()
