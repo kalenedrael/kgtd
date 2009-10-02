@@ -25,8 +25,6 @@ static SDL_Surface *screen;
 
 /* timekeeper */
 static int oldtime;
-/* mouse position */
-static int mouse_x, mouse_y;
 
 /* game state */
 state_t kgtd_state;
@@ -38,10 +36,6 @@ static void handle_event(SDL_Event *ev)
 		exit(0);
 	case SDL_MOUSEBUTTONUP:
 		controls_click(&ev->button, &kgtd_state);
-		return;
-	case SDL_MOUSEMOTION:
-		mouse_x = ev->motion.x;
-		mouse_y = ev->motion.y;
 		return;
 	case SDL_USEREVENT: {
 		if(ev->user.code == EV_UPDATE) {
@@ -84,6 +78,7 @@ static void update(void)
 	noob_update_all(dt, &kgtd_state);
 	bullet_update_all(dt, idt);
 	tower_update_all(idt);
+	controls_update(idt, &kgtd_state);
 	level_update(&kgtd_state);
 
 	oldtime = newtime;
@@ -94,7 +89,7 @@ static void draw(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
 	        GL_STENCIL_BUFFER_BIT);
 
-	controls_draw(mouse_x, mouse_y, &kgtd_state);
+	controls_draw(&kgtd_state);
 	path_draw_all(&kgtd_state);
 	noob_draw_all();
 	tower_draw_all();

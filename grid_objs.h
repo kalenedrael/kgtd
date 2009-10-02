@@ -41,17 +41,13 @@ extern grid_t grid[GRID_Y][GRID_X];
 void grid_init();
 
 /* tower stuff */
-tower_t *tower_new_cw(int x, int y, unsigned int power, attr_t attr);
-tower_t *tower_new_pulse(int x, int y, unsigned int power, attr_t attr);
-tower_t *tower_new_proj(int x, int y, unsigned int power, attr_t attr);
+tower_t *tower_new(int x, int y, unsigned int power, attr_t attr);
 void tower_destroy(int x, int y);
 void tower_update_all(int dt);
 void tower_draw_all();
 void tower_init();
 
 /* path stuff */
-path_t *path_new(int x, int y);
-void path_destroy(int x, int y);
 void path_load(state_t *state, map_t *map);
 void path_draw_all(state_t *state);
 

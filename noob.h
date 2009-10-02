@@ -48,7 +48,7 @@ typedef union noob_obj {
 void noob_init();
 noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
                    unsigned char shield_type, state_t *state);
-void noob_destroy(noob_t *noob, state_t *state);
+void noob_ref_destroy(noob_t *noob, state_t *state);
 
 void noob_draw_all();
 void noob_update_all(float dt, state_t *state);

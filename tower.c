@@ -8,21 +8,37 @@
 #include "bullet.h"
 #include "damage.h"
 
+#define PWR_WIDTH 2
+
 static Q_HEAD(tower_t) tower_list;
 
 static void update_cw(tower_t *tower, int dt);
-static void update_pulse(tower_t *tower, int dt);
-static void update_proj(tower_t *tower, int dt);
+static void update_normal(tower_t *tower, int dt);
 
-/* @brief initialize towers and tower display lists */
+static void (*update_fns[ATTR_NUM])(tower_t*, int) = {
+	update_cw,
+	update_normal,
+	update_cw,
+	update_normal,
+	update_normal,
+	update_normal,
+	update_normal,
+	update_normal,
+	update_normal,
+	update_normal,
+	update_normal
+};
+
+/* @brief initialize towers... used to have more */
 void tower_init()
 {
 	Q_INIT_HEAD(&tower_list);
 }
 
-/* @brief common tower init function */
-static tower_t *tower_new_common(int x, int y, unsigned int power, attr_t attr,
-                                 void (*update)(tower_t*, int))
+/* @brief creates a tower
+ * @return the created tower, or NULL if the desired position is occupied
+ */
+tower_t *tower_new(int x, int y, unsigned int power, attr_t attr)
 {
 	if(grid[y][x].type != GRID_TYPE_NONE)
 		return NULL;
@@ -36,30 +52,12 @@ static tower_t *tower_new_common(int x, int y, unsigned int power, attr_t attr,
 	tower->energy = 0;
 	tower->energymax = TOWER_DEFAULT_MAX_ENERGY;
 	tower->attr = attr;
-	tower->update = update;
+	tower->update = update_fns[attr];
 	tower->target = NULL;
 
 	Q_INSERT_HEAD(&tower_list, tower, list);
 
 	return tower;
-}
-
-/* @brief creates a continuous-beam tower (red laser, blue plasma) */
-tower_t *tower_new_cw(int x, int y, unsigned int power, attr_t attr)
-{
-	return tower_new_common(x, y, power, attr, update_cw);
-}
-
-/* @brief creates a pulse-firing tower (pink laser, stun) */
-tower_t *tower_new_pulse(int x, int y, unsigned int power, attr_t attr)
-{
-	return tower_new_common(x, y, power, attr, update_pulse);
-}
-
-/* @brief creates a projectile tower */
-tower_t *tower_new_proj(int x, int y, unsigned int power, attr_t attr)
-{
-	return tower_new_common(x, y, power, attr, update_proj);
 }
 
 /* @brief destroys a tower */
@@ -68,22 +66,6 @@ void tower_destroy(int x, int y)
 	tower_t *tower = &(grid[x][y].t);
 	Q_REMOVE(&tower_list, tower, list);
 	grid[x][y].type = GRID_TYPE_NONE;
-}
-
-/* @brief common update function */
-static void update_common(tower_t *tower, int dt)
-{
-	float cur_range = FLT_MAX;
-
-	if(tower->energy < tower->energymax)
-		tower->energy += tower->power * dt;
-
-	if(tower->target != NULL)
-		cur_range = distance2(&tower->pos, &tower->target->pos);
-
-	if(cur_range > BULLET_MAX_RANGE ||
-	   damage_not_worthwhile(tower->target, tower->attr))
-		tower->target = noob_find_target(&tower->pos, tower->attr);
 }
 
 /* @brief updates a continuous-beam tower
@@ -106,8 +88,8 @@ static void update_cw(tower_t *tower, int dt)
 		tower->target = noob_find_target(&tower->pos, tower->attr);
 		if(tower->target == NULL)
 			return;
-		bullet_new_cw(&tower->pos, tower->power * 1024 /* damage fix */,
-		              tower->attr, tower->target);
+		bullet_new(&tower->pos, tower->power * 1024 /* damage fix */,
+		           tower->attr, tower->target);
 		return;
 	}
 	cur_range = distance2(&tower->pos, &tower->target->pos);
@@ -121,51 +103,86 @@ static void update_cw(tower_t *tower, int dt)
 	}
 }
 
-/* @brief update for pulse-type towers
- * 
- * The only difference between this and update_proj is the type of bullet
- * created
- */
-static void update_pulse(tower_t *tower, int dt)
-{
-	update_common(tower, dt);
-	if(tower->target != NULL && tower->energy >= tower->energymax) {
-		tower->energy -= tower->energymax;
-		bullet_new_pulse(&tower->pos, tower->energymax,
-		                 tower->attr, tower->target);
-	}
-}
-
-/* @brief update for projectile towers */
-static void update_proj(tower_t *tower, int dt)
-{
-	update_common(tower, dt);
-	if(tower->target != NULL && tower->energy >= tower->energymax) {
-		tower->energy -= tower->energymax;
-		bullet_new_proj(&tower->pos, tower->energymax,
-		                tower->attr, tower->target);
-	}
-}
-
-/* @brief common tower draw function
+/* @brief update for pulse and projectile towers
  *
- * This probably needs to be changed in the future to draw different icons for
- * different tower types.
+ * A tower charges until it is ready to fire, then it fires at its current
+ * target if it is in range or worth firing at; otherwise, it looks for the
+ * closest target in range
  */
+static void update_normal(tower_t *tower, int dt)
+{
+	noob_t *target = tower->target;
+
+	/* de-target */
+	if(damage_not_worthwhile(target, tower->attr) ||
+	   (target != NULL && distance2(&tower->pos, &target->pos) > BULLET_MAX_RANGE))
+		target = NULL;
+
+	if(tower->energy < tower->energymax) {
+		tower->energy += tower->power * dt;
+		goto out;
+	}
+
+	/* acquire target */
+	if(target == NULL) {
+		target = noob_find_target(&tower->pos, tower->attr);
+		if(target == NULL)
+			goto out;
+	}
+
+	tower->energy -= tower->energymax;
+	bullet_new(&tower->pos, tower->energymax, tower->attr, target);
+out:
+	tower->target = target;
+	return;
+}
+
+/* @brief common tower draw function */
 static void draw_each(tower_t *tower)
 {
 	float *clr = attr_colors[tower->attr];
 	float scale = (float)tower->energy / (float)tower->energymax;
+	float power_dist = ((TOWER_SIZE - PWR_WIDTH) / (float)TOWER_MAX_PWR *
+	                   tower->power) + PWR_WIDTH;
 
 	if(scale >= 1.0)
 		scale = 1.0;
 	glColor4f(clr[0], clr[1], clr[2], scale);
 
+	/* draw tower icon with  */
 	glPushMatrix();
 	glTranslatef(tower->pos.x, tower->pos.y, 0);
 	glCallList(DISPLAY_LIST_TOWER);
-	glColor4f(1.0, 1.0, 1.0, scale);
+	glColor3f(1.0, 1.0, 1.0);
 	glCallList(DISPLAY_LIST_TOWER_BASE + tower->attr);
+
+	/* draw power indicator */
+	glBegin(GL_QUADS);
+	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
+	glVertex2f(-TOWER_SIZE/2 + power_dist, -TOWER_SIZE/2);
+	glVertex2f(-TOWER_SIZE/2 + power_dist, -TOWER_SIZE/2 + PWR_WIDTH);
+	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2 + PWR_WIDTH);
+
+	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
+	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2 + power_dist);
+	glVertex2f(-TOWER_SIZE/2 + PWR_WIDTH, -TOWER_SIZE/2 + power_dist);
+	glVertex2f(-TOWER_SIZE/2 + PWR_WIDTH, -TOWER_SIZE/2);
+
+	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 - PWR_WIDTH);
+	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2 - PWR_WIDTH);
+
+	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 - PWR_WIDTH);
+	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2 - PWR_WIDTH);
+
+	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2);
+	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2 - power_dist);
+	glVertex2f(TOWER_SIZE/2 - PWR_WIDTH, TOWER_SIZE/2 - power_dist);
+	glVertex2f(TOWER_SIZE/2 - PWR_WIDTH, TOWER_SIZE/2);
+	glEnd();
 	glPopMatrix();
 }
 

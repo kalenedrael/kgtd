@@ -14,6 +14,7 @@
 #define GRID_Y (YRES/GRID_SIZE)
 
 #define TOWER_DEFAULT_MAX_ENERGY 100000
+#define TOWER_MAX_PWR 500
 
 /* bullet constants */
 #define BULLET_NUM_MAX 2048

@@ -9,8 +9,8 @@
 
 typedef struct sel_t {
 	attr_t attr;
-	int unlocked;
-	int upgrades;
+	unsigned short unlocked;
+	unsigned short upgrades;
 	struct sel_t *dep;
 } sel_t;
 
@@ -229,6 +229,9 @@ static void bar_draw(int x, int y, state_t *state)
 		if(state->selected != ATTR_NONE)
 			snprintf(buf, sizeof(buf), "Click to place %s tower",
 			         attr_dscr[state->selected]);
+		else if(grid[y/GRID_SIZE][x/GRID_SIZE].type == GRID_TYPE_TOWER)
+			strcpy(buf, "Click to increase power supplied, "
+			            "right click to decrease");
 		else
 			strcpy(buf, "Select a tower type from the lower left");
 	}
@@ -245,31 +248,9 @@ static void bar_draw(int x, int y, state_t *state)
 		}
 	}
 	text_draw(buf, 184, 550);
-	snprintf(buf, sizeof(buf), "Total power used: %d", state->power_used);
+	snprintf(buf, sizeof(buf), "Power used: %d/%d", state->power_used,
+	                                                state->max_power);
 	text_draw(buf, 184, 576);
-}
-
-static tower_t *place_tower(int x, int y, unsigned int power, attr_t attr)
-{
-	switch(attr) {
-	case ATTR_ENERGY_PARTICLE_LIGHTNING:
-	case ATTR_ENERGY_LASER_PULSE:
-		return tower_new_pulse(x, y, power, attr);
-	case ATTR_ENERGY_LASER_CW:
-	case ATTR_ENERGY_PARTICLE_PLASMA:
-		return tower_new_cw(x, y, power, attr);
-	case ATTR_BASIC:
-	case ATTR_MASS_KINETIC_APCR:
-	case ATTR_MASS_KINETIC_APFSDS:
-	case ATTR_MASS_KINETIC_DU:
-	case ATTR_MASS_EXPLOSIVE_HE:
-	case ATTR_MASS_EXPLOSIVE_HEAT:
-	case ATTR_MASS_EXPLOSIVE_HESH:
-		return tower_new_proj(x, y, power, attr);
-	case ATTR_NONE:
-	default:
-		return NULL;
-	}
 }
 
 void controls_init(void)
@@ -284,8 +265,11 @@ void controls_init(void)
 	sel_arr[0][0].unlocked = 1;
 }
 
-void controls_draw(int x, int y, state_t *state)
+void controls_draw(state_t *state)
 {
+	int x, y;
+
+	SDL_GetMouseState(&x, &y);
 	if(in_main_area(x, y))
 		draw_prelight_grid(x, y, state);
 	draw_scores(state);
@@ -293,7 +277,30 @@ void controls_draw(int x, int y, state_t *state)
 	sel_draw(state);
 }
 
-/* @brief mouse event dispatcher... might want an improved architecture later */
+void controls_update(int dt, state_t *state)
+{
+	int x, y, dp = 0, power;
+	Uint8 btn = SDL_GetMouseState(&x, &y);
+	tower_t *tower = &grid[y/GRID_SIZE][x/GRID_SIZE].t;
+
+	if(state->selected != ATTR_NONE)
+		return;
+	if(tower->type != GRID_TYPE_TOWER)
+		return;
+
+	power = tower->power;
+	if(btn & SDL_BUTTON(1))
+		dp = power + dt/2 > TOWER_MAX_PWR ? TOWER_MAX_PWR - power : dt/2;
+	else if(btn & SDL_BUTTON(3))
+		dp = power < dt/2 ? -power : -dt/2;
+
+	if(state->power_used + dp > state->max_power)
+		dp = state->max_power - state->power_used;
+
+	tower->power += dp;
+	state->power_used += dp;
+}
+
 void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 {
 	if(ev->button == SDL_BUTTON_RIGHT) {
@@ -303,7 +310,9 @@ void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 		int gx = ev->x/GRID_SIZE;
 		int gy = ev->y/GRID_SIZE;
 		if(ev->button == SDL_BUTTON_LEFT && state->selected != ATTR_NONE) {
-			tower_t *tower = place_tower(gx, gy, 100, state->selected);
+			int power = state->max_power - state->power_used;
+			power = power > 100 ? 100 : power;
+			tower_t *tower = tower_new(gx, gy, power, state->selected);
 			if(tower != NULL) {
 				state->towers++;
 				state->power_used += tower->power;

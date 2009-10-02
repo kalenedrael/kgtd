@@ -18,6 +18,24 @@ static void update_proj(bullet_t *bullet, float dt, int idt);
 static void draw_beam(bullet_t *bullet);
 static void draw_proj(bullet_t *bullet);
 
+struct {
+	void (*update)(bullet_t*, float, int);
+	void (*draw)(bullet_t*);
+	unsigned int max_age;
+} bullet_attr[ATTR_NUM] = {
+	{update_cw   , draw_beam, BULLET_MAX_AGE},
+	{update_pulse, draw_beam, BULLET_PULSE_MAX_AGE},
+	{update_cw   , draw_beam, BULLET_MAX_AGE},
+	{update_pulse, draw_beam, BULLET_PULSE_MAX_AGE},
+	{update_proj , draw_proj, BULLET_MAX_AGE},
+	{update_proj , draw_proj, BULLET_MAX_AGE},
+	{update_proj , draw_proj, BULLET_MAX_AGE},
+	{update_proj , draw_proj, BULLET_MAX_AGE},
+	{update_proj , draw_proj, BULLET_MAX_AGE},
+	{update_proj , draw_proj, BULLET_MAX_AGE},
+	{update_proj , draw_proj, BULLET_MAX_AGE}
+};
+
 /* @brief initialize bullet list */
 void bullet_init()
 {
@@ -31,11 +49,8 @@ void bullet_init()
 	Q_INIT_HEAD(&bullet_list);
 }
 
-/* @brief bullet common initialization function */
-static bullet_t *bullet_new_common(float x, float y, unsigned int damage,
-                                   attr_t attr, noob_t *dest, unsigned int max_age,
-                                   void (*update)(bullet_t*, float, int),
-                                   void (*draw)(bullet_t*))
+/* @brief creates a new bullet of the given type */
+bullet_t *bullet_new(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
 {
 	bullet_obj *b_obj = bullet_first_free;
 	if(b_obj == NULL) {
@@ -45,40 +60,18 @@ static bullet_t *bullet_new_common(float x, float y, unsigned int damage,
 	bullet_first_free = b_obj->next;
 
 	bullet_t *bullet = &b_obj->b;
-	bullet->update = update;
-	bullet->draw = draw;
-	bullet->pos.x = x;
-	bullet->pos.y = y;
+	bullet->update = bullet_attr[attr].update;
+	bullet->draw = bullet_attr[attr].draw;
+	bullet->pos = *pos;
 	bullet->damage = damage;
 	bullet->age = 0;
-	bullet->max_age = max_age;
+	bullet->max_age = bullet_attr[attr].max_age;
 	bullet->attr = attr;
 	bullet->dest = dest;
 
 	dest->refcnt++;
 	Q_INSERT_HEAD(&bullet_list, bullet, list);
 	return bullet;
-}
-
-/* @brief creates a new pulse-beam bullet */
-bullet_t *bullet_new_pulse(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
-{
-	return bullet_new_common(pos->x, pos->y, damage, attr, dest,
-	                         BULLET_PULSE_MAX_AGE, update_pulse, draw_beam);
-}
-
-/* @brief creates a new continuous-beam bullet */
-bullet_t *bullet_new_cw(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
-{
-	return bullet_new_common(pos->x, pos->y, damage, attr, dest,
-	                         BULLET_MAX_AGE, update_cw, draw_beam);
-}
-
-/* @brief creates a new projectile-type bullet */
-bullet_t *bullet_new_proj(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
-{
-	return bullet_new_common(pos->x, pos->y, damage, attr, dest,
-	                         BULLET_MAX_AGE, update_proj, draw_proj);
 }
 
 void bullet_destroy(bullet_t *bullet)

@@ -28,9 +28,7 @@ typedef union bullet_obj {
 } bullet_obj;
 
 void bullet_init();
-bullet_t *bullet_new_cw(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest);
-bullet_t *bullet_new_pulse(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest);
-bullet_t *bullet_new_proj(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest);
+bullet_t *bullet_new(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest);
 void bullet_destroy(bullet_t *tower);
 
 void bullet_update_all(float dt, int idt);

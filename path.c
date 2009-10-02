@@ -14,7 +14,7 @@ enum {
 	DIR_NONE = 4
 };
 
-path_t *path_new(int x, int y)
+static path_t *path_new(int x, int y)
 {
 	grid[y][x].type = GRID_TYPE_PATH;
 	grid[y][x].p.pos.x = x * GRID_SIZE + GRID_SIZE/2;
@@ -22,26 +22,21 @@ path_t *path_new(int x, int y)
 	return &(grid[y][x].p);
 }
 
-void path_destroy(int x, int y)
-{
-	grid[y][x].type = GRID_TYPE_NONE;
-}
-
 /* @brief finds the relative direction from the path to the given x/y */
 static int rel_dir(int x, int y, path_t *rel)
 {
-	if(rel == &(grid[y + 1][x].p)) {
+	if(rel == &(grid[y + 1][x].p))
 		return DIR_UP;
-	}
-	if(rel == &(grid[y - 1][x].p)) {
+
+	if(rel == &(grid[y - 1][x].p))
 		return DIR_DOWN;
-	}
-	if(rel == &(grid[y][x + 1].p)) {
+
+	if(rel == &(grid[y][x + 1].p))
 		return DIR_RIGHT;
-	}
-	if(rel == &(grid[y][x - 1].p)) {
+
+	if(rel == &(grid[y][x - 1].p))
 		return DIR_LEFT;
-	}
+
 	return DIR_NONE;
 }
 

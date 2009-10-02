@@ -13,7 +13,8 @@
 #define BOT_BAR_BUFFER 16
 
 void controls_init(void);
-void controls_draw(int x, int y, state_t *state);
+void controls_draw(state_t *state);
+void controls_update(int dt, state_t *state);
 void controls_click(SDL_MouseButtonEvent *ev, state_t *state);
 
 #endif

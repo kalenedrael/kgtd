@@ -9,6 +9,7 @@ struct state_t {
 	int level_noobs;
 	int total_noobs;
 	int power_used;
+	int max_power;
 	int towers;
 	attr_t selected;
 	path_t *path;
