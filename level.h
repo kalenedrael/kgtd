@@ -15,6 +15,8 @@ struct wave_t {
 	int noobs;
 	int hp;
 	int shield;
+	int delay;
+	int wave_delay;
 	float speed;
 	unsigned char armor_type;
 	unsigned char shield_type;
@@ -27,10 +29,8 @@ struct level_t {
 };
 
 void level_init(state_t *state);
-void level_update(state_t *state);
-void level_spawn(state_t *state);
+void level_update(int dt, state_t *state);
 
 extern level_t *levels;
 
 #endif
-

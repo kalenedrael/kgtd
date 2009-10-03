@@ -11,6 +11,7 @@ struct state_t {
 	int power_used;
 	int max_power;
 	int towers;
+	int until_next;
 	attr_t selected;
 	path_t *path;
 	level_t *level;

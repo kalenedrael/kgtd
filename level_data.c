@@ -8,7 +8,7 @@ static int path1[] = {5, 6, 2, -6, 2, 6, 8, -6, -6};
 static int path2[] = {8, 5, 2, -10, 2, 5, 9};
 
 static level_t level1, level2;
-static wave_t wave11, wave12, wave13, wave14,
+static wave_t wave11, wave12, wave13, wave14, wave15,
               wave21, wave22, wave23, wave24;
 
 level_t *levels = &level1;
@@ -28,6 +28,8 @@ static wave_t wave11 = {
 	.noobs = 10,
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP,
+	.delay = 250,
+	.wave_delay = 10,
 	.shield = 0,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
@@ -38,6 +40,8 @@ static wave_t wave12 = {
 	.noobs = 20,
 	.speed = NOOB_DEFAULT_SPEED/2,
 	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 500,
+	.wave_delay = 10,
 	.shield = 0,
 	.armor_type = ARMOR_REGEN,
 	.shield_type = SHIELD_HARD
@@ -48,18 +52,35 @@ static wave_t wave13 = {
 	.noobs = 20,
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 250,
+	.wave_delay = 10,
 	.shield = 0,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
 };
 
 static wave_t wave14 = {
-	.next = NULL,
+	.next = &wave15,
 	.noobs = 30,
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 250,
+	.wave_delay = 10,
 	.shield = 0,
 	.armor_type = 0,
+	.shield_type = SHIELD_HARD
+};
+
+static wave_t wave15 = {
+	.next = NULL,
+	.noobs = 1,
+	.speed = NOOB_DEFAULT_SPEED/2,
+	.hp = NOOB_DEFAULT_HP * 100,
+	.delay = 0,
+	.wave_delay = 0,
+	.shield = 0,
+	.armor_type = ARMOR_COMPOSITE | ARMOR_REACTIVE |
+	              ARMOR_REFLECTIVE | ARMOR_REGEN,
 	.shield_type = SHIELD_HARD
 };
 
@@ -78,6 +99,8 @@ static wave_t wave21 = {
 	.noobs = 10,
 	.speed = NOOB_DEFAULT_SPEED/2,
 	.hp = NOOB_DEFAULT_HP * 5,
+	.delay = 250,
+	.wave_delay = 10,
 	.shield = 0,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
@@ -88,6 +111,8 @@ static wave_t wave22 = {
 	.noobs = 20,
 	.speed = NOOB_DEFAULT_SPEED * 2,
 	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 250,
+	.wave_delay = 10,
 	.shield = 0,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
@@ -98,6 +123,8 @@ static wave_t wave23 = {
 	.noobs = 40,
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 5,
+	.delay = 250,
+	.wave_delay = 10,
 	.shield = 0,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
@@ -108,7 +135,9 @@ static wave_t wave24 = {
 	.noobs = 50,
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 6,
+	.delay = 250,
+	.wave_delay = 10,
 	.shield = 0,
-	.armor_type = 0,
+	.armor_type = ARMOR_COMPOSITE | ARMOR_REACTIVE,
 	.shield_type = SHIELD_HARD
 };

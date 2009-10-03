@@ -12,9 +12,6 @@
 #include "graphics.h"
 #include "text.h"
 
-#define EV_UPDATE 0
-#define EV_SPAWN 1
-
 /* function prototypes */
 static void draw();
 static void update();
@@ -37,15 +34,9 @@ static void handle_event(SDL_Event *ev)
 	case SDL_MOUSEBUTTONUP:
 		controls_click(&ev->button, &kgtd_state);
 		return;
-	case SDL_USEREVENT: {
-		if(ev->user.code == EV_UPDATE) {
-			draw();
-			update();
-		}
-		else if(ev->user.code == EV_SPAWN) {
-			level_spawn(&kgtd_state);
-		}
-	}
+	case SDL_USEREVENT: /* update event */
+		draw();
+		update();
 	default:
 		return;
 	}
@@ -55,16 +46,6 @@ static Uint32 timer_cb(Uint32 x, void* p)
 {
 	SDL_Event tev;
 	tev.user.type = SDL_USEREVENT;
-	tev.user.code = EV_UPDATE;
-	SDL_PushEvent(&tev);
-	return x;
-}
-
-static Uint32 spawn_cb(Uint32 x, void* p)
-{
-	SDL_Event tev;
-	tev.user.type = SDL_USEREVENT;
-	tev.user.code = EV_SPAWN;
 	SDL_PushEvent(&tev);
 	return x;
 }
@@ -79,7 +60,7 @@ static void update(void)
 	bullet_update_all(dt, idt);
 	tower_update_all(idt);
 	controls_update(idt, &kgtd_state);
-	level_update(&kgtd_state);
+	level_update(idt, &kgtd_state);
 
 	oldtime = newtime;
 }
@@ -156,10 +137,6 @@ static void init(void)
 	oldtime = SDL_GetTicks();
 	if(SDL_AddTimer(25, timer_cb, NULL) == NULL) {
 		printf("Error setting update timer...\n");
-		exit(1);
-	}
-	if(SDL_AddTimer(250, spawn_cb, NULL) == NULL) {
-		printf("Error setting spawn timer...\n");
 		exit(1);
 	}
 }

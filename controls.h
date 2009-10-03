@@ -11,6 +11,9 @@
 #define BTN_OFFSET (BTN_SIZE - TOWER_SIZE)
 #define BOT_BAR (YRES - 80)
 #define BOT_BAR_BUFFER 16
+#define LEVEL_BAR (BOT_BAR - 30)
+#define LEVEL_BAR_HEIGHT 20
+#define LEVEL_BAR_WIDTH 100
 
 void controls_init(void);
 void controls_draw(state_t *state);

@@ -18,10 +18,10 @@
 
 /* bullet constants */
 #define BULLET_NUM_MAX 2048
-#define BULLET_SIZE 3
-#define BULLET_MAX_AGE 1000
-#define BULLET_PULSE_MAX_AGE 100
-#define BULLET_SPEED 320.1
+#define BULLET_SIZE 3            /* pixels */
+#define BULLET_MAX_AGE 1000      /* ms */
+#define BULLET_PULSE_MAX_AGE 100 /* ms */
+#define BULLET_SPEED 320.1       /* pixels/s */
 
 /* XXX */
 #define BULLET_MAX_RANGE 22500.0
@@ -29,8 +29,9 @@
 /* noob constants */
 #define NOOBS_NUM_MAX 1024
 #define NOOB_DEFAULT_HP 93225
-#define NOOB_DEFAULT_SPEED 35.0
-#define NOOB_SIZE 15
+#define NOOB_DEFAULT_SPEED 35.0  /* pixels/s */
+#define NOOB_SIZE 15             /* pixels */
+#define WAVE_DELAY 10            /* seconds */
 
 /* some forward declarations */
 typedef struct noob_t noob_t;

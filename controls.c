@@ -6,6 +6,7 @@
 #include "state.h"
 #include "grid_objs.h"
 #include "text.h"
+#include "level.h"
 
 typedef struct sel_t {
 	attr_t attr;
@@ -22,7 +23,7 @@ typedef struct sel_t {
 
 #define in_sel_box(x,y) ((x) < SEL_X && (y) > SEL_Y)
 #define in_main_area(x,y) (((x) > SEL_X + SEL_BUFFER || (y) < SEL_Y - \
-                           SEL_BUFFER) && (y) < BOT_BAR - BOT_BAR_BUFFER)
+                           SEL_BUFFER) && (y) < LEVEL_BAR - BOT_BAR_BUFFER)
 
 /* @brief the tower selector */
 static sel_t sel_arr[4][4] = {
@@ -65,7 +66,7 @@ static void draw_num(unsigned int num, float x, float y, float scale)
 	glPopMatrix();
 }
 
-static void draw_scores(state_t *state)
+static void scores_draw(state_t *state)
 {
 	glColor4f(1.0, 1.0, 1.0, 0.5);
 	draw_num(state->total_noobs, XRES, 0.0, 30.0);
@@ -253,6 +254,56 @@ static void bar_draw(int x, int y, state_t *state)
 	text_draw(buf, 184, 576);
 }
 
+static void wave_draw_one(wave_t *wave, int dx)
+{
+	int i;
+	char buf[BUF_SIZE];
+
+	glBegin(GL_LINE_STRIP);
+	glVertex2f(dx, LEVEL_BAR);
+	glVertex2f(dx, LEVEL_BAR + LEVEL_BAR_HEIGHT);
+	glVertex2f(dx + LEVEL_BAR_WIDTH - 10, LEVEL_BAR + LEVEL_BAR_HEIGHT);
+	glVertex2f(dx + LEVEL_BAR_WIDTH - 10, LEVEL_BAR);
+	glVertex2f(dx, LEVEL_BAR);
+	glEnd();
+
+	snprintf(buf, sizeof(buf), "%dx", wave->noobs);
+	text_draw(buf, dx + 5, BOT_BAR - 13);
+
+	dx += 50;
+	for(i = 0; i < 4; i++) {
+		int active = wave->armor_type >> i & 0x1;
+		if(active)
+			glBegin(GL_QUADS);
+		else
+			glBegin(GL_LINE_STRIP);
+
+		glVertex2f(dx, LEVEL_BAR + 5);
+		glVertex2f(dx, LEVEL_BAR + 15);
+		glVertex2f(dx + 5, LEVEL_BAR + 15);
+		glVertex2f(dx + 5, LEVEL_BAR + 5);
+		if(!active)
+			glVertex2f(dx, LEVEL_BAR + 5);
+		glEnd();
+		dx += 10;
+	}
+}
+
+static void levels_draw(state_t *state)
+{
+	wave_t *wave = state->wave;
+	int dx = XRES - LEVEL_BAR_WIDTH -
+	         (state->until_next * LEVEL_BAR_WIDTH) / (WAVE_DELAY * 1000);
+
+	glColor3f(1.0, 1.0, 1.0);
+	while(wave != NULL) {
+		wave_draw_one(wave, dx);
+		glColor3f(0.5, 0.5, 0.5);
+		wave = wave->next;
+		dx -= LEVEL_BAR_WIDTH;
+	}
+}
+
 void controls_init(void)
 {
 	int i, j;
@@ -272,7 +323,8 @@ void controls_draw(state_t *state)
 	SDL_GetMouseState(&x, &y);
 	if(in_main_area(x, y))
 		draw_prelight_grid(x, y, state);
-	draw_scores(state);
+	scores_draw(state);
+	levels_draw(state);
 	bar_draw(x, y, state);
 	sel_draw(state);
 }
