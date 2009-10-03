@@ -16,7 +16,6 @@ struct wave_t {
 	int hp;
 	int shield;
 	int delay;
-	int wave_delay;
 	float speed;
 	unsigned char armor_type;
 	unsigned char shield_type;

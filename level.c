@@ -11,7 +11,7 @@ void level_init(state_t *state)
 	state->wave = levels->waves;
 	path_load(state, &state->level->map);
 	until_spawn = 0;
-	state->until_next = state->wave->wave_delay * 1000;
+	state->until_next = WAVE_DELAY * 1000;
 }
 
 
