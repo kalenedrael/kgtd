@@ -8,7 +8,8 @@
 #include "bullet.h"
 #include "damage.h"
 
-#define PWR_WIDTH 2
+#define PWR_IN 0
+#define PWR_OUT 2
 
 static Q_HEAD(tower_t) tower_list;
 
@@ -142,8 +143,8 @@ static void draw_each(tower_t *tower)
 {
 	float *clr = attr_colors[tower->attr];
 	float scale = (float)tower->energy / (float)tower->energymax;
-	float power_dist = ((TOWER_SIZE - PWR_WIDTH) / (float)TOWER_MAX_PWR *
-	                   tower->power) + PWR_WIDTH;
+	float power_dist = ((TOWER_SIZE - PWR_IN + PWR_OUT) / (float)TOWER_MAX_PWR *
+	                   tower->power) + PWR_IN;
 
 	if(scale >= 1.0)
 		scale = 1.0;
@@ -158,30 +159,30 @@ static void draw_each(tower_t *tower)
 
 	/* draw power indicator */
 	glBegin(GL_QUADS);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2 + power_dist, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2 + power_dist, -TOWER_SIZE/2 + PWR_WIDTH);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2 + PWR_WIDTH);
+	glVertex2f(-TOWER_SIZE/2 - PWR_OUT, -TOWER_SIZE/2 - PWR_OUT);
+	glVertex2f(-TOWER_SIZE/2 + power_dist, -TOWER_SIZE/2 - PWR_OUT);
+	glVertex2f(-TOWER_SIZE/2 + power_dist, -TOWER_SIZE/2 + PWR_IN);
+	glVertex2f(-TOWER_SIZE/2 - PWR_OUT, -TOWER_SIZE/2 + PWR_IN);
 
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2 + power_dist);
-	glVertex2f(-TOWER_SIZE/2 + PWR_WIDTH, -TOWER_SIZE/2 + power_dist);
-	glVertex2f(-TOWER_SIZE/2 + PWR_WIDTH, -TOWER_SIZE/2);
+	glVertex2f(-TOWER_SIZE/2 - PWR_OUT, -TOWER_SIZE/2 - PWR_OUT);
+	glVertex2f(-TOWER_SIZE/2 - PWR_OUT, -TOWER_SIZE/2 + power_dist);
+	glVertex2f(-TOWER_SIZE/2 + PWR_IN, -TOWER_SIZE/2 + power_dist);
+	glVertex2f(-TOWER_SIZE/2 + PWR_IN, -TOWER_SIZE/2 - PWR_OUT);
 
-	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2);
-	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2);
-	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 - PWR_WIDTH);
-	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2 - PWR_WIDTH);
+	glVertex2f(TOWER_SIZE/2 + PWR_OUT, TOWER_SIZE/2 + PWR_OUT);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 + PWR_OUT);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 - PWR_IN);
+	glVertex2f(TOWER_SIZE/2 + PWR_OUT, TOWER_SIZE/2 - PWR_IN);
 
-	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2);
-	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2);
-	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 - PWR_WIDTH);
-	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2 - PWR_WIDTH);
+	glVertex2f(TOWER_SIZE/2 + PWR_OUT, TOWER_SIZE/2 + PWR_OUT);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 + PWR_OUT);
+	glVertex2f(TOWER_SIZE/2 - power_dist, TOWER_SIZE/2 - PWR_IN);
+	glVertex2f(TOWER_SIZE/2 + PWR_OUT, TOWER_SIZE/2 - PWR_IN);
 
-	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2);
-	glVertex2f(TOWER_SIZE/2, TOWER_SIZE/2 - power_dist);
-	glVertex2f(TOWER_SIZE/2 - PWR_WIDTH, TOWER_SIZE/2 - power_dist);
-	glVertex2f(TOWER_SIZE/2 - PWR_WIDTH, TOWER_SIZE/2);
+	glVertex2f(TOWER_SIZE/2 + PWR_OUT, TOWER_SIZE/2 + PWR_OUT);
+	glVertex2f(TOWER_SIZE/2 + PWR_OUT, TOWER_SIZE/2 - power_dist);
+	glVertex2f(TOWER_SIZE/2 - PWR_IN, TOWER_SIZE/2 - power_dist);
+	glVertex2f(TOWER_SIZE/2 - PWR_IN, TOWER_SIZE/2 + PWR_OUT);
 	glEnd();
 	glPopMatrix();
 }
