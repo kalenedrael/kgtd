@@ -8,8 +8,8 @@ static int path1[] = {5, 6, 2, -6, 2, 6, 8, -6, -6};
 static int path2[] = {8, 5, 2, -10, 2, 5, 9};
 
 static level_t level1, level2;
-static wave_t wave11, wave12, wave13, wave14, wave15,
-              wave21, wave22, wave23, wave24;
+static wave_t wave11, wave12, wave13, wave14, wave15, wave16, wave17,
+              wave18, wave19, wave21, wave22, wave23, wave24;
 
 level_t *levels = &level1;
 
@@ -68,6 +68,50 @@ static wave_t wave14 = {
 };
 
 static wave_t wave15 = {
+	.next = &wave16,
+	.noobs = 40,
+	.speed = NOOB_DEFAULT_SPEED,
+	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 250,
+	.shield = 0,
+	.armor_type = 1,
+	.shield_type = SHIELD_HARD
+};
+
+static wave_t wave16 = {
+	.next = &wave17,
+	.noobs = 50,
+	.speed = NOOB_DEFAULT_SPEED,
+	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 150,
+	.shield = 0,
+	.armor_type = 2,
+	.shield_type = SHIELD_HARD
+};
+
+static wave_t wave17 = {
+	.next = &wave18,
+	.noobs = 60,
+	.speed = NOOB_DEFAULT_SPEED,
+	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 150,
+	.shield = 0,
+	.armor_type = 5,
+	.shield_type = SHIELD_HARD
+};
+
+static wave_t wave18 = {
+	.next = &wave19,
+	.noobs = 70,
+	.speed = NOOB_DEFAULT_SPEED,
+	.hp = NOOB_DEFAULT_HP * 2,
+	.delay = 100,
+	.shield = 0,
+	.armor_type = 6,
+	.shield_type = SHIELD_HARD
+};
+
+static wave_t wave19 = {
 	.next = NULL,
 	.noobs = 1,
 	.speed = NOOB_DEFAULT_SPEED/2,

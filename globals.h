@@ -29,7 +29,7 @@
 #define NOOB_DEFAULT_HP 93225
 #define NOOB_DEFAULT_SPEED 35.0  /* pixels/s */
 #define NOOB_SIZE 15             /* pixels */
-#define WAVE_DELAY 10            /* seconds */
+#define WAVE_DELAY 20            /* seconds */
 
 /* some forward declarations */
 typedef struct noob_t noob_t;

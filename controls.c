@@ -304,11 +304,11 @@ static void levels_draw(state_t *state)
 
 	glBegin(GL_QUAD_STRIP);
 	glColor4f(0.0, 0.0, 0.0, 0.0);
-	glVertex2f(SEL_X + 200, LEVEL_BAR - 5);
-	glVertex2f(SEL_X + 200, LEVEL_BAR + 25);
+	glVertex2f(SEL_X + SEL_BUFFER + 200, LEVEL_BAR - 5);
+	glVertex2f(SEL_X + SEL_BUFFER + 200, LEVEL_BAR + 25);
 	glColor4f(0.0, 0.0, 0.0, 1.0);
-	glVertex2f(SEL_X, LEVEL_BAR - 5);
-	glVertex2f(SEL_X, LEVEL_BAR + 25);
+	glVertex2f(SEL_X + SEL_BUFFER, LEVEL_BAR - 5);
+	glVertex2f(SEL_X + SEL_BUFFER, LEVEL_BAR + 25);
 	glVertex2f(0, LEVEL_BAR - 5);
 	glVertex2f(0, LEVEL_BAR + 25);
 	glEnd();
