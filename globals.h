@@ -17,7 +17,6 @@
 #define TOWER_MAX_PWR 500
 
 /* bullet constants */
-#define BULLET_NUM_MAX 2048
 #define BULLET_SIZE 3            /* pixels */
 #define BULLET_MAX_AGE 1000      /* ms */
 #define BULLET_PULSE_MAX_AGE 100 /* ms */
@@ -27,7 +26,6 @@
 #define BULLET_MAX_RANGE 22500.0
 
 /* noob constants */
-#define NOOBS_NUM_MAX 1024
 #define NOOB_DEFAULT_HP 93225
 #define NOOB_DEFAULT_SPEED 35.0  /* pixels/s */
 #define NOOB_SIZE 15             /* pixels */
@@ -54,6 +52,7 @@ enum {
 	DISPLAY_LIST_OCCLUDE = 5,
 	DISPLAY_LIST_CIRCLE = 6,
 	DISPLAY_LIST_X = 7,
+	DISPLAY_LIST_CONTROLS = 8,
 
 	/* tower individual graphics */
 	DISPLAY_LIST_TOWER_BASE = 10,

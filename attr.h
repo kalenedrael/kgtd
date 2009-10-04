@@ -13,22 +13,22 @@
 
 typedef enum attr {
 	/* energy -> particle types */
-	ATTR_ENERGY_PARTICLE_PLASMA = 0,
-	ATTR_ENERGY_PARTICLE_LIGHTNING = 1,
+	ATTR_PLASMA = 0,
+	ATTR_LTNG = 1,
 
 	/* energy -> laser types */
-	ATTR_ENERGY_LASER_CW = 2,
-	ATTR_ENERGY_LASER_PULSE = 3,
+	ATTR_CW = 2,
+	ATTR_PULSE = 3,
 
 	/* mass -> kinetic */
-	ATTR_MASS_KINETIC_APCR = 4,
-	ATTR_MASS_KINETIC_APFSDS = 5,
-	ATTR_MASS_KINETIC_DU = 6,
+	ATTR_APCR = 4,
+	ATTR_APFSDS = 5,
+	ATTR_DU = 6,
 
 	/* mass -> explosive */
-	ATTR_MASS_EXPLOSIVE_HE = 7,
-	ATTR_MASS_EXPLOSIVE_HEAT = 8,
-	ATTR_MASS_EXPLOSIVE_HESH = 9,
+	ATTR_HE = 7,
+	ATTR_HEAT = 8,
+	ATTR_HESH = 9,
 
 	ATTR_BASIC = 10,
 	ATTR_NONE = 11

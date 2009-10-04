@@ -8,17 +8,17 @@ extern Q_HEAD(noob_t) noob_list;
  */
 static int armor_dmg[][5] = {
 	/* base, composite, reactive, reflective, regen */
-	{128,  96, 128, 140,   0}, /* ENERGY_PARTICLE_PLASMA */
-	{128, 128, 168, 168, 32}, /* ENERGY_PARTICLE_LIGHTNING */
-	{1280,  72,  72,  32, 32}, /* ENERGY_LASER_CW */
-	{1280, 128, 128, 128, 128}, /* ENERGY_LASER_PULSE */
-	{128,  96, 128, 140, 128}, /* MASS_KINETIC_APCR */
-	{128, 128, 168, 168, 192}, /* MASS_KINETIC_APFSDS */
-	{128, 168, 180, 192, 192}, /* MASS_KINETIC_DU */
-	{128,  72,  72, 128, 128}, /* MASS_EXPLOSIVE_HE */
-	{128,  96, 128, 128, 128}, /* MASS_EXPLOSIVE_HEAT */
-	{128, 128,  96, 128, 128}, /* MASS_EXPLOSIVE_HESH */
-	{128,  96, 128, 140,   0}, /* BASIC */
+	[ATTR_PLASMA] = {128,  96, 128, 140,   0},
+	[ATTR_LTNG]   = {128, 128, 168, 168, 32},
+	[ATTR_CW]     = {1280,  72,  72,  32, 32},
+	[ATTR_PULSE]  = {1280, 128, 128, 128, 128},
+	[ATTR_APCR]   = {128,  96, 128, 140, 128},
+	[ATTR_APFSDS] = {128, 128, 168, 168, 192},
+	[ATTR_DU]     = {128, 168, 180, 192, 192},
+	[ATTR_HE]     = {128,  72,  72, 128, 128},
+	[ATTR_HEAT]   = {128,  96, 128, 128, 128},
+	[ATTR_HESH]   = {128, 128,  96, 128, 128},
+	[ATTR_BASIC]  = {128,  96, 128, 140,   0}
 };
 
 /* @brief splash range table */
@@ -49,12 +49,12 @@ void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 		return;
 	}
 
-	if(attr == ATTR_ENERGY_PARTICLE_LIGHTNING)
+	if(attr == ATTR_LTNG)
 		noob->stun_time = 800;
 
 	norm_damage = dmg_normalize(noob, damage, attr);
-	/* XXX HACK: all cw types must be less than ATTR_ENERGY_LASER_PULSE */
-	if(attr <= ATTR_ENERGY_LASER_PULSE)
+	/* XXX HACK: all cw types must be less than ATTR_PULSE */
+	if(attr <= ATTR_PULSE)
 		/* sort of like 1000, except power of two for speed -.- */
 		noob->hp -= (norm_damage * dt) / 1024;
 	else
@@ -80,8 +80,7 @@ void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 int damage_not_worthwhile(noob_t *noob, attr_t attr)
 {
 	if(noob == NULL || noob->hp <= 0 || noob->is_dead ||
-	   ((noob->future_stun || noob->stun_time > 0) &&
-	    attr == ATTR_ENERGY_PARTICLE_LIGHTNING))
+	   ((noob->future_stun || noob->stun_time > 0) && attr == ATTR_LTNG))
 		return 1;
 
 	return 0;

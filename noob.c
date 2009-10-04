@@ -3,6 +3,7 @@
 #include "grid_objs.h"
 #include "damage.h"
 
+#define NOOBS_NUM_MAX 1024
 static noob_obj noobs[NOOBS_NUM_MAX];
 static noob_obj *noob_first_free;
 Q_HEAD(noob_t) noob_list;

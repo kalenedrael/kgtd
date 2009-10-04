@@ -8,6 +8,7 @@
 #include "damage.h"
 #include "state.h"
 
+#define BULLET_NUM_MAX 2048
 static bullet_obj bullets[BULLET_NUM_MAX];
 static bullet_obj *bullet_first_free;
 static Q_HEAD(bullet_t) bullet_list;

@@ -28,52 +28,46 @@ typedef struct sel_t {
 /* @brief the tower selector */
 static sel_t sel_arr[4][4] = {
 	{
-		{ ATTR_BASIC, 1, UPG_UP | UPG_DIAG | UPG_LEFT, NULL },
-		{ ATTR_MASS_KINETIC_APCR, 0, UPG_LEFT, &sel_arr[0][0] },
-		{ ATTR_MASS_KINETIC_APFSDS, 0, UPG_LEFT, &sel_arr[0][1] },
-		{ ATTR_MASS_KINETIC_DU, 0, 0, &sel_arr[0][2] }
+		{ ATTR_BASIC,  1, UPG_UP | UPG_DIAG | UPG_LEFT,  NULL },
+		{ ATTR_APCR,   0, UPG_LEFT,            &sel_arr[0][0] },
+		{ ATTR_APFSDS, 0, UPG_LEFT,            &sel_arr[0][1] },
+		{ ATTR_DU,     0, 0,                   &sel_arr[0][2] }
 	},
 	{
-		{ ATTR_ENERGY_PARTICLE_PLASMA, 0, UPG_UP | UPG_DIAG, &sel_arr[0][0] },
-		{ ATTR_MASS_EXPLOSIVE_HE, 0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
-		{ ATTR_MASS_EXPLOSIVE_HEAT, 0, 0, &sel_arr[1][1] },
-		{ ATTR_NONE, 0, 0, NULL }
+		{ ATTR_PLASMA, 0, UPG_UP | UPG_DIAG,   &sel_arr[0][0] },
+		{ ATTR_HE,     0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
+		{ ATTR_HEAT,   0, 0,                   &sel_arr[1][1] },
+		{ ATTR_NONE,   0, 0,                   NULL }
 	},
 	{
-		{ ATTR_ENERGY_LASER_PULSE, 0, UPG_UP, &sel_arr[1][0] },
-		{ ATTR_ENERGY_PARTICLE_LIGHTNING, 0, 0, &sel_arr[1][0] },
-		{ ATTR_MASS_EXPLOSIVE_HESH, 0, 0, &sel_arr[1][1] },
-		{ ATTR_NONE, 0, 0, NULL }
+		{ ATTR_PULSE,  0, UPG_UP,              &sel_arr[1][0] },
+		{ ATTR_LTNG,   0, 0,                   &sel_arr[1][0] },
+		{ ATTR_HESH,   0, 0,                   &sel_arr[1][1] },
+		{ ATTR_NONE,   0, 0,                   NULL }
 	},
 	{
-		{ ATTR_ENERGY_LASER_CW, 0, 0, &sel_arr[2][0] },
-		{ ATTR_NONE, 0, 0, NULL },
-		{ ATTR_NONE, 0, 0, NULL },
-		{ ATTR_NONE, 0, 0, NULL }
+		{ ATTR_CW,     0, 0,                   &sel_arr[2][0] },
+		{ ATTR_NONE,   0, 0,                   NULL },
+		{ ATTR_NONE,   0, 0,                   NULL },
+		{ ATTR_NONE,   0, 0,                   NULL }
 	}
 };
 
-static void draw_num(unsigned int num, float x, float y, float scale)
-{
-	glPushMatrix();
-	glTranslatef(x, y, 0);
-	glScalef(scale, scale, 1.0);
-	do {
-		glTranslatef(-0.9, 0, 0);
-		glCallList(DISPLAY_LIST_NUM_BASE + num % 10);
-		num = num / 10;
-	} while (num);
-	glPopMatrix();
-}
-
 static void scores_draw(state_t *state)
 {
-	glColor4f(1.0, 1.0, 1.0, 0.5);
-	draw_num(state->total_noobs, XRES, 0.0, 30.0);
-	glColor4f(0.1, 1.0, 0.1, 1.0);
-	draw_num(state->kills, XRES, 40.0, 30.0);
+	char buf[BUF_SIZE];
+
+	glColor3f(0.9, 0.9, 0.9);
+	snprintf(buf, sizeof(buf), "%10d spawned", state->total_noobs);
+	text_draw(buf, 664, 550);
+
+	glColor3f(0.1, 1.0, 0.1);
+	snprintf(buf, sizeof(buf), "%10d kills", state->kills);
+	text_draw(buf, 664, 576);
+
 	glColor3f(1.0, 0.1, 0.1);
-	draw_num(state->leaks, XRES, 80.0, 30.0);
+	snprintf(buf, sizeof(buf), "%10d leaks", state->leaks);
+	text_draw(buf, 664, 602);
 }
 
 static void draw_prelight_grid(int x, int y, state_t *state)
@@ -295,13 +289,30 @@ static void levels_draw(state_t *state)
 	int dx = XRES - LEVEL_BAR_WIDTH -
 	         (state->until_next * LEVEL_BAR_WIDTH) / (WAVE_DELAY * 1000);
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glCallList(DISPLAY_LIST_CONTROLS);
+
 	glColor3f(1.0, 1.0, 1.0);
 	while(wave != NULL) {
 		wave_draw_one(wave, dx);
 		glColor3f(0.5, 0.5, 0.5);
 		wave = wave->next;
 		dx -= LEVEL_BAR_WIDTH;
+		if(dx < SEL_X - LEVEL_BAR_WIDTH)
+			break;
 	}
+
+	glBegin(GL_QUAD_STRIP);
+	glColor4f(0.0, 0.0, 0.0, 0.0);
+	glVertex2f(SEL_X + 200, LEVEL_BAR - 5);
+	glVertex2f(SEL_X + 200, LEVEL_BAR + 25);
+	glColor4f(0.0, 0.0, 0.0, 1.0);
+	glVertex2f(SEL_X, LEVEL_BAR - 5);
+	glVertex2f(SEL_X, LEVEL_BAR + 25);
+	glVertex2f(0, LEVEL_BAR - 5);
+	glVertex2f(0, LEVEL_BAR + 25);
+	glEnd();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
 void controls_init(void)
@@ -323,8 +334,8 @@ void controls_draw(state_t *state)
 	SDL_GetMouseState(&x, &y);
 	if(in_main_area(x, y))
 		draw_prelight_grid(x, y, state);
-	scores_draw(state);
 	levels_draw(state);
+	scores_draw(state);
 	bar_draw(x, y, state);
 	sel_draw(state);
 }
