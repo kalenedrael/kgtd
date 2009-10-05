@@ -4,7 +4,7 @@
 /* path format is distance in x, distance in y, distance in x, ...
  * no builtin intersection detection or out of bounds detection
  */
-static int path1[] = {5, 6, 2, -6, 2, 6, 8, -6, -6};
+static int path1[] = {5, -3, 4, 4, -3, 6, 12, -10};
 static int path2[] = {8, 5, 2, -10, 2, 5, 9};
 
 static level_t level1, level2;
@@ -19,7 +19,7 @@ level_t *levels = &level1;
 
 static level_t level1 = {
 	.next = &level2,
-	.map = { path1, sizeof(path1)/sizeof(*path1), 3, 5 },
+	.map = { path1, sizeof(path1)/sizeof(*path1), 3, 6 },
 	.waves = &wave11
 };
 
@@ -29,7 +29,7 @@ static wave_t wave11 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
 };
@@ -40,7 +40,7 @@ static wave_t wave12 = {
 	.speed = NOOB_DEFAULT_SPEED/2,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 500,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = ARMOR_REGEN,
 	.shield_type = SHIELD_HARD
 };
@@ -51,9 +51,9 @@ static wave_t wave13 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
-	.shield_type = SHIELD_HARD
+	.shield_type = SHIELD_SOFT
 };
 
 static wave_t wave14 = {
@@ -62,9 +62,9 @@ static wave_t wave14 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
-	.shield_type = SHIELD_HARD
+	.shield_type = SHIELD_ADAPTIVE
 };
 
 static wave_t wave15 = {
@@ -73,9 +73,9 @@ static wave_t wave15 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 1,
-	.shield_type = SHIELD_HARD
+	.shield_type = SHIELD_SOFT
 };
 
 static wave_t wave16 = {
@@ -84,7 +84,7 @@ static wave_t wave16 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 150,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 2,
 	.shield_type = SHIELD_HARD
 };
@@ -95,9 +95,9 @@ static wave_t wave17 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 150,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 5,
-	.shield_type = SHIELD_HARD
+	.shield_type = SHIELD_ADAPTIVE
 };
 
 static wave_t wave18 = {
@@ -106,7 +106,7 @@ static wave_t wave18 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 100,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 6,
 	.shield_type = SHIELD_HARD
 };
@@ -117,10 +117,10 @@ static wave_t wave19 = {
 	.speed = NOOB_DEFAULT_SPEED/2,
 	.hp = NOOB_DEFAULT_HP * 100,
 	.delay = 0,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP * 100,
 	.armor_type = ARMOR_COMPOSITE | ARMOR_REACTIVE |
 	              ARMOR_REFLECTIVE | ARMOR_REGEN,
-	.shield_type = SHIELD_HARD
+	.shield_type = SHIELD_ADAPTIVE
 };
 
 /***************\
@@ -139,7 +139,7 @@ static wave_t wave21 = {
 	.speed = NOOB_DEFAULT_SPEED/2,
 	.hp = NOOB_DEFAULT_HP * 5,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
 };
@@ -150,7 +150,7 @@ static wave_t wave22 = {
 	.speed = NOOB_DEFAULT_SPEED * 2,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
 };
@@ -161,7 +161,7 @@ static wave_t wave23 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 5,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
 	.shield_type = SHIELD_HARD
 };
@@ -172,7 +172,7 @@ static wave_t wave24 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 6,
 	.delay = 250,
-	.shield = 0,
+	.shield = NOOB_DEFAULT_HP,
 	.armor_type = ARMOR_COMPOSITE | ARMOR_REACTIVE,
 	.shield_type = SHIELD_HARD
 };

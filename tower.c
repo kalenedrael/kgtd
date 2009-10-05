@@ -80,7 +80,7 @@ static void update_cw(tower_t *tower, int dt)
 	float cur_range = FLT_MAX;
 
 	if(tower->energy < tower->energymax) {
-		tower->energy += (tower->power * dt) / 4;
+		tower->energy += 50 * dt;
 		return;
 	}
 

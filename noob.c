@@ -67,7 +67,7 @@ void noob_destroy(noob_t *noob, state_t *state)
 
 static void draw_each(noob_t *noob)
 {
-	float scale;
+	float scale, shield_scale;
 
 	if(noob->is_dead)
 		return;
@@ -79,8 +79,17 @@ static void draw_each(noob_t *noob)
 	scale = 0.2 + (float)noob->hp / noob->max_hp;
 	glPushMatrix();
 	glTranslatef(noob->pos.x, noob->pos.y, 0);
+	glPushMatrix();
 	glScalef(scale, scale, 1.0);
 	glCallList(DISPLAY_LIST_NOOB);
+	glPopMatrix();
+
+	if(noob->shield > 0) {
+		shield_scale = 0.2 + (float)noob->shield / noob->max_shield;
+		glScalef(shield_scale, shield_scale, 1.0);
+		glColor4f(0.1, 0.5, 1.0, 1.0);
+		glCallList(DISPLAY_LIST_NOOB);
+	}
 	glPopMatrix();
 }
 

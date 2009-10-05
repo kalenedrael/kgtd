@@ -7,6 +7,7 @@
 #include "grid_objs.h"
 #include "text.h"
 #include "level.h"
+#include "noob.h"
 
 typedef struct sel_t {
 	attr_t attr;
@@ -253,34 +254,28 @@ static void wave_draw_one(wave_t *wave, int dx)
 	int i;
 	char buf[BUF_SIZE];
 
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(dx, LEVEL_BAR);
-	glVertex2f(dx, LEVEL_BAR + LEVEL_BAR_HEIGHT);
-	glVertex2f(dx + LEVEL_BAR_WIDTH - 10, LEVEL_BAR + LEVEL_BAR_HEIGHT);
-	glVertex2f(dx + LEVEL_BAR_WIDTH - 10, LEVEL_BAR);
-	glVertex2f(dx, LEVEL_BAR);
-	glEnd();
-
 	snprintf(buf, sizeof(buf), "%dx", wave->noobs);
 	text_draw(buf, dx + 5, BOT_BAR - 13);
 
-	dx += 50;
-	for(i = 0; i < 4; i++) {
-		int active = wave->armor_type >> i & 0x1;
-		if(active)
-			glBegin(GL_QUADS);
-		else
-			glBegin(GL_LINE_STRIP);
+	glPushMatrix();
+	glTranslatef(dx, LEVEL_BAR, 0);
+	glCallList(DISPLAY_LIST_WAVE);
 
-		glVertex2f(dx, LEVEL_BAR + 5);
-		glVertex2f(dx, LEVEL_BAR + 15);
-		glVertex2f(dx + 5, LEVEL_BAR + 15);
-		glVertex2f(dx + 5, LEVEL_BAR + 5);
-		if(!active)
-			glVertex2f(dx, LEVEL_BAR + 5);
-		glEnd();
-		dx += 10;
+	switch(wave->shield_type) {
+	case SHIELD_HARD:     glColor3f(0.5, 0.5, 1.0); break;
+	case SHIELD_SOFT:     glColor3f(1.0, 0.5, 0.5); break;
+	case SHIELD_ADAPTIVE: glColor3f(1.0, 1.0, 1.0); break;
 	}
+
+	glTranslatef(50, 5, 0);
+	for(i = 0; i < 4; i++) {
+		if(wave->armor_type >> i & 0x1)
+			glCallList(DISPLAY_LIST_HAS_ARMOR);
+		else
+			glCallList(DISPLAY_LIST_NO_ARMOR);
+		glTranslatef(10, 0, 0);
+	}
+	glPopMatrix();
 }
 
 static void levels_draw(state_t *state)
@@ -302,6 +297,7 @@ static void levels_draw(state_t *state)
 			break;
 	}
 
+	/* make the fade on the wave indicator */
 	glBegin(GL_QUAD_STRIP);
 	glColor4f(0.0, 0.0, 0.0, 0.0);
 	glVertex2f(SEL_X + SEL_BUFFER + 200, LEVEL_BAR - 5);

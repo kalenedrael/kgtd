@@ -26,7 +26,7 @@
 #define BULLET_MAX_RANGE 22500.0
 
 /* noob constants */
-#define NOOB_DEFAULT_HP 93225
+#define NOOB_DEFAULT_HP 5827
 #define NOOB_DEFAULT_SPEED 35.0  /* pixels/s */
 #define NOOB_SIZE 15             /* pixels */
 #define WAVE_DELAY 20            /* seconds */
@@ -53,12 +53,12 @@ enum {
 	DISPLAY_LIST_CIRCLE = 6,
 	DISPLAY_LIST_X = 7,
 	DISPLAY_LIST_CONTROLS = 8,
+	DISPLAY_LIST_WAVE = 9,
+	DISPLAY_LIST_HAS_ARMOR = 10,
+	DISPLAY_LIST_NO_ARMOR = 11,
 
 	/* tower individual graphics */
-	DISPLAY_LIST_TOWER_BASE = 10,
-
-	/* numerals */
-	DISPLAY_LIST_NUM_BASE = 21,
+	DISPLAY_LIST_TOWER_BASE = 20,
 
 	/* font */
 	DISPLAY_LIST_FONT_BASE = 31

@@ -73,6 +73,12 @@ static float control_points[] = {
 	0, SEL_Y - BTN_OFFSET,              0, YRES,
 	SEL_X + BTN_OFFSET, YRES,           SEL_X + BTN_OFFSET, SEL_Y - BTN_OFFSET,
 };
+/* @brief vertex array for the wave indicator box */
+static float wave_points[] = {
+	0.0, 0.0,   0.0, LEVEL_BAR_HEIGHT, LEVEL_BAR_WIDTH - 10,
+	LEVEL_BAR_HEIGHT, LEVEL_BAR_WIDTH - 10, 0.0, 0.0, 0.0
+};
+static float armor_points[] = { 0,0, 0,10, 5,10, 5,0, 0,0 };
 
 /* @brief compile prelight stuff (circle, prelight grid) */
 static void init_prelight()
@@ -171,6 +177,20 @@ static void init_controls()
 	glColor3f(0.0, 0.0, 0.0);
 	glVertexPointer(2, GL_FLOAT, 0, control_points);
 	glDrawArrays(GL_QUADS, 0, VA_LEN(control_points));
+	glEndList();
+
+	glNewList(DISPLAY_LIST_WAVE, GL_COMPILE);
+	glVertexPointer(2, GL_FLOAT, 0, wave_points);
+	glDrawArrays(GL_LINE_STRIP, 0, VA_LEN(wave_points));
+	glEndList();
+
+	glNewList(DISPLAY_LIST_HAS_ARMOR, GL_COMPILE);
+	glVertexPointer(2, GL_FLOAT, 0, armor_points);
+	glDrawArrays(GL_QUADS, 0, VA_LEN(armor_points) - 1);
+	glEndList();
+
+	glNewList(DISPLAY_LIST_NO_ARMOR, GL_COMPILE);
+	glDrawArrays(GL_LINE_STRIP, 0, VA_LEN(armor_points));
 	glEndList();
 }
 
