@@ -13,6 +13,54 @@
 #include "controls.h"
 #include "attr.h"
 
+#define VA_LEN(x) (sizeof(x) / (2 * sizeof(float)))
+#define DL_ATTR(x) (DISPLAY_LIST_TOWER_BASE + (x))
+
+#define NPOINTS 64       /* number of points in the prelight and range circles */
+#define PRELIGHT_SIZE 4  /* diameter of prelight grid */
+#define X_WIDTH 2        /* width of cannot-place-here X */
+#define X_SIZE 20        /* size of X */
+
+static float tower_points[] = {
+	-TOWER_SIZE/2, -TOWER_SIZE/2,  -TOWER_SIZE/2,  TOWER_SIZE/2,
+	 TOWER_SIZE/2,  TOWER_SIZE/2,   TOWER_SIZE/2, -TOWER_SIZE/2,
+};
+
+static float noob_points[] = {
+	-NOOB_SIZE/2, -NOOB_SIZE/2,  -NOOB_SIZE/2,  NOOB_SIZE/2,
+	 NOOB_SIZE/2,  NOOB_SIZE/2,   NOOB_SIZE/2, -NOOB_SIZE/2
+};
+
+/* @brief vertex array for the X */
+static float x_points[] = {
+	0.0, 0.0,                    X_WIDTH, 0.0,
+	X_SIZE + X_WIDTH, X_SIZE,    X_SIZE + X_WIDTH, X_SIZE + X_WIDTH,
+	X_SIZE, X_SIZE + X_WIDTH,    0.0, X_WIDTH,
+	-X_SIZE, X_SIZE + X_WIDTH,   -X_SIZE - X_WIDTH, X_SIZE + X_WIDTH,
+	-X_SIZE - X_WIDTH, X_SIZE,   -X_WIDTH, 0.0,
+	-X_SIZE - X_WIDTH, -X_SIZE,  -X_SIZE - X_WIDTH, -X_SIZE - X_WIDTH,
+	-X_SIZE, -X_SIZE - X_WIDTH,  0.0, -X_WIDTH,
+	X_SIZE, -X_SIZE - X_WIDTH,   X_SIZE + X_WIDTH, -X_SIZE - X_WIDTH,
+	X_SIZE + X_WIDTH, -X_SIZE,   X_WIDTH, 0.0
+};
+
+/* @brief vertex array for control bar occluder */
+static float ctl_points[] = {
+	0, LEVEL_BAR - BOT_BAR_BUFFER + 3,  0, YRES,
+	XRES, YRES,                         XRES, LEVEL_BAR - BOT_BAR_BUFFER + 3,
+	0, SEL_Y - BTN_OFFSET,              0, YRES,
+	SEL_X + BTN_OFFSET, YRES,           SEL_X + BTN_OFFSET, SEL_Y - BTN_OFFSET,
+};
+
+/* @brief vertex array for the wave indicator box */
+static float wave_points[] = {
+	0.0, 0.0,                                 0.0, LEVEL_BAR_HEIGHT,
+	LEVEL_BAR_WIDTH - 10, LEVEL_BAR_HEIGHT,   LEVEL_BAR_WIDTH - 10, 0.0
+};
+
+/* @brief vertex array for armor boxes */
+static float armor_points[] = { 0,0, 0,10, 5,10, 5,0 };
+
 /* icons */
 static float icon_plasma[] = {-4,-10, 4,-7, -4,-4, 4,-1, -4,2, 4,5, -4,8, 4,11};
 static float icon_ltng[]   = {-1,9, 2,-1, -4,1, -1,-9};
@@ -28,57 +76,33 @@ static float icon_basic[]  = {0,4, -4,0, 0,-4, 4,0, 0,4};
 static float icon_du_points[] = {-10,-10, -10,10, 10,-10, 10,10, -3,-3, -3,3, 3,-3, 3,3};
 static GLubyte icon_du[] = {0,5, 5,3, 3,6, 6,0, 1,4, 4,2, 2,7, 7,1};
 
-#define VA_LEN(x) (sizeof(x) / (2 * sizeof(float)))
-
 static struct {
 	int size;
 	GLenum type;
-	float *icon;
-} icons[ATTR_NUM] = {
-	[ATTR_PLASMA] = { VA_LEN(icon_plasma), GL_LINE_STRIP, icon_plasma },
-	[ATTR_LTNG]   = { VA_LEN(icon_ltng),   GL_LINE_STRIP, icon_ltng },
-	[ATTR_CW]     = { VA_LEN(icon_cw),     GL_LINES,      icon_cw },
-	[ATTR_PULSE]  = { VA_LEN(icon_pulse),  GL_LINES,      icon_pulse },
-	[ATTR_APCR]   = { VA_LEN(icon_apcr),   GL_LINE_STRIP, icon_apcr },
-	[ATTR_APFSDS] = { VA_LEN(icon_apfsds), GL_LINE_STRIP, icon_apfsds },
-	[ATTR_DU]     = { sizeof(icon_du),     GL_LINES,      icon_du_points},
-	[ATTR_HE]     = { VA_LEN(icon_he),     GL_LINE_STRIP, icon_he },
-	[ATTR_HEAT]   = { VA_LEN(icon_heat),   GL_LINE_STRIP, icon_heat },
-	[ATTR_HESH]   = { VA_LEN(icon_hesh),   GL_LINE_STRIP, icon_hesh },
-	[ATTR_BASIC]  = { VA_LEN(icon_basic),  GL_LINE_STRIP, icon_basic }
-};
+	float *list;
+} lists[DISPLAY_LIST_TOWER_END + 1] = {
+	[0] = { 0, 0, NULL },
+	[DISPLAY_LIST_TOWER] = { VA_LEN(tower_points), GL_QUADS,        tower_points },
+	[DISPLAY_LIST_NOOB]  = { VA_LEN(noob_points),  GL_QUADS,        noob_points },
+	[DISPLAY_LIST_X]     = { VA_LEN(x_points),     GL_TRIANGLE_FAN, x_points },
+	[DISPLAY_LIST_WAVE]  = { VA_LEN(wave_points),  GL_LINE_LOOP,    wave_points },
+	[DISPLAY_LIST_CTRL]  = { VA_LEN(ctl_points),   GL_QUADS,        ctl_points },
 
-#define NPOINTS 64       /* number of points in the prelight and range circles */
-#define PRELIGHT_SIZE 4  /* diameter of prelight grid */
-#define X_WIDTH 2        /* width of cannot-place-here X */
-#define X_SIZE 20        /* size of X */
+	[DISPLAY_LIST_HAS_ARMOR] = { VA_LEN(armor_points), GL_QUADS,     armor_points },
+	[DISPLAY_LIST_NO_ARMOR]  = { VA_LEN(armor_points), GL_LINE_LOOP, armor_points },
 
-/* @brief vertex array for the X */
-static float x_points[] = {
-	0.0, 0.0,                    X_WIDTH, 0.0,
-	X_SIZE + X_WIDTH, X_SIZE,    X_SIZE + X_WIDTH, X_SIZE + X_WIDTH,
-	X_SIZE, X_SIZE + X_WIDTH,    0.0, X_WIDTH,
-	-X_SIZE, X_SIZE + X_WIDTH,   -X_SIZE - X_WIDTH, X_SIZE + X_WIDTH,
-	-X_SIZE - X_WIDTH, X_SIZE,   -X_WIDTH, 0.0,
-	-X_SIZE - X_WIDTH, -X_SIZE,  -X_SIZE - X_WIDTH, -X_SIZE - X_WIDTH,
-	-X_SIZE, -X_SIZE - X_WIDTH,  0.0, -X_WIDTH,
-	X_SIZE, -X_SIZE - X_WIDTH,   X_SIZE + X_WIDTH, -X_SIZE - X_WIDTH,
-	X_SIZE + X_WIDTH, -X_SIZE,   X_WIDTH, 0.0
+	[DL_ATTR(ATTR_PLASMA)] = { VA_LEN(icon_plasma), GL_LINE_STRIP, icon_plasma },
+	[DL_ATTR(ATTR_LTNG)]   = { VA_LEN(icon_ltng),   GL_LINE_STRIP, icon_ltng },
+	[DL_ATTR(ATTR_CW)]     = { VA_LEN(icon_cw),     GL_LINES,      icon_cw },
+	[DL_ATTR(ATTR_PULSE)]  = { VA_LEN(icon_pulse),  GL_LINES,      icon_pulse },
+	[DL_ATTR(ATTR_APCR)]   = { VA_LEN(icon_apcr),   GL_LINE_STRIP, icon_apcr },
+	[DL_ATTR(ATTR_APFSDS)] = { VA_LEN(icon_apfsds), GL_LINE_STRIP, icon_apfsds },
+	[DL_ATTR(ATTR_DU)]     = { sizeof(icon_du),     GL_LINES,      icon_du_points },
+	[DL_ATTR(ATTR_HE)]     = { VA_LEN(icon_he),     GL_LINE_STRIP, icon_he },
+	[DL_ATTR(ATTR_HEAT)]   = { VA_LEN(icon_heat),   GL_LINE_STRIP, icon_heat },
+	[DL_ATTR(ATTR_HESH)]   = { VA_LEN(icon_hesh),   GL_LINE_STRIP, icon_hesh },
+	[DL_ATTR(ATTR_BASIC)]  = { VA_LEN(icon_basic),  GL_LINE_STRIP, icon_basic }
 };
-
-/* @brief vertex array for control bar */
-static float control_points[] = {
-	0, LEVEL_BAR - BOT_BAR_BUFFER + 3,  0, YRES,
-	XRES, YRES,                         XRES, LEVEL_BAR - BOT_BAR_BUFFER + 3,
-	0, SEL_Y - BTN_OFFSET,              0, YRES,
-	SEL_X + BTN_OFFSET, YRES,           SEL_X + BTN_OFFSET, SEL_Y - BTN_OFFSET,
-};
-/* @brief vertex array for the wave indicator box */
-static float wave_points[] = {
-	0.0, 0.0,   0.0, LEVEL_BAR_HEIGHT, LEVEL_BAR_WIDTH - 10,
-	LEVEL_BAR_HEIGHT, LEVEL_BAR_WIDTH - 10, 0.0, 0.0, 0.0
-};
-static float armor_points[] = { 0,0, 0,10, 5,10, 5,0, 0,0 };
 
 /* @brief compile prelight stuff (circle, prelight grid) */
 static void init_prelight()
@@ -122,76 +146,22 @@ static void init_prelight()
 	}
 	glEnd();
 	glEndList();
-
-	/* compile the X */
-	glNewList(DISPLAY_LIST_X, GL_COMPILE);
-	glColor3f(1.0, 0.0, 0.0);
-	glVertexPointer(2, GL_FLOAT, 0, x_points);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, VA_LEN(x_points));
-	glEndList();
 }
 
-/* @brief compiles the display lists for towers*/
-static void init_tower()
+static void init_vertex_lists()
 {
 	int i;
 
-	glNewList(DISPLAY_LIST_TOWER, GL_COMPILE);
-	glBegin(GL_QUADS);
-	glVertex2f(-TOWER_SIZE/2, -TOWER_SIZE/2);
-	glVertex2f(-TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2,  TOWER_SIZE/2);
-	glVertex2f( TOWER_SIZE/2, -TOWER_SIZE/2);
-	glEnd();
-	glEndList();
-
-	for(i = 0; i < ATTR_NUM; i++) {
-		glVertexPointer(2, GL_FLOAT, 0, icons[i].icon);
-		glNewList(DISPLAY_LIST_TOWER_BASE + i, GL_COMPILE);
-		if(i == ATTR_DU)
-			glDrawElements(icons[i].type, icons[i].size,
+	for(i = DISPLAY_LIST_BEGIN; i <= DISPLAY_LIST_TOWER_END; i++) {
+		glVertexPointer(2, GL_FLOAT, 0, lists[i].list);
+		glNewList(i, GL_COMPILE);
+		if(i == DL_ATTR(ATTR_DU))
+			glDrawElements(lists[i].type, lists[i].size,
 			               GL_UNSIGNED_BYTE, icon_du);
 		else
-			glDrawArrays(icons[i].type, 0, icons[i].size);
+			glDrawArrays(lists[i].type, 0, lists[i].size);
 		glEndList();
 	}
-}
-
-/* @brief compiles the display list for a noob */
-static void init_noob()
-{
-	glNewList(DISPLAY_LIST_NOOB, GL_COMPILE);
-	glBegin(GL_QUADS);
-	glVertex2f(-NOOB_SIZE/2, -NOOB_SIZE/2);
-	glVertex2f(-NOOB_SIZE/2,  NOOB_SIZE/2);
-	glVertex2f( NOOB_SIZE/2,  NOOB_SIZE/2);
-	glVertex2f( NOOB_SIZE/2, -NOOB_SIZE/2);
-	glEnd();
-	glEndList();
-}
-
-/* @brief compiles display list for control bar occluder */
-static void init_controls()
-{
-	glNewList(DISPLAY_LIST_CONTROLS, GL_COMPILE);
-	glColor3f(0.0, 0.0, 0.0);
-	glVertexPointer(2, GL_FLOAT, 0, control_points);
-	glDrawArrays(GL_QUADS, 0, VA_LEN(control_points));
-	glEndList();
-
-	glNewList(DISPLAY_LIST_WAVE, GL_COMPILE);
-	glVertexPointer(2, GL_FLOAT, 0, wave_points);
-	glDrawArrays(GL_LINE_STRIP, 0, VA_LEN(wave_points));
-	glEndList();
-
-	glNewList(DISPLAY_LIST_HAS_ARMOR, GL_COMPILE);
-	glVertexPointer(2, GL_FLOAT, 0, armor_points);
-	glDrawArrays(GL_QUADS, 0, VA_LEN(armor_points) - 1);
-	glEndList();
-
-	glNewList(DISPLAY_LIST_NO_ARMOR, GL_COMPILE);
-	glDrawArrays(GL_LINE_STRIP, 0, VA_LEN(armor_points));
-	glEndList();
 }
 
 /* @brief compiles a whole lot of display lists */
@@ -199,8 +169,6 @@ void graphics_init(void)
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	init_prelight();
-	init_tower();
-	init_noob();
-	init_controls();
+	init_vertex_lists();
 	glDisableClientState(GL_VERTEX_ARRAY);
 }

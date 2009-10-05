@@ -111,6 +111,7 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	if(grid[ay/GRID_SIZE][ax/GRID_SIZE].type != GRID_TYPE_NONE) {
+		glColor3f(1.0, 0.0, 0.0);
 		glCallList(DISPLAY_LIST_X);
 	}
 	else {
@@ -285,7 +286,8 @@ static void levels_draw(state_t *state)
 	         (state->until_next * LEVEL_BAR_WIDTH) / (WAVE_DELAY * 1000);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glCallList(DISPLAY_LIST_CONTROLS);
+	glColor3f(0.0, 0.0, 0.0);
+	glCallList(DISPLAY_LIST_CTRL);
 
 	glColor3f(1.0, 1.0, 1.0);
 	while(wave != NULL) {
