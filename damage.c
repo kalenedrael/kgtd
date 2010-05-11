@@ -6,34 +6,33 @@ extern Q_HEAD(noob_t) noob_list;
  * all are fractions out of 128; 128 means no penalty or bonus
  * this may be need to be refactored
  */
-static int armor_table[][5] = {
-	/* base, composite, reactive, reflective, regen */
-	[ATTR_PLASMA] = {128,  96, 128, 140,   0},
-	[ATTR_LTNG]   = {128, 128, 168, 168, 32},
-	[ATTR_CW]     = {1920,  72,  72,  64, 64},
-	[ATTR_PULSE]  = {1280, 128, 128, 128, 128},
-	[ATTR_APCR]   = {128,  96, 128, 140, 128},
-	[ATTR_APFSDS] = {128, 128, 168, 168, 192},
-	[ATTR_DU]     = {128, 168, 180, 192, 192},
-	[ATTR_HE]     = {128,  72,  72, 128, 128},
-	[ATTR_HEAT]   = {128,  96, 128, 128, 128},
-	[ATTR_HESH]   = {128, 128,  96, 128, 128},
-	[ATTR_BASIC]  = {128,  96, 128, 140,   0}
+static int armor_table[][3] = {
+	/* base, composite, reflective */
+	[ATTR_PLASMA] = {128, 128, 140},
+	[ATTR_LTNG]   = {128, 128, 168},
+	[ATTR_CW]     = {1920,  72,  64},
+	[ATTR_PULSE]  = {1280, 128, 128},
+	[ATTR_APCR]   = {128,  96, 140},
+	[ATTR_APFSDS] = {128, 128, 168},
+	[ATTR_DU]     = {128, 168, 192},
+	[ATTR_HE]     = {128,  72, 128},
+	[ATTR_HEAT]   = {128,  96, 128},
+	[ATTR_HESH]   = {128, 128, 128},
+	[ATTR_BASIC]  = {128,  96, 140}
 };
 
-static int shield_table[][4] = {
-	/* base, hard, soft, adaptive */
-	[ATTR_PLASMA] = {128, 384, 256, 256},
-	[ATTR_LTNG]   = {128, 128, 128, 128},
-	[ATTR_CW]     = {1920, 256, 192, 128},
-	[ATTR_PULSE]  = {1280, 256, 192, 128},
-	[ATTR_APCR]   = {128,  48,  96,  64},
-	[ATTR_APFSDS] = {128,  32,  72,  48},
-	[ATTR_DU]     = {128,  24,  72,  32},
-	[ATTR_HE]     = {128,  48, 128,  96},
-	[ATTR_HEAT]   = {128,  48,  96,  72},
-	[ATTR_HESH]   = {128,  48,  96,  72},
-	[ATTR_BASIC]  = {128,  48,  48,  48}
+static int shield_table[] = {
+	[ATTR_PLASMA] = 256,
+	[ATTR_LTNG]   = 128,
+	[ATTR_CW]     = 2560,
+	[ATTR_PULSE]  = 1920,
+	[ATTR_APCR]   = 72,
+	[ATTR_APFSDS] = 48,
+	[ATTR_DU]     = 32,
+	[ATTR_HE]     = 96,
+	[ATTR_HEAT]   = 72,
+	[ATTR_HESH]   = 144,
+	[ATTR_BASIC]  = 48,
 };
 
 /* @brief splash range table */
@@ -45,7 +44,7 @@ static inline int dmg_normalize(noob_t *noob, int damage, attr_t attr)
 	int i;
 
 	damage = (damage * armor_table[attr][0]) / 128;
-	for(i = 0; i < 4; i++) {
+	for(i = 0; i < 2; i++) {
 		if(noob->armor_type & (1 << i))
 			damage = (damage * armor_table[attr][i+1]) / 128;
 	}
@@ -57,8 +56,7 @@ static void do_damage(noob_t *noob, int damage, attr_t attr)
 	int shield_dmg, shield = noob->shield;
 
 	if(shield > 0) {
-		shield_dmg = (damage * shield_table[attr][0] / 128) *
-		             shield_table[attr][noob->shield_type + 1] / 128;
+		shield_dmg = damage * shield_table[attr] / 128;
 
 		if(shield_dmg >= shield) {
 			damage = (shield_dmg - shield) * damage / shield_dmg;

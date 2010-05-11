@@ -29,9 +29,8 @@ static wave_t wave11 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP,
 	.delay = 500,
-	.shield = NOOB_DEFAULT_HP,
+	.shield = 0,
 	.armor_type = 0,
-	.shield_type = SHIELD_HARD
 };
 
 static wave_t wave12 = {
@@ -40,9 +39,8 @@ static wave_t wave12 = {
 	.speed = NOOB_DEFAULT_SPEED/2,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 500,
-	.shield = NOOB_DEFAULT_HP,
-	.armor_type = ARMOR_REGEN,
-	.shield_type = SHIELD_HARD
+	.shield = 0,
+	.armor_type = 0,
 };
 
 static wave_t wave13 = {
@@ -51,9 +49,8 @@ static wave_t wave13 = {
 	.speed = NOOB_DEFAULT_SPEED,
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 500,
-	.shield = NOOB_DEFAULT_HP,
+	.shield = 0,
 	.armor_type = 0,
-	.shield_type = SHIELD_SOFT
 };
 
 static wave_t wave14 = {
@@ -64,7 +61,6 @@ static wave_t wave14 = {
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
-	.shield_type = SHIELD_ADAPTIVE
 };
 
 static wave_t wave15 = {
@@ -74,8 +70,7 @@ static wave_t wave15 = {
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
-	.armor_type = 1,
-	.shield_type = SHIELD_SOFT
+	.armor_type = ARMOR_COMPOSITE,
 };
 
 static wave_t wave16 = {
@@ -85,8 +80,7 @@ static wave_t wave16 = {
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
-	.armor_type = 2,
-	.shield_type = SHIELD_HARD
+	.armor_type = ARMOR_REFLECTIVE,
 };
 
 static wave_t wave17 = {
@@ -96,8 +90,7 @@ static wave_t wave17 = {
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
-	.armor_type = 5,
-	.shield_type = SHIELD_ADAPTIVE
+	.armor_type = ARMOR_COMPOSITE | ARMOR_REFLECTIVE,
 };
 
 static wave_t wave18 = {
@@ -107,8 +100,7 @@ static wave_t wave18 = {
 	.hp = NOOB_DEFAULT_HP * 2,
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
-	.armor_type = 6,
-	.shield_type = SHIELD_HARD
+	.armor_type = ARMOR_COMPOSITE,
 };
 
 static wave_t wave19 = {
@@ -118,9 +110,7 @@ static wave_t wave19 = {
 	.hp = NOOB_DEFAULT_HP * 100,
 	.delay = 0,
 	.shield = NOOB_DEFAULT_HP * 100,
-	.armor_type = ARMOR_COMPOSITE | ARMOR_REACTIVE |
-	              ARMOR_REFLECTIVE | ARMOR_REGEN,
-	.shield_type = SHIELD_ADAPTIVE
+	.armor_type = ARMOR_COMPOSITE | ARMOR_REFLECTIVE,
 };
 
 /***************\
@@ -141,7 +131,6 @@ static wave_t wave21 = {
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
-	.shield_type = SHIELD_HARD
 };
 
 static wave_t wave22 = {
@@ -152,7 +141,6 @@ static wave_t wave22 = {
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
-	.shield_type = SHIELD_HARD
 };
 
 static wave_t wave23 = {
@@ -163,7 +151,6 @@ static wave_t wave23 = {
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
 	.armor_type = 0,
-	.shield_type = SHIELD_HARD
 };
 
 static wave_t wave24 = {
@@ -173,6 +160,5 @@ static wave_t wave24 = {
 	.hp = NOOB_DEFAULT_HP * 6,
 	.delay = 500,
 	.shield = NOOB_DEFAULT_HP,
-	.armor_type = ARMOR_COMPOSITE | ARMOR_REACTIVE,
-	.shield_type = SHIELD_HARD
+	.armor_type = ARMOR_COMPOSITE,
 };

@@ -52,7 +52,7 @@ void level_update(int dt, state_t *state)
 		return;
 	if(until_spawn == 0) {
 		noob_spawn(wave->speed, wave->hp, wave->shield,
-		           wave->armor_type, wave->shield_type, state);
+		           wave->armor_type, state);
 		if(level != NULL)
 			state->level_noobs++;
 		until_spawn += wave->delay;

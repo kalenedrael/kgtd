@@ -18,7 +18,6 @@ struct wave_t {
 	int delay;
 	float speed;
 	unsigned char armor_type;
-	unsigned char shield_type;
 };
 
 struct level_t {

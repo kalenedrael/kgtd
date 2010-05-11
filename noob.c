@@ -21,7 +21,7 @@ void noob_init()
 }
 
 noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
-                   unsigned char shield_type, state_t *state)
+                   state_t *state)
 {
 	noob_obj *n_obj = noob_first_free;
 	if(n_obj == NULL) {
@@ -38,7 +38,6 @@ noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
 	noob->shield = shield;
 	noob->max_shield = shield;
 	noob->armor_type = armor_type;
-	noob->shield_type = shield_type;
 	noob->future_stun = 0;
 	noob->stun_time = 0;
 	noob->is_dead = NOOB_ALIVE;

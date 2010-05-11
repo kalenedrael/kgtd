@@ -13,7 +13,7 @@
 #define BOT_BAR_BUFFER 18
 #define LEVEL_BAR (BOT_BAR - 30)
 #define LEVEL_BAR_HEIGHT 20
-#define LEVEL_BAR_WIDTH 100
+#define LEVEL_BAR_WIDTH 80
 
 void controls_init(void);
 void controls_draw(state_t *state);

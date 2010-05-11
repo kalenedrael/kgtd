@@ -262,14 +262,13 @@ static void wave_draw_one(wave_t *wave, int dx)
 	glTranslatef(dx, LEVEL_BAR, 0);
 	glCallList(DISPLAY_LIST_WAVE);
 
-	switch(wave->shield_type) {
-	case SHIELD_HARD:     glColor3f(0.5, 0.5, 1.0); break;
-	case SHIELD_SOFT:     glColor3f(1.0, 0.5, 0.5); break;
-	case SHIELD_ADAPTIVE: glColor3f(1.0, 1.0, 1.0); break;
-	}
+	if(wave->shield == 0)
+		glColor3f(0.5, 0.5, 1.0);
+	else
+		glColor3f(0.9, 0.9, 0.9);
 
 	glTranslatef(50, 5, 0);
-	for(i = 0; i < 4; i++) {
+	for(i = 0; i < 2; i++) {
 		if(wave->armor_type >> i & 0x1)
 			glCallList(DISPLAY_LIST_HAS_ARMOR);
 		else
