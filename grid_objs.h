@@ -2,7 +2,7 @@
 #define _GRID_H_
 
 #include "globals.h"
-#include "attr.h"
+#include "tower_types.h"
 #include "util.h"
 #include "variable_queue.h"
 
@@ -13,26 +13,26 @@ typedef enum grid_type {
 } grid_type;
 
 struct tower_t {
-	grid_type type;
+	grid_type g;
 	pos_t pos;
 	unsigned int power;
 	unsigned int energy;
 	unsigned int energymax;
 	float range;
-	attr_t attr;
+	ttype_t type;
 	noob_t *target;
 	void (*update)(tower_t*, int);
 	Q_NEW_LINK(tower_t) list;
 };
 
 struct path_t {
-	grid_type type;
+	grid_type g;
 	pos_t pos;
 	struct path_t *next;
 };
 
 typedef union grid_t {
-	grid_type type;
+	grid_type g;
 	tower_t t;
 	path_t p;
 } grid_t;
@@ -41,7 +41,7 @@ extern grid_t grid[GRID_Y][GRID_X];
 void grid_init();
 
 /* tower stuff */
-tower_t *tower_new(int x, int y, unsigned int power, attr_t attr);
+tower_t *tower_new(int x, int y, unsigned int power, ttype_t type);
 void tower_destroy(int x, int y);
 void tower_update_all(int dt);
 void tower_draw_all();

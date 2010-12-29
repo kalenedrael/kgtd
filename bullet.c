@@ -13,30 +13,6 @@ static bullet_obj bullets[BULLET_NUM_MAX];
 static bullet_obj *bullet_first_free;
 static Q_HEAD(bullet_t) bullet_list;
 
-static void update_pulse(bullet_t *bullet, float dt, int idt);
-static void update_cw(bullet_t *bullet, float dt, int idt);
-static void update_proj(bullet_t *bullet, float dt, int idt);
-static void draw_beam(bullet_t *bullet);
-static void draw_proj(bullet_t *bullet);
-
-struct {
-	void (*update)(bullet_t*, float, int);
-	void (*draw)(bullet_t*);
-	unsigned int max_age;
-} bullet_attr[ATTR_NUM] = {
-	{update_cw   , draw_beam, BULLET_MAX_AGE},
-	{update_pulse, draw_beam, BULLET_PULSE_MAX_AGE},
-	{update_cw   , draw_beam, BULLET_MAX_AGE},
-	{update_pulse, draw_beam, BULLET_PULSE_MAX_AGE},
-	{update_proj , draw_proj, BULLET_MAX_AGE},
-	{update_proj , draw_proj, BULLET_MAX_AGE},
-	{update_proj , draw_proj, BULLET_MAX_AGE},
-	{update_proj , draw_proj, BULLET_MAX_AGE},
-	{update_proj , draw_proj, BULLET_MAX_AGE},
-	{update_proj , draw_proj, BULLET_MAX_AGE},
-	{update_proj , draw_proj, BULLET_MAX_AGE}
-};
-
 /* @brief initialize bullet list */
 void bullet_init()
 {
@@ -51,7 +27,7 @@ void bullet_init()
 }
 
 /* @brief creates a new bullet of the given type */
-bullet_t *bullet_new(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
+bullet_t *bullet_new(pos_t *pos, unsigned int damage, ttype_t type, noob_t *dest)
 {
 	bullet_obj *b_obj = bullet_first_free;
 	if(b_obj == NULL) {
@@ -61,13 +37,13 @@ bullet_t *bullet_new(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest)
 	bullet_first_free = b_obj->next;
 
 	bullet_t *bullet = &b_obj->b;
-	bullet->update = bullet_attr[attr].update;
-	bullet->draw = bullet_attr[attr].draw;
+	bullet->update = tt_data[type].bullet.update;
+	bullet->draw = tt_data[type].bullet.draw;
 	bullet->pos = *pos;
 	bullet->damage = damage;
 	bullet->age = 0;
-	bullet->max_age = bullet_attr[attr].max_age;
-	bullet->attr = attr;
+	bullet->max_age = tt_data[type].bullet.max_age;
+	bullet->type = type;
 	bullet->dest = dest;
 
 	dest->refcnt++;
@@ -86,9 +62,9 @@ void bullet_destroy(bullet_t *bullet)
 }
 
 /* @brief draw a projectile-type bullet */
-static void draw_proj(bullet_t *bullet)
+void bullet_draw_proj(bullet_t *bullet)
 {
-	glColor3fv(attr_colors[bullet->attr]);
+	glColor3fv(tt_data[bullet->type].color);
 	glBegin(GL_QUADS);
 	glVertex2f(bullet->pos.x, bullet->pos.y);
 	glVertex2f(bullet->pos.x, bullet->pos.y + BULLET_SIZE);
@@ -98,9 +74,9 @@ static void draw_proj(bullet_t *bullet)
 }
 
 /* @brief draws a beam-type bullet */
-static void draw_beam(bullet_t *bullet)
+void bullet_draw_beam(bullet_t *bullet)
 {
-	float *clr = attr_colors[bullet->attr];
+	float *clr = tt_data[bullet->type].color;
 	float trans = 1.0 - (float)bullet->age / (float)bullet->max_age;
 
 	glColor4f(clr[0], clr[1], clr[2], trans);
@@ -111,7 +87,7 @@ static void draw_beam(bullet_t *bullet)
 }
 
 /* @brief updates a projectile-type bullet */
-static void update_proj(bullet_t *bullet, float dt, int idt)
+void bullet_upd_proj(bullet_t *bullet, float dt, int idt)
 {
 	float new_x, new_y, dy, dx, dm;
 	float xv, yv;
@@ -134,7 +110,7 @@ static void update_proj(bullet_t *bullet, float dt, int idt)
 	   ((bullet->pos.y >= dest_y && new_y <= dest_y) ||
 	    (bullet->pos.y <= dest_y && new_y >= dest_y)))
 	{
-		damage_calc(bullet->dest, bullet->damage, idt, bullet->attr);
+		damage_calc(bullet->dest, bullet->damage, idt, bullet->type);
 		bullet_destroy(bullet);
 	}
 	else {
@@ -148,7 +124,7 @@ static void update_proj(bullet_t *bullet, float dt, int idt)
  * in a cw bullet, age represents the time after the beam stops firing in ms;
  * this is used to fade the bullet
  */
-static void update_cw(bullet_t *bullet, float dt, int idt)
+void bullet_upd_cw(bullet_t *bullet, float dt, int idt)
 {
 	/* bullet has completely faded; kill */
 	if(bullet->age > bullet->max_age) {
@@ -160,19 +136,21 @@ static void update_cw(bullet_t *bullet, float dt, int idt)
 		bullet->age += idt;
 	else
 		/* do damage every frame */
-		damage_calc(bullet->dest, bullet->damage, idt, bullet->attr);
+		damage_calc(bullet->dest, bullet->damage, idt, bullet->type);
 }
 
 /* @brief updates a pulse bullet */
-static void update_pulse(bullet_t *bullet, float dt, int idt)
+void bullet_upd_pulse(bullet_t *bullet, float dt, int idt)
 {
 	bullet->age += idt;
 	/* bullet lasts a fixed time */
 	if(bullet->age > bullet->max_age)
 		bullet_destroy(bullet);
 	else
-		damage_calc(bullet->dest, bullet->damage, idt, bullet->attr);
+		damage_calc(bullet->dest, bullet->damage, idt, bullet->type);
 }
+
+/* @brief updates an area-splash bullet */
 
 void bullet_update_all(float dt, int idt)
 {

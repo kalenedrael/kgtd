@@ -163,14 +163,14 @@ void noob_draw_all()
 		draw_each(cur);
 }
 
-noob_t *noob_find_target(pos_t *pos, attr_t attr)
+noob_t *noob_find_target(pos_t *pos, ttype_t type)
 {
 	/* XXX max_range wtf */
-	float min_range = BULLET_MAX_RANGE, mag;
+	float mag, min_range = BULLET_MAX_RANGE;
 	noob_t *noob = NULL, *cur;
 
 	Q_FOREACH(cur, &noob_list, list) {
-		if(damage_not_worthwhile(cur, attr))
+		if(damage_not_worthwhile(cur, type))
 			continue;
 
 		mag = distance2(pos, &cur->pos);

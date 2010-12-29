@@ -8,55 +8,67 @@ extern Q_HEAD(noob_t) noob_list;
  */
 static int armor_table[][3] = {
 	/* base, composite, reflective */
-	[ATTR_PLASMA] = {128, 128, 140},
-	[ATTR_LTNG]   = {128, 128, 168},
-	[ATTR_CW]     = {1920,  72,  64},
-	[ATTR_PULSE]  = {1280, 128, 128},
-	[ATTR_APCR]   = {128,  96, 140},
-	[ATTR_APFSDS] = {128, 128, 168},
-	[ATTR_DU]     = {128, 168, 192},
-	[ATTR_HE]     = {128,  72, 128},
-	[ATTR_HEAT]   = {128,  96, 128},
-	[ATTR_HESH]   = {128, 128, 128},
-	[ATTR_BASIC]  = {128,  96, 140}
+	[TT_PLASMA] = {128, 128, 140},
+	[TT_LTNG]   = {128, 128, 168},
+	[TT_CW]     = {1920,  72,  64},
+	[TT_PULSE]  = {1280, 128, 128},
+	[TT_APCR]   = {128,  96, 140},
+	[TT_APFSDS] = {128, 128, 168},
+	[TT_DU]     = {128, 168, 192},
+	[TT_HE]     = {128,  72, 128},
+	[TT_HEAT]   = {128,  96, 128},
+	[TT_AREA]   = {128, 128, 128},
+	[TT_BASIC]  = {128,  96, 140}
 };
 
 static int shield_table[] = {
-	[ATTR_PLASMA] = 256,
-	[ATTR_LTNG]   = 128,
-	[ATTR_CW]     = 2560,
-	[ATTR_PULSE]  = 1920,
-	[ATTR_APCR]   = 72,
-	[ATTR_APFSDS] = 48,
-	[ATTR_DU]     = 32,
-	[ATTR_HE]     = 96,
-	[ATTR_HEAT]   = 72,
-	[ATTR_HESH]   = 144,
-	[ATTR_BASIC]  = 48,
+	[TT_PLASMA] = 256,
+	[TT_LTNG]   = 128,
+	[TT_CW]     = 2560,
+	[TT_PULSE]  = 1920,
+	[TT_APCR]   = 72,
+	[TT_APFSDS] = 48,
+	[TT_DU]     = 32,
+	[TT_HE]     = 96,
+	[TT_HEAT]   = 72,
+	[TT_AREA]   = 144,
+	[TT_BASIC]  = 48,
 };
 
 /* @brief splash range table */
-static float splash_range[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1600.0, 400.0, 900.0};
+static float splash_range[] = {
+	[TT_PLASMA] = 0.0,
+	[TT_LTNG]   = 0.0,
+	[TT_CW]     = 0.0,
+	[TT_PULSE]  = 0.0,
+	[TT_APCR]   = 0.0,
+	[TT_APFSDS] = 0.0,
+	[TT_DU]     = 0.0,
+	[TT_HE]     = 1600.0,
+	[TT_HEAT]   = 400.0,
+	[TT_AREA]   = 6400.0,
+	[TT_BASIC]  = 0.0,
+};
 
 /* calculates damage after armor bonuses/penalties */
-static inline int dmg_normalize(noob_t *noob, int damage, attr_t attr)
+static inline int dmg_normalize(noob_t *noob, int damage, ttype_t type)
 {
 	int i;
 
-	damage = (damage * armor_table[attr][0]) / 128;
+	damage = (damage * armor_table[type][0]) / 128;
 	for(i = 0; i < 2; i++) {
 		if(noob->armor_type & (1 << i))
-			damage = (damage * armor_table[attr][i+1]) / 128;
+			damage = (damage * armor_table[type][i+1]) / 128;
 	}
 	return damage;
 }
 
-static void do_damage(noob_t *noob, int damage, attr_t attr)
+static void do_damage(noob_t *noob, int damage, ttype_t type)
 {
 	int shield_dmg, shield = noob->shield;
 
 	if(shield > 0) {
-		shield_dmg = damage * shield_table[attr] / 128;
+		shield_dmg = damage * shield_table[type] / 128;
 
 		if(shield_dmg >= shield) {
 			damage = (shield_dmg - shield) * damage / shield_dmg;
@@ -67,27 +79,27 @@ static void do_damage(noob_t *noob, int damage, attr_t attr)
 			return;
 		}
 	}
-	noob->hp -= dmg_normalize(noob, damage, attr);
+	noob->hp -= dmg_normalize(noob, damage, type);
 }
 
-void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
+void damage_calc(noob_t *noob, int damage, int dt, ttype_t type)
 {
 	noob_t *cur;
 	float splash;
 
-	if(attr == ATTR_NONE) {
+	if(type == TT_NONE) {
 		printf("ATTR_NONE: fail?\n");
 		return;
 	}
 
-	if(attr == ATTR_LTNG)
+	if(type == TT_LTNG)
 		noob->stun_time = 800 /* ms */;
 
-	damage = attr <= ATTR_PULSE ? damage * dt / 16384 : damage / 16;
-	do_damage(noob, damage, attr);
+	damage = type <= TT_PULSE ? damage * dt / 16384 : damage / 16;
+	do_damage(noob, damage, type);
 
 	/* do splash dmg */
-	splash = splash_range[attr];
+	splash = splash_range[type];
 	if(splash == 0.0)
 		return;
 
@@ -96,15 +108,15 @@ void damage_calc(noob_t *noob, int damage, int dt, attr_t attr)
 			continue;
 		float d = distance2(&cur->pos, &noob->pos);
 		if(d < splash)
-			do_damage(cur, damage * (int)(splash - d) / (int)splash / 2, attr);
+			do_damage(cur, damage * (int)(splash - d) / (int)splash / 2, type);
 	}
 }
 
 /* @brief calculates if a target is worth firing at */
-int damage_not_worthwhile(noob_t *noob, attr_t attr)
+int damage_not_worthwhile(noob_t *noob, ttype_t type)
 {
 	if(noob == NULL || noob->hp <= 0 || noob->is_dead ||
-	   ((noob->future_stun || noob->stun_time > 0) && attr == ATTR_LTNG))
+	   ((noob->future_stun || noob->stun_time > 0) && type == TT_LTNG))
 		return 1;
 
 	return 0;

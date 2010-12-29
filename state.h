@@ -1,5 +1,8 @@
+#ifndef _STATE_H_
+#define _STATE_H_
+
 #include "globals.h"
-#include "attr.h"
+#include "tower_types.h"
 
 struct state_t {
 	int score;
@@ -12,7 +15,7 @@ struct state_t {
 	int max_power;
 	int towers;
 	int until_next;
-	attr_t selected;
+	ttype_t selected;
 	path_t *path;
 	level_t *level;
 	wave_t *wave;
@@ -20,3 +23,4 @@ struct state_t {
 
 void state_reset(state_t *state);
 
+#endif /* _STATE_H_ */

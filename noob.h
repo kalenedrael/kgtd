@@ -2,7 +2,7 @@
 #define _NOOB_H_
 
 #include "globals.h"
-#include "attr.h"
+#include "tower_types.h"
 #include "util.h"
 #include "variable_queue.h"
 
@@ -44,6 +44,6 @@ void noob_ref_destroy(noob_t *noob, state_t *state);
 void noob_draw_all();
 void noob_update_all(float dt, int idt, state_t *state);
 
-noob_t *noob_find_target(pos_t *pos, attr_t attr);
+noob_t *noob_find_target(pos_t *pos, ttype_t type);
 
 #endif

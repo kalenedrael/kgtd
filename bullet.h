@@ -6,7 +6,7 @@
 #define _BULLET_H_
 
 #include "globals.h"
-#include "attr.h"
+#include "tower_types.h"
 #include "util.h"
 #include "variable_queue.h"
 
@@ -17,7 +17,7 @@ struct bullet_t {
 	unsigned int damage;
 	unsigned int age;
 	unsigned int max_age;
-	attr_t attr;
+	ttype_t type;
 	noob_t *dest;
 	Q_NEW_LINK(bullet_t) list;
 };
@@ -28,7 +28,7 @@ typedef union bullet_obj {
 } bullet_obj;
 
 void bullet_init();
-bullet_t *bullet_new(pos_t *pos, unsigned int damage, attr_t attr, noob_t *dest);
+bullet_t *bullet_new(pos_t *pos, unsigned int damage, ttype_t type, noob_t *dest);
 void bullet_destroy(bullet_t *tower);
 
 void bullet_update_all(float dt, int idt);

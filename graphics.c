@@ -11,10 +11,10 @@
 #include "globals.h"
 #include "graphics.h"
 #include "controls.h"
-#include "attr.h"
+#include "tower_types.h"
 
 #define VA_LEN(x) (sizeof(x) / (2 * sizeof(float)))
-#define DL_ATTR(x) (DISPLAY_LIST_TOWER_BASE + (x))
+#define DL_TYPE(x) (DISPLAY_LIST_TOWER_BASE + (x))
 
 #define NPOINTS 64       /* number of points in the prelight and range circles */
 #define PRELIGHT_SIZE 4  /* diameter of prelight grid */
@@ -91,17 +91,17 @@ static struct {
 	[DISPLAY_LIST_HAS_ARMOR] = { VA_LEN(armor_points), GL_QUADS,     armor_points },
 	[DISPLAY_LIST_NO_ARMOR]  = { VA_LEN(armor_points), GL_LINE_LOOP, armor_points },
 
-	[DL_ATTR(ATTR_PLASMA)] = { VA_LEN(icon_plasma), GL_LINE_STRIP, icon_plasma },
-	[DL_ATTR(ATTR_LTNG)]   = { VA_LEN(icon_ltng),   GL_LINE_STRIP, icon_ltng },
-	[DL_ATTR(ATTR_CW)]     = { VA_LEN(icon_cw),     GL_LINES,      icon_cw },
-	[DL_ATTR(ATTR_PULSE)]  = { VA_LEN(icon_pulse),  GL_LINES,      icon_pulse },
-	[DL_ATTR(ATTR_APCR)]   = { VA_LEN(icon_apcr),   GL_LINE_STRIP, icon_apcr },
-	[DL_ATTR(ATTR_APFSDS)] = { VA_LEN(icon_apfsds), GL_LINE_STRIP, icon_apfsds },
-	[DL_ATTR(ATTR_DU)]     = { sizeof(icon_du),     GL_LINES,      icon_du_points },
-	[DL_ATTR(ATTR_HE)]     = { VA_LEN(icon_he),     GL_LINE_STRIP, icon_he },
-	[DL_ATTR(ATTR_HEAT)]   = { VA_LEN(icon_heat),   GL_LINE_STRIP, icon_heat },
-	[DL_ATTR(ATTR_HESH)]   = { VA_LEN(icon_hesh),   GL_LINE_STRIP, icon_hesh },
-	[DL_ATTR(ATTR_BASIC)]  = { VA_LEN(icon_basic),  GL_LINE_STRIP, icon_basic }
+	[DL_TYPE(TT_PLASMA)] = { VA_LEN(icon_plasma), GL_LINE_STRIP, icon_plasma },
+	[DL_TYPE(TT_LTNG)]   = { VA_LEN(icon_ltng),   GL_LINE_STRIP, icon_ltng },
+	[DL_TYPE(TT_CW)]     = { VA_LEN(icon_cw),     GL_LINES,      icon_cw },
+	[DL_TYPE(TT_PULSE)]  = { VA_LEN(icon_pulse),  GL_LINES,      icon_pulse },
+	[DL_TYPE(TT_APCR)]   = { VA_LEN(icon_apcr),   GL_LINE_STRIP, icon_apcr },
+	[DL_TYPE(TT_APFSDS)] = { VA_LEN(icon_apfsds), GL_LINE_STRIP, icon_apfsds },
+	[DL_TYPE(TT_DU)]     = { sizeof(icon_du),     GL_LINES,      icon_du_points },
+	[DL_TYPE(TT_HE)]     = { VA_LEN(icon_he),     GL_LINE_STRIP, icon_he },
+	[DL_TYPE(TT_HEAT)]   = { VA_LEN(icon_heat),   GL_LINE_STRIP, icon_heat },
+	[DL_TYPE(TT_AREA)]   = { VA_LEN(icon_hesh),   GL_LINE_STRIP, icon_hesh },
+	[DL_TYPE(TT_BASIC)]  = { VA_LEN(icon_basic),  GL_LINE_STRIP, icon_basic }
 };
 
 /* @brief compile prelight stuff (circle, prelight grid) */
@@ -155,7 +155,7 @@ static void init_vertex_lists()
 	for(i = DISPLAY_LIST_BEGIN; i <= DISPLAY_LIST_TOWER_END; i++) {
 		glVertexPointer(2, GL_FLOAT, 0, lists[i].list);
 		glNewList(i, GL_COMPILE);
-		if(i == DL_ATTR(ATTR_DU))
+		if(i == DL_TYPE(TT_DU))
 			glDrawElements(lists[i].type, lists[i].size,
 			               GL_UNSIGNED_BYTE, icon_du);
 		else

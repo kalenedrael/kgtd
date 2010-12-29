@@ -13,23 +13,6 @@
 
 static Q_HEAD(tower_t) tower_list;
 
-static void update_cw(tower_t *tower, int dt);
-static void update_normal(tower_t *tower, int dt);
-
-static void (*update_fns[ATTR_NUM])(tower_t*, int) = {
-	update_cw,
-	update_normal,
-	update_cw,
-	update_normal,
-	update_normal,
-	update_normal,
-	update_normal,
-	update_normal,
-	update_normal,
-	update_normal,
-	update_normal
-};
-
 /* @brief initialize towers... used to have more */
 void tower_init()
 {
@@ -39,21 +22,21 @@ void tower_init()
 /* @brief creates a tower
  * @return the created tower, or NULL if the desired position is occupied
  */
-tower_t *tower_new(int x, int y, unsigned int power, attr_t attr)
+tower_t *tower_new(int x, int y, unsigned int power, ttype_t type)
 {
-	if(grid[y][x].type != GRID_TYPE_NONE)
+	if(grid[y][x].g != GRID_TYPE_NONE)
 		return NULL;
 
 	tower_t *tower = &(grid[y][x].t);
 
-	tower->type = GRID_TYPE_TOWER;
+	tower->g = GRID_TYPE_TOWER;
 	tower->pos.x = x * GRID_SIZE + GRID_SIZE/2;
 	tower->pos.y = y * GRID_SIZE + GRID_SIZE/2;
 	tower->power = power;
 	tower->energy = 0;
 	tower->energymax = TOWER_DEFAULT_MAX_ENERGY;
-	tower->attr = attr;
-	tower->update = update_fns[attr];
+	tower->type = type;
+	tower->update = tt_data[type].tower_upd;
 	tower->target = NULL;
 
 	Q_INSERT_HEAD(&tower_list, tower, list);
@@ -66,7 +49,7 @@ void tower_destroy(int x, int y)
 {
 	tower_t *tower = &(grid[x][y].t);
 	Q_REMOVE(&tower_list, tower, list);
-	grid[x][y].type = GRID_TYPE_NONE;
+	grid[x][y].g = GRID_TYPE_NONE;
 }
 
 /* @brief updates a continuous-beam tower
@@ -75,7 +58,7 @@ void tower_destroy(int x, int y)
  * Switching targets is not instantaneous since the tower must accumulate enough
  * energy to fire before firing another beam.
  */
-static void update_cw(tower_t *tower, int dt)
+void tower_upd_cw(tower_t *tower, int dt)
 {
 	float cur_range = FLT_MAX;
 
@@ -86,18 +69,18 @@ static void update_cw(tower_t *tower, int dt)
 
 	/* no target; find one and fire at it */
 	if(tower->target == NULL) {
-		tower->target = noob_find_target(&tower->pos, tower->attr);
+		tower->target = noob_find_target(&tower->pos, tower->type);
 		if(tower->target == NULL)
 			return;
 		bullet_new(&tower->pos, tower->power * 1024 /* damage fix */,
-		           tower->attr, tower->target);
+		           tower->type, tower->target);
 		return;
 	}
 	cur_range = distance2(&tower->pos, &tower->target->pos);
 
 	/* need to find new target */
 	if(cur_range > BULLET_MAX_RANGE ||
-	   damage_not_worthwhile(tower->target, tower->attr)) {
+	   damage_not_worthwhile(tower->target, tower->type)) {
 		/* set target to NULL to search for new target */
 		tower->target = NULL;
 		tower->energy -= tower->energymax;
@@ -110,12 +93,12 @@ static void update_cw(tower_t *tower, int dt)
  * target if it is in range or worth firing at; otherwise, it looks for the
  * closest target in range
  */
-static void update_normal(tower_t *tower, int dt)
+void tower_upd_normal(tower_t *tower, int dt)
 {
 	noob_t *target = tower->target;
 
 	/* de-target */
-	if(damage_not_worthwhile(target, tower->attr) ||
+	if(damage_not_worthwhile(target, tower->type) ||
 	   (target != NULL && distance2(&tower->pos, &target->pos) > BULLET_MAX_RANGE))
 		target = NULL;
 
@@ -126,13 +109,13 @@ static void update_normal(tower_t *tower, int dt)
 
 	/* acquire target */
 	if(target == NULL) {
-		target = noob_find_target(&tower->pos, tower->attr);
+		target = noob_find_target(&tower->pos, tower->type);
 		if(target == NULL)
 			goto out;
 	}
 
 	tower->energy -= tower->energymax;
-	bullet_new(&tower->pos, tower->energymax, tower->attr, target);
+	bullet_new(&tower->pos, tower->energymax, tower->type, target);
 out:
 	tower->target = target;
 	return;
@@ -141,7 +124,7 @@ out:
 /* @brief common tower draw function */
 static void draw_each(tower_t *tower)
 {
-	float *clr = attr_colors[tower->attr];
+	float *clr = tt_data[tower->type].color;
 	float scale = (float)tower->energy / (float)tower->energymax;
 	float power_dist = ((TOWER_SIZE - PWR_IN + PWR_OUT) / (float)TOWER_MAX_PWR *
 	                   tower->power) + PWR_IN;
@@ -155,7 +138,7 @@ static void draw_each(tower_t *tower)
 	glTranslatef(tower->pos.x, tower->pos.y, 0);
 	glCallList(DISPLAY_LIST_TOWER);
 	glColor3f(1.0, 1.0, 1.0);
-	glCallList(DISPLAY_LIST_TOWER_BASE + tower->attr);
+	glCallList(DISPLAY_LIST_TOWER_BASE + tower->type);
 
 	/* draw power indicator */
 	glBegin(GL_QUADS);

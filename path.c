@@ -16,7 +16,7 @@ enum {
 
 static path_t *path_new(int x, int y)
 {
-	grid[y][x].type = GRID_TYPE_PATH;
+	grid[y][x].g = GRID_TYPE_PATH;
 	grid[y][x].p.pos.x = x * GRID_SIZE + GRID_SIZE/2;
 	grid[y][x].p.pos.y = y * GRID_SIZE + GRID_SIZE/2;
 	return &(grid[y][x].p);

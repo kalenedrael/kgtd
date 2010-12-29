@@ -10,7 +10,7 @@
 #include "noob.h"
 
 typedef struct sel_t {
-	attr_t attr;
+	ttype_t type;
 	unsigned short unlocked;
 	unsigned short upgrades;
 	struct sel_t *dep;
@@ -29,28 +29,28 @@ typedef struct sel_t {
 /* @brief the tower selector */
 static sel_t sel_arr[4][4] = {
 	{
-		{ ATTR_BASIC,  1, UPG_UP | UPG_DIAG | UPG_LEFT,  NULL },
-		{ ATTR_APCR,   0, UPG_LEFT,            &sel_arr[0][0] },
-		{ ATTR_APFSDS, 0, UPG_LEFT,            &sel_arr[0][1] },
-		{ ATTR_DU,     0, 0,                   &sel_arr[0][2] }
+		{ TT_BASIC,  1, UPG_UP | UPG_DIAG | UPG_LEFT,  NULL },
+		{ TT_APCR,   0, UPG_LEFT,            &sel_arr[0][0] },
+		{ TT_APFSDS, 0, UPG_LEFT,            &sel_arr[0][1] },
+		{ TT_DU,     0, 0,                   &sel_arr[0][2] }
 	},
 	{
-		{ ATTR_PLASMA, 0, UPG_UP | UPG_DIAG,   &sel_arr[0][0] },
-		{ ATTR_HE,     0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
-		{ ATTR_HEAT,   0, 0,                   &sel_arr[1][1] },
-		{ ATTR_NONE,   0, 0,                   NULL }
+		{ TT_PLASMA, 0, UPG_UP | UPG_DIAG,   &sel_arr[0][0] },
+		{ TT_HE,     0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
+		{ TT_HEAT,   0, 0,                   &sel_arr[1][1] },
+		{ TT_NONE,   0, 0,                   NULL }
 	},
 	{
-		{ ATTR_PULSE,  0, UPG_UP,              &sel_arr[1][0] },
-		{ ATTR_LTNG,   0, 0,                   &sel_arr[1][0] },
-		{ ATTR_HESH,   0, 0,                   &sel_arr[1][1] },
-		{ ATTR_NONE,   0, 0,                   NULL }
+		{ TT_PULSE,  0, UPG_UP,              &sel_arr[1][0] },
+		{ TT_LTNG,   0, 0,                   &sel_arr[1][0] },
+		{ TT_AREA,   0, 0,                   &sel_arr[1][1] },
+		{ TT_NONE,   0, 0,                   NULL }
 	},
 	{
-		{ ATTR_CW,     0, 0,                   &sel_arr[2][0] },
-		{ ATTR_NONE,   0, 0,                   NULL },
-		{ ATTR_NONE,   0, 0,                   NULL },
-		{ ATTR_NONE,   0, 0,                   NULL }
+		{ TT_CW,     0, 0,                   &sel_arr[2][0] },
+		{ TT_NONE,   0, 0,                   NULL },
+		{ TT_NONE,   0, 0,                   NULL },
+		{ TT_NONE,   0, 0,                   NULL }
 	}
 };
 
@@ -75,7 +75,7 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 {
 	int ax, ay;
 
-	if(state->selected == ATTR_NONE)
+	if(state->selected == TT_NONE)
 		return;
 
 	ax = (x / GRID_SIZE) * GRID_SIZE;
@@ -107,10 +107,10 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 
 	glPushMatrix();
 	glTranslatef(ax + GRID_SIZE/2, ay + GRID_SIZE/2, 0.0);
-	glColor3fv(attr_colors[state->selected]);
+	glColor3fv(tt_data[state->selected].color);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-	if(grid[ay/GRID_SIZE][ax/GRID_SIZE].type != GRID_TYPE_NONE) {
+	if(grid[ay/GRID_SIZE][ax/GRID_SIZE].g != GRID_TYPE_NONE) {
 		glColor3f(1.0, 0.0, 0.0);
 		glCallList(DISPLAY_LIST_X);
 	}
@@ -125,12 +125,12 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 }
 
 /* @brief draw one selector button */
-static void sel_draw_one(sel_t *cur, int i, int j, attr_t selected)
+static void sel_draw_one(sel_t *cur, int i, int j, ttype_t selected)
 {
 	int x = (i + 1) * BTN_SIZE;
 	int y = YRES - (j + 1) * BTN_SIZE;
 
-	if(cur->attr == ATTR_NONE)
+	if(cur->type == TT_NONE)
 		return;
 
 	/* draw if active or can be upgraded next */
@@ -139,14 +139,14 @@ static void sel_draw_one(sel_t *cur, int i, int j, attr_t selected)
 		glTranslatef(x - TOWER_SIZE/2, y + TOWER_SIZE/2, 0);
 		glColor3f(1.0, 1.0, 1.0);
 		if(cur->unlocked) {
-			glCallList(DISPLAY_LIST_TOWER_BASE + cur->attr);
-			glColor3fv(attr_colors[cur->attr]);
+			glCallList(DISPLAY_LIST_TOWER_BASE + cur->type);
+			glColor3fv(tt_data[cur->type].color);
 			glCallList(DISPLAY_LIST_TOWER);
 		}
 		else {
-			glCallList(DISPLAY_LIST_TOWER_BASE + cur->attr);
+			glCallList(DISPLAY_LIST_TOWER_BASE + cur->type);
 		}
-		if(cur->attr == selected) {
+		if(cur->type == selected) {
 			glBegin(GL_LINE_STRIP);
 			glVertex2f( SEL_BOX_SIZE,  SEL_BOX_SIZE);
 			glVertex2f(-SEL_BOX_SIZE,  SEL_BOX_SIZE);
@@ -162,19 +162,19 @@ static void sel_draw_one(sel_t *cur, int i, int j, attr_t selected)
 		glBegin(GL_LINES);
 		if(cur->upgrades & UPG_LEFT) {
 			glVertex2f(x, y + TOWER_SIZE/2);
-			glColor3fv(attr_colors[sel_arr[j][i+1].attr]);
+			glColor3fv(tt_data[sel_arr[j][i+1].type].color);
 			glVertex2f(x + BTN_OFFSET, y + TOWER_SIZE/2);
 		}
 		if(cur->upgrades & UPG_UP) {
-			glColor3fv(attr_colors[cur->attr]);
+			glColor3fv(tt_data[cur->type].color);
 			glVertex2f(x - TOWER_SIZE/2, y);
-			glColor3fv(attr_colors[sel_arr[j+1][i].attr]);
+			glColor3fv(tt_data[sel_arr[j+1][i].type].color);
 			glVertex2f(x - TOWER_SIZE/2, y - BTN_OFFSET);
 		}
 		if(cur->upgrades & UPG_DIAG) {
-			glColor3fv(attr_colors[cur->attr]);
+			glColor3fv(tt_data[cur->type].color);
 			glVertex2f(x, y);
-			glColor3fv(attr_colors[sel_arr[j+1][i+1].attr]);
+			glColor3fv(tt_data[sel_arr[j+1][i+1].type].color);
 			glVertex2f(x + BTN_OFFSET, y - BTN_OFFSET);
 		}
 		glEnd();
@@ -203,7 +203,7 @@ static void sel_click(int x, int y, state_t *state)
 	sel_t *cur = &sel_arr[y][x];
 
 	if(cur->unlocked)
-		state->selected = cur->attr;
+		state->selected = cur->type;
 	else if(cur->dep && cur->dep->unlocked)
 		cur->unlocked = 1;
 
@@ -223,10 +223,10 @@ static void bar_draw(int x, int y, state_t *state)
 	buf[0] = '\0';
 	glColor3f(0.9, 0.9, 0.9);
 	if(in_main_area(x, y)) {
-		if(state->selected != ATTR_NONE)
+		if(state->selected != TT_NONE)
 			snprintf(buf, sizeof(buf), "Click to place %s tower",
-			         attr_dscr[state->selected]);
-		else if(grid[y/GRID_SIZE][x/GRID_SIZE].type == GRID_TYPE_TOWER)
+			         tt_data[state->selected].dscr);
+		else if(grid[y/GRID_SIZE][x/GRID_SIZE].g == GRID_TYPE_TOWER)
 			strcpy(buf, "Click to increase power supplied, "
 			            "right click to decrease");
 		else
@@ -238,10 +238,10 @@ static void bar_draw(int x, int y, state_t *state)
 			sel_t *sel = &sel_arr[sy / BTN_SIZE][x / BTN_SIZE];
 			if(sel->unlocked)
 				snprintf(buf, sizeof(buf), "Click to select %s tower",
-				         attr_dscr[sel->attr]);
+				         tt_data[sel->type].dscr);
 			else if(sel->dep && sel->dep->unlocked)
 				snprintf(buf, sizeof(buf), "Click to unlock %s tower",
-				         attr_dscr[sel->attr]);
+				         tt_data[sel->type].dscr);
 		}
 	}
 	text_draw(buf, 184, 550);
@@ -343,9 +343,9 @@ void controls_update(int dt, state_t *state)
 	Uint8 btn = SDL_GetMouseState(&x, &y);
 	tower_t *tower = &grid[y/GRID_SIZE][x/GRID_SIZE].t;
 
-	if(state->selected != ATTR_NONE)
+	if(state->selected != TT_NONE)
 		return;
-	if(tower->type != GRID_TYPE_TOWER)
+	if(tower->g != GRID_TYPE_TOWER)
 		return;
 
 	power = tower->power;
@@ -364,12 +364,12 @@ void controls_update(int dt, state_t *state)
 void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 {
 	if(ev->button == SDL_BUTTON_RIGHT) {
-		state->selected = ATTR_NONE;
+		state->selected = TT_NONE;
 	}
 	else if(in_main_area(ev->x, ev->y)) {
 		int gx = ev->x/GRID_SIZE;
 		int gy = ev->y/GRID_SIZE;
-		if(ev->button == SDL_BUTTON_LEFT && state->selected != ATTR_NONE) {
+		if(ev->button == SDL_BUTTON_LEFT && state->selected != TT_NONE) {
 			int power = state->max_power - state->power_used;
 			power = power > 100 ? 100 : power;
 			tower_t *tower = tower_new(gx, gy, power, state->selected);
