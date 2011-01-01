@@ -35,7 +35,10 @@ typedef enum ttype {
 struct tt_data_t {
 	float color[3];
 	char *dscr;
-	void (*tower_upd)(tower_t*, int);
+	struct {
+		void (*upd)(tower_t*, int);
+		float range;
+	} tower;
 	struct {
 		void (*update)(bullet_t*, float, int);
 		void (*draw)(bullet_t*);

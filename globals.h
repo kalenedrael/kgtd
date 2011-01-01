@@ -22,9 +22,6 @@
 #define BULLET_PULSE_MAX_AGE 100 /* ms */
 #define BULLET_SPEED 320.1       /* pixels/s */
 
-/* XXX */
-#define BULLET_MAX_RANGE 22500.0
-
 /* noob constants */
 #define NOOB_DEFAULT_HP 5827
 #define NOOB_DEFAULT_SPEED 35.0  /* pixels/s */

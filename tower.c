@@ -36,7 +36,8 @@ tower_t *tower_new(int x, int y, unsigned int power, ttype_t type)
 	tower->energy = 0;
 	tower->energymax = TOWER_DEFAULT_MAX_ENERGY;
 	tower->type = type;
-	tower->update = tt_data[type].tower_upd;
+	tower->range = tt_data[type].tower.range * tt_data[type].tower.range;
+	tower->update = tt_data[type].tower.upd;
 	tower->target = NULL;
 
 	Q_INSERT_HEAD(&tower_list, tower, list);
@@ -62,6 +63,9 @@ void tower_upd_cw(tower_t *tower, int dt)
 {
 	float cur_range = FLT_MAX;
 
+	if(tower->power == 0)
+		return;
+
 	if(tower->energy < tower->energymax) {
 		tower->energy += 50 * dt;
 		return;
@@ -79,7 +83,7 @@ void tower_upd_cw(tower_t *tower, int dt)
 	cur_range = distance2(&tower->pos, &tower->target->pos);
 
 	/* need to find new target */
-	if(cur_range > BULLET_MAX_RANGE ||
+	if(cur_range > tower->range ||
 	   damage_not_worthwhile(tower->target, tower->type)) {
 		/* set target to NULL to search for new target */
 		tower->target = NULL;
@@ -99,7 +103,7 @@ void tower_upd_normal(tower_t *tower, int dt)
 
 	/* de-target */
 	if(damage_not_worthwhile(target, tower->type) ||
-	   (target != NULL && distance2(&tower->pos, &target->pos) > BULLET_MAX_RANGE))
+	   (target != NULL && distance2(&tower->pos, &target->pos) > tower->range))
 		target = NULL;
 
 	if(tower->energy < tower->energymax) {

@@ -14,6 +14,7 @@ struct bullet_t {
 	void (*update)(bullet_t*, float, int);
 	void (*draw)(bullet_t*);
 	pos_t pos;
+	float range;
 	unsigned int damage;
 	unsigned int age;
 	unsigned int max_age;

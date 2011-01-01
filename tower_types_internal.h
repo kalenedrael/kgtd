@@ -12,5 +12,6 @@ void bullet_upd_pulse(bullet_t *bullet, float dt, int idt);
 
 void bullet_draw_proj(bullet_t *bullet);
 void bullet_draw_beam(bullet_t *bullet);
+void bullet_draw_area(bullet_t *bullet);
 
 #endif

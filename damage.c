@@ -82,10 +82,13 @@ static void do_damage(noob_t *noob, int damage, ttype_t type)
 	noob->hp -= dmg_normalize(noob, damage, type);
 }
 
-void damage_calc(noob_t *noob, int damage, int dt, ttype_t type)
+void damage_calc(bullet_t *bullet, int dt)
 {
-	noob_t *cur;
+	noob_t *cur, *noob = bullet->dest;
+	ttype_t type = bullet->type;
+	int damage = bullet->damage;
 	float splash;
+	pos_t *pos;
 
 	if(type == TT_NONE) {
 		printf("ATTR_NONE: fail?\n");
@@ -95,8 +98,15 @@ void damage_calc(noob_t *noob, int damage, int dt, ttype_t type)
 	if(type == TT_LTNG)
 		noob->stun_time = 800 /* ms */;
 
-	damage = type <= TT_PULSE ? damage * dt / 16384 : damage / 16;
-	do_damage(noob, damage, type);
+	damage = type <= TT_PULSE || type == TT_AREA ? damage * dt / 16384 : damage / 16;
+	if(type != TT_AREA) {
+		do_damage(noob, damage, type);
+		pos = &noob->pos;
+	}
+	else {
+		pos = &bullet->pos;
+		noob = NULL;
+	}
 
 	/* do splash dmg */
 	splash = splash_range[type];
@@ -106,7 +116,7 @@ void damage_calc(noob_t *noob, int damage, int dt, ttype_t type)
 	Q_FOREACH(cur, &noob_list, list) {
 		if(noob == cur)
 			continue;
-		float d = distance2(&cur->pos, &noob->pos);
+		float d = distance2(&cur->pos, pos);
 		if(d < splash)
 			do_damage(cur, damage * (int)(splash - d) / (int)splash / 2, type);
 	}
@@ -118,6 +128,6 @@ int damage_not_worthwhile(noob_t *noob, ttype_t type)
 	if(noob == NULL || noob->hp <= 0 || noob->is_dead ||
 	   ((noob->future_stun || noob->stun_time > 0) && type == TT_LTNG))
 		return 1;
-
-	return 0;
+	else
+		return 0;
 }

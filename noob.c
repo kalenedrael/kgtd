@@ -166,9 +166,10 @@ void noob_draw_all()
 noob_t *noob_find_target(pos_t *pos, ttype_t type)
 {
 	/* XXX max_range wtf */
-	float mag, min_range = BULLET_MAX_RANGE;
+	float mag, min_range = tt_data[type].tower.range;
 	noob_t *noob = NULL, *cur;
 
+	min_range = min_range * min_range;
 	Q_FOREACH(cur, &noob_list, list) {
 		if(damage_not_worthwhile(cur, type))
 			continue;

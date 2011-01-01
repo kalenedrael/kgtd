@@ -17,7 +17,7 @@
 #define DL_TYPE(x) (DISPLAY_LIST_TOWER_BASE + (x))
 
 #define NPOINTS 64       /* number of points in the prelight and range circles */
-#define PRELIGHT_SIZE 4  /* diameter of prelight grid */
+#define PRELIGHT_SIZE 3  /* diameter of prelight grid */
 #define X_WIDTH 2        /* width of cannot-place-here X */
 #define X_SIZE 20        /* size of X */
 
@@ -137,14 +137,12 @@ static void init_prelight()
 	glEnd();
 	glEndList();
 
-	/* compile range circle */
+	/* compile generic circle */
 	glNewList(DISPLAY_LIST_CIRCLE, GL_COMPILE);
-	glBegin(GL_LINE_STRIP);
 	for(i = 0; i <= NPOINTS; i++) {
 		glVertex2f(sinf(i * (2 * M_PI / NPOINTS)),
 		           cosf(i * (2 * M_PI / NPOINTS)));
 	}
-	glEnd();
 	glEndList();
 }
 

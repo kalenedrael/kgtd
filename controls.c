@@ -115,11 +115,14 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 		glCallList(DISPLAY_LIST_X);
 	}
 	else {
+		float range = tt_data[state->selected].tower.range;
 		glCallList(DISPLAY_LIST_TOWER);
 		glColor3f(1.0, 1.0, 1.0);
 		glCallList(DISPLAY_LIST_TOWER_BASE + state->selected);
-		glScalef(150.0, 150.0, 0);
+		glScalef(range, range, 1.0);
+		glBegin(GL_LINE_STRIP);
 		glCallList(DISPLAY_LIST_CIRCLE);
+		glEnd();
 	}
 	glPopMatrix();
 }

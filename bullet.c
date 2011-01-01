@@ -43,6 +43,7 @@ bullet_t *bullet_new(pos_t *pos, unsigned int damage, ttype_t type, noob_t *dest
 	bullet->damage = damage;
 	bullet->age = 0;
 	bullet->max_age = tt_data[type].bullet.max_age;
+	bullet->range = tt_data[type].tower.range * tt_data[type].tower.range;
 	bullet->type = type;
 	bullet->dest = dest;
 
@@ -86,6 +87,23 @@ void bullet_draw_beam(bullet_t *bullet)
 	glEnd();
 }
 
+void bullet_draw_area(bullet_t *bullet)
+{
+	float *clr = tt_data[bullet->type].color;
+	float trans = 1.0 - (float)bullet->age / (float)bullet->max_age;
+
+	glColor4f(clr[0], clr[1], clr[2], trans);
+	glPushMatrix();
+	glTranslatef(bullet->pos.x, bullet->pos.y, 0.0);
+	glScalef(80.0, 80.0, 1.0);
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex3f(0.0, 0.0, 0.0);
+	glColor4f(clr[0], clr[1], clr[2], 0.0);
+	glCallList(DISPLAY_LIST_CIRCLE);
+	glEnd();
+	glPopMatrix();
+}
+
 /* @brief updates a projectile-type bullet */
 void bullet_upd_proj(bullet_t *bullet, float dt, int idt)
 {
@@ -110,7 +128,7 @@ void bullet_upd_proj(bullet_t *bullet, float dt, int idt)
 	   ((bullet->pos.y >= dest_y && new_y <= dest_y) ||
 	    (bullet->pos.y <= dest_y && new_y >= dest_y)))
 	{
-		damage_calc(bullet->dest, bullet->damage, idt, bullet->type);
+		damage_calc(bullet, idt);
 		bullet_destroy(bullet);
 	}
 	else {
@@ -132,11 +150,11 @@ void bullet_upd_cw(bullet_t *bullet, float dt, int idt)
 		return;
 	}
 	/* target dead or out of range; fade the beam by incrementing age */
-	if(bullet->dest->is_dead || distance2(&bullet->pos, &bullet->dest->pos) > BULLET_MAX_RANGE)
+	if(bullet->dest->is_dead || distance2(&bullet->pos, &bullet->dest->pos) > bullet->range)
 		bullet->age += idt;
 	else
 		/* do damage every frame */
-		damage_calc(bullet->dest, bullet->damage, idt, bullet->type);
+		damage_calc(bullet, idt);
 }
 
 /* @brief updates a pulse bullet */
@@ -147,10 +165,8 @@ void bullet_upd_pulse(bullet_t *bullet, float dt, int idt)
 	if(bullet->age > bullet->max_age)
 		bullet_destroy(bullet);
 	else
-		damage_calc(bullet->dest, bullet->damage, idt, bullet->type);
+		damage_calc(bullet, idt);
 }
-
-/* @brief updates an area-splash bullet */
 
 void bullet_update_all(float dt, int idt)
 {
