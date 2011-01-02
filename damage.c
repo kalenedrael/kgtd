@@ -8,30 +8,30 @@ extern Q_HEAD(noob_t) noob_list;
  */
 static int armor_table[][3] = {
 	/* base, composite, reflective */
-	[TT_PLASMA] = {128, 128, 140},
-	[TT_LTNG]   = {128, 128, 168},
-	[TT_CW]     = {1920,  72,  64},
-	[TT_PULSE]  = {1280, 128, 128},
-	[TT_APCR]   = {128,  96, 140},
-	[TT_APFSDS] = {128, 128, 168},
-	[TT_DU]     = {128, 168, 192},
-	[TT_HE]     = {128,  72, 128},
-	[TT_HEAT]   = {128,  96, 128},
-	[TT_AREA]   = {128, 128, 128},
-	[TT_BASIC]  = {128,  96, 140}
+	[TT_PLASMA] = {64,   128, 96},
+	[TT_LTNG]   = {128,  128, 128},
+	[TT_CW]     = {1920, 128, 32},
+	[TT_PULSE]  = {1280, 128, 48},
+	[TT_APCR]   = {128,  48,  128},
+	[TT_APFSDS] = {144,  48,  128},
+	[TT_DU]     = {192,  64,  128},
+	[TT_HE]     = {72,   48,  128},
+	[TT_HEAT]   = {128,  64,  128},
+	[TT_AREA]   = {64,   96,  96},
+	[TT_BASIC]  = {64,   64,  64}
 };
 
 static int shield_table[] = {
-	[TT_PLASMA] = 256,
+	[TT_PLASMA] = 512,
 	[TT_LTNG]   = 128,
-	[TT_CW]     = 2560,
+	[TT_CW]     = 1280,
 	[TT_PULSE]  = 1920,
-	[TT_APCR]   = 72,
+	[TT_APCR]   = 64,
 	[TT_APFSDS] = 48,
-	[TT_DU]     = 32,
+	[TT_DU]     = 40,
 	[TT_HE]     = 96,
 	[TT_HEAT]   = 72,
-	[TT_AREA]   = 144,
+	[TT_AREA]   = 128,
 	[TT_BASIC]  = 48,
 };
 

@@ -70,7 +70,7 @@ static float icon_apcr[]   = {10,1, 2,5, -10,5, -10,-4, 1,-4, 10,1};
 static float icon_apfsds[] = {-7,2, 8,2, 10,1, 8,-1, -7,-1, -10,-3, -10,4, -7,2};
 static float icon_he[]     = {0,-10, 2,-4, 8,-5, 2,0, 8,7, 1,3, 0,10, -2,4, -8,4, -3,2, -8,-6, -3,-3, 0,-10};
 static float icon_heat[]   = {2,12, 2,5, -8,8, -1,2, -9,0, -1,-2, -8,-8, 2,-5, 2,-12, 2,-2, 10,0, 2,2, 2,12};
-static float icon_hesh[]   = {5,-12, 5,12, 5,5, -5,8, 2,2, -6,0, 2,-2, -5,-8, 5,-5, 5,-12};
+static float icon_area[]   = {9,0, 2,2, 0,9, -2,2, -9,0, -2,-2, 0,-9, 2,-2, 9,0, 6,6, 0,9, -6,6, -9,0, -6,-6, 0,-9, 6,-6, 9,0};
 static float icon_basic[]  = {0,4, -4,0, 0,-4, 4,0, 0,4};
 
 static float icon_du_points[] = {-10,-10, -10,10, 10,-10, 10,10, -3,-3, -3,3, 3,-3, 3,3};
@@ -100,7 +100,7 @@ static struct {
 	[DL_TYPE(TT_DU)]     = { sizeof(icon_du),     GL_LINES,      icon_du_points },
 	[DL_TYPE(TT_HE)]     = { VA_LEN(icon_he),     GL_LINE_STRIP, icon_he },
 	[DL_TYPE(TT_HEAT)]   = { VA_LEN(icon_heat),   GL_LINE_STRIP, icon_heat },
-	[DL_TYPE(TT_AREA)]   = { VA_LEN(icon_hesh),   GL_LINE_STRIP, icon_hesh },
+	[DL_TYPE(TT_AREA)]   = { VA_LEN(icon_area),   GL_LINE_STRIP, icon_area },
 	[DL_TYPE(TT_BASIC)]  = { VA_LEN(icon_basic),  GL_LINE_STRIP, icon_basic }
 };
 
@@ -143,6 +143,15 @@ static void init_prelight()
 		glVertex2f(sinf(i * (2 * M_PI / NPOINTS)),
 		           cosf(i * (2 * M_PI / NPOINTS)));
 	}
+	glEndList();
+
+	/* compile glow effect */
+	glNewList(DISPLAY_LIST_GLOW, GL_COMPILE);
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex3f(0.0, 0.0, 0.0);
+	glColor4f(0.0, 0.0, 0.0, 0.0);
+	glCallList(DISPLAY_LIST_CIRCLE);
+	glEnd();
 	glEndList();
 }
 

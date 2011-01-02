@@ -85,6 +85,12 @@ void bullet_draw_beam(bullet_t *bullet)
 	glVertex2f(bullet->pos.x, bullet->pos.y);
 	glVertex2f(bullet->dest->pos.x, bullet->dest->pos.y);
 	glEnd();
+
+	glPushMatrix();
+	glTranslatef(bullet->dest->pos.x, bullet->dest->pos.y, 0.0);
+	glScalef(20.0, 20.0, 1.0);
+	glCallList(DISPLAY_LIST_GLOW);
+	glPopMatrix();
 }
 
 void bullet_draw_area(bullet_t *bullet)
@@ -95,12 +101,8 @@ void bullet_draw_area(bullet_t *bullet)
 	glColor4f(clr[0], clr[1], clr[2], trans);
 	glPushMatrix();
 	glTranslatef(bullet->pos.x, bullet->pos.y, 0.0);
-	glScalef(80.0, 80.0, 1.0);
-	glBegin(GL_TRIANGLE_FAN);
-	glVertex3f(0.0, 0.0, 0.0);
-	glColor4f(clr[0], clr[1], clr[2], 0.0);
-	glCallList(DISPLAY_LIST_CIRCLE);
-	glEnd();
+	glScalef(tt_data[TT_AREA].tower.range, tt_data[TT_AREA].tower.range, 1.0);
+	glCallList(DISPLAY_LIST_GLOW);
 	glPopMatrix();
 }
 
