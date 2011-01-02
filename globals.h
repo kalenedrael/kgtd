@@ -20,6 +20,7 @@
 #define BULLET_SIZE 3            /* pixels */
 #define BULLET_MAX_AGE 1000      /* ms */
 #define BULLET_PULSE_MAX_AGE 100 /* ms */
+#define BULLET_HIT_MAX_AGE 1000 /* ms */
 #define BULLET_SPEED 320.1       /* pixels/s */
 
 /* noob constants */

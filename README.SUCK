@@ -1,0 +1,7 @@
+Quirks (partial list):
+
+Pulse and area tower damage are modified by max_age; projectile and CW towers
+use it purely for visual effect.
+
+Damage calculation is shitty and may need to be redone in a more
+'object-oriented' manner instead of having special cases for everything.

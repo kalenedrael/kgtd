@@ -40,9 +40,7 @@ static int rel_dir(int x, int y, path_t *rel)
 	return DIR_NONE;
 }
 
-/* @brief draws one path square
- *
- * XXX lame - alternate algorithms gladly accepted */
+/* @brief draws one path square */
 static void draw_one(int cx, int cy, path_t *cur, path_t *prev)
 {
 	int rel_prev, rel_next;

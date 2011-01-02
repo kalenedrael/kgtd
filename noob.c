@@ -165,7 +165,6 @@ void noob_draw_all()
 
 noob_t *noob_find_target(pos_t *pos, ttype_t type)
 {
-	/* XXX max_range wtf */
 	float mag, min_range = tt_data[type].tower.range;
 	noob_t *noob = NULL, *cur;
 

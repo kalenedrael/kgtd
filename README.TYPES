@@ -1,0 +1,61 @@
+TT_PLASMA:
+	plasma projector
+	- medium range continuous fire
+	- super effective vs. shields
+	- weak vs. armor
+
+TT_LTNG:
+	lightning tower
+	- short range pulsed fire
+	- low damage
+	- stuns target
+
+TT_CW:
+	laser tower
+	- long range continuous high damage
+	- weak vs. reflective armor
+	- strong vs. everything else
+
+TT_PULSE:
+	pulsed laser tower
+	- long range pulsed damage
+	- weak vs. reflective armor
+
+TT_APCR:
+	artillery tower
+	- extreme range
+	- weak vs. composite armor
+	- weak vs. shields
+
+TT_APFSDS:
+	APFSDS tower
+	- medium range
+	- weak vs. composite armor
+	- weak vs. shields
+
+TT_DU:
+	DU tower
+	- medium range
+	- moderately weak vs. composite armor
+	- weak vs. shields
+
+TT_HE:
+	high explosive projectile gun
+	- medium range
+	- splash damage
+
+TT_HEAT:
+	HEAT gun
+	- medium range
+	- splash damage
+	- moderately weak vs. armor
+
+TT_AREA:
+	damage field projector
+	- short range
+	- low damage to everything in range
+
+TT_BASIC:
+	basic gun
+	- medium range
+	- weak vs. most things

@@ -62,43 +62,53 @@ void bullet_destroy(bullet_t *bullet)
 	bullet_first_free = b_obj;
 }
 
-/* @brief draw a projectile-type bullet */
-void bullet_draw_proj(bullet_t *bullet)
-{
-	glColor3fv(tt_data[bullet->type].color);
-	glBegin(GL_QUADS);
-	glVertex2f(bullet->pos.x, bullet->pos.y);
-	glVertex2f(bullet->pos.x, bullet->pos.y + BULLET_SIZE);
-	glVertex2f(bullet->pos.x + BULLET_SIZE, bullet->pos.y + BULLET_SIZE);
-	glVertex2f(bullet->pos.x + BULLET_SIZE, bullet->pos.y);
-	glEnd();
-}
-
-/* @brief draws a beam-type bullet */
-void bullet_draw_beam(bullet_t *bullet)
+static void set_color(bullet_t *bullet)
 {
 	float *clr = tt_data[bullet->type].color;
 	float trans = 1.0 - (float)bullet->age / (float)bullet->max_age;
-
 	glColor4f(clr[0], clr[1], clr[2], trans);
-	glBegin(GL_LINES);
-	glVertex2f(bullet->pos.x, bullet->pos.y);
-	glVertex2f(bullet->dest->pos.x, bullet->dest->pos.y);
-	glEnd();
+}
 
+static void draw_hit_glow(pos_t *pos)
+{
 	glPushMatrix();
-	glTranslatef(bullet->dest->pos.x, bullet->dest->pos.y, 0.0);
+	glTranslatef(pos->x, pos->y, 0.0);
 	glScalef(20.0, 20.0, 1.0);
 	glCallList(DISPLAY_LIST_GLOW);
 	glPopMatrix();
 }
 
+/* @brief draw a projectile-type bullet */
+void bullet_draw_proj(bullet_t *bullet)
+{
+	set_color(bullet);
+	if(bullet->age == 0) {
+		glBegin(GL_QUADS);
+		glVertex2f(bullet->pos.x, bullet->pos.y);
+		glVertex2f(bullet->pos.x, bullet->pos.y + BULLET_SIZE);
+		glVertex2f(bullet->pos.x + BULLET_SIZE, bullet->pos.y + BULLET_SIZE);
+		glVertex2f(bullet->pos.x + BULLET_SIZE, bullet->pos.y);
+		glEnd();
+	}
+	else {
+		draw_hit_glow(&bullet->pos);
+	}
+}
+
+/* @brief draws a beam-type bullet */
+void bullet_draw_beam(bullet_t *bullet)
+{
+	set_color(bullet);
+	glBegin(GL_LINES);
+	glVertex2f(bullet->pos.x, bullet->pos.y);
+	glVertex2f(bullet->dest->pos.x, bullet->dest->pos.y);
+	glEnd();
+	draw_hit_glow(&bullet->dest->pos);
+}
+
 void bullet_draw_area(bullet_t *bullet)
 {
-	float *clr = tt_data[bullet->type].color;
-	float trans = 1.0 - (float)bullet->age / (float)bullet->max_age;
-
-	glColor4f(clr[0], clr[1], clr[2], trans);
+	set_color(bullet);
 	glPushMatrix();
 	glTranslatef(bullet->pos.x, bullet->pos.y, 0.0);
 	glScalef(tt_data[TT_AREA].tower.range, tt_data[TT_AREA].tower.range, 1.0);
@@ -112,6 +122,15 @@ void bullet_upd_proj(bullet_t *bullet, float dt, int idt)
 	float new_x, new_y, dy, dx, dm;
 	float xv, yv;
 	float dest_x = bullet->dest->pos.x, dest_y = bullet->dest->pos.y;
+
+	if(bullet->age > 0) {
+		/* bullet has completely faded; kill */
+		if(bullet->age > bullet->max_age)
+			bullet_destroy(bullet);
+		else
+			bullet->age += idt;
+		return;
+	}
 
 	/* calculate new position of bullet - moves by BULLET_SPEED * dt in the
 	 * direction of the target
@@ -131,7 +150,9 @@ void bullet_upd_proj(bullet_t *bullet, float dt, int idt)
 	    (bullet->pos.y <= dest_y && new_y >= dest_y)))
 	{
 		damage_calc(bullet, idt);
-		bullet_destroy(bullet);
+		bullet->age = 1;
+		bullet->pos.x = dest_x;
+		bullet->pos.y = dest_y;
 	}
 	else {
 		bullet->pos.x = new_x;
