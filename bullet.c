@@ -162,12 +162,14 @@ void bullet_upd_cw(bullet_t *bullet, float dt, int idt)
 /* @brief updates a pulse bullet */
 void bullet_upd_pulse(bullet_t *bullet, float dt, int idt)
 {
+	int life = bullet->max_age - bullet->age;
+
 	bullet->age += idt;
 	/* bullet lasts a fixed time */
-	if(bullet->age > bullet->max_age)
+	if(life < 0)
 		bullet_destroy(bullet);
 	else
-		damage_calc(bullet, idt);
+		damage_calc(bullet, idt > life ? life : idt);
 }
 
 void bullet_update_all(float dt, int idt)
