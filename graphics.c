@@ -58,8 +58,9 @@ static float wave_points[] = {
 	LEVEL_BAR_WIDTH - 10, LEVEL_BAR_HEIGHT,   LEVEL_BAR_WIDTH - 10, 0.0
 };
 
-/* @brief vertex array for armor boxes */
-static float armor_points[] = { 0,0, 0,10, 5,10, 5,0 };
+/* vertex arrays for armor types */
+static float comp_points[] = { 6,0, 0,6, 6,4, 0,10, 0,0, 6,6, 0,4, 6,10};
+static float reflect_points[] = { 6,0, 6,10, 0,1, 4,5, 4,5, 0,9};
 
 /* icons */
 static float icon_plasma[] = {-4,-10, 4,-7, -4,-4, 4,-1, -4,2, 4,5, -4,8, 4,11};
@@ -88,8 +89,8 @@ static struct {
 	[DISPLAY_LIST_WAVE]  = { VA_LEN(wave_points),  GL_LINE_LOOP,    wave_points },
 	[DISPLAY_LIST_CTRL]  = { VA_LEN(ctl_points),   GL_QUADS,        ctl_points },
 
-	[DISPLAY_LIST_HAS_ARMOR] = { VA_LEN(armor_points), GL_QUADS,     armor_points },
-	[DISPLAY_LIST_NO_ARMOR]  = { VA_LEN(armor_points), GL_LINE_LOOP, armor_points },
+	[DISPLAY_LIST_COMP]     = { VA_LEN(comp_points),    GL_LINES, comp_points },
+	[DISPLAY_LIST_REFLECT]  = { VA_LEN(reflect_points), GL_LINES, reflect_points },
 
 	[DL_TYPE(TT_PLASMA)] = { VA_LEN(icon_plasma), GL_LINE_STRIP, icon_plasma },
 	[DL_TYPE(TT_LTNG)]   = { VA_LEN(icon_ltng),   GL_LINE_STRIP, icon_ltng },

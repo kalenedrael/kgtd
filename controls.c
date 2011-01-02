@@ -255,7 +255,6 @@ static void bar_draw(int x, int y, state_t *state)
 
 static void wave_draw_one(wave_t *wave, int dx)
 {
-	int i;
 	char buf[BUF_SIZE];
 
 	snprintf(buf, sizeof(buf), "%dx", wave->noobs);
@@ -270,14 +269,13 @@ static void wave_draw_one(wave_t *wave, int dx)
 	else
 		glColor3f(0.9, 0.9, 0.9);
 
-	glTranslatef(50, 5, 0);
-	for(i = 0; i < 2; i++) {
-		if(wave->armor_type >> i & 0x1)
-			glCallList(DISPLAY_LIST_HAS_ARMOR);
-		else
-			glCallList(DISPLAY_LIST_NO_ARMOR);
-		glTranslatef(10, 0, 0);
+	glTranslatef(57, 5, 0);
+	if(wave->armor_type & ARMOR_COMPOSITE) {
+		glCallList(DISPLAY_LIST_COMP);
+		glTranslatef(-12, 0, 0);
 	}
+	if(wave->armor_type & ARMOR_REFLECTIVE)
+		glCallList(DISPLAY_LIST_REFLECT);
 	glPopMatrix();
 }
 
