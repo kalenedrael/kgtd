@@ -12,7 +12,7 @@ LIBS=-framework OpenGL -framework SDL -framework Cocoa
 else
 ifeq ($(strip $(KERN)),Linux)
 ARCH_OBJS=
-LIBS=-lSDL -lGL
+LIBS=-lSDL -lGL -lm
 else
 $(error "I couldn't figure out your architecture; that means I hate you")
 endif
