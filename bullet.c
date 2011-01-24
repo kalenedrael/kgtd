@@ -108,10 +108,12 @@ void bullet_draw_beam(bullet_t *bullet)
 
 void bullet_draw_area(bullet_t *bullet)
 {
+	float range = tt_data[TT_AREA].tower.range * 1.2;
+
 	set_color(bullet);
 	glPushMatrix();
 	glTranslatef(bullet->pos.x, bullet->pos.y, 0.0);
-	glScalef(tt_data[TT_AREA].tower.range, tt_data[TT_AREA].tower.range, 1.0);
+	glScalef(range, range, 1.0);
 	glCallList(DISPLAY_LIST_GLOW);
 	glPopMatrix();
 }
