@@ -4,6 +4,7 @@
  * 'bullet' here refers to anything that a tower fires, including beams.
  */
 
+#include <float.h>
 #include "bullet.h"
 #include "damage.h"
 #include "state.h"
@@ -12,6 +13,7 @@
 static bullet_obj bullets[BULLET_NUM_MAX];
 static bullet_obj *bullet_first_free;
 static Q_HEAD(bullet_t) bullet_list;
+extern Q_HEAD(noob_t) noob_list;
 
 /* @brief initialize bullet list */
 void bullet_init()
@@ -116,6 +118,29 @@ void bullet_draw_area(bullet_t *bullet)
 	glPopMatrix();
 }
 
+static void overpenetrate(bullet_t *bullet, float angle)
+{
+	noob_t *cur, *opt = NULL;
+	float d2, da, score = FLT_MAX;
+
+	Q_FOREACH(cur, &noob_list, list) {
+		if(cur == bullet->dest)
+			continue;
+		d2 = distance2(&bullet->pos, &cur->pos);
+		da = fabs(angle - atan2(cur->pos.y - bullet->pos.y,
+		                        cur->pos.x - bullet->pos.x));
+		if(d2 < 1600.0 && da < 0.1 && d2 * da < score && !cur->is_dead) {
+			opt = cur;
+			score = d2 * da;
+		}
+	}
+
+	if(opt != NULL && bullet->damage > 10000)
+		bullet_new(&bullet->pos, bullet->damage/2, bullet->type, opt);
+
+	return;
+}
+
 /* @brief updates a projectile-type bullet */
 void bullet_upd_proj(bullet_t *bullet, float dt, int idt)
 {
@@ -153,6 +178,8 @@ void bullet_upd_proj(bullet_t *bullet, float dt, int idt)
 		bullet->age = 1;
 		bullet->pos.x = dest_x;
 		bullet->pos.y = dest_y;
+		if(bullet->type == TT_APFSDS || bullet->type == TT_DU)
+			overpenetrate(bullet, atan2f(yv, xv));
 	}
 	else {
 		bullet->pos.x = new_x;

@@ -39,13 +39,13 @@ struct tt_data_t tt_data[TT_NUM] = {
 	[TT_APFSDS] = {
 		.color = {0.4, 0.8, 0.4},
 		.dscr = "APFSDS gun",
-		.tower = {tower_upd_normal, 120.0},
+		.tower = {tower_upd_normal, 130.0},
 		.bullet = {bullet_upd_proj , bullet_draw_proj, BULLET_HIT_MAX_AGE},
 	},
 	[TT_DU] = {
 		.color = {0.4, 0.8, 0.4},
 		.dscr = "APFSDS-DU gun",
-		.tower = {tower_upd_normal, 120.0},
+		.tower = {tower_upd_normal, 130.0},
 		.bullet = {bullet_upd_proj , bullet_draw_proj, BULLET_HIT_MAX_AGE},
 	},
 	[TT_HE] = {

@@ -71,18 +71,8 @@ static void scores_draw(state_t *state)
 	text_draw(buf, 664, 602);
 }
 
-static void draw_prelight_grid(int x, int y, state_t *state)
+static void draw_prelight_grid(int x, int y, int ax, int ay)
 {
-	int ax, ay;
-
-	if(state->selected == TT_NONE)
-		return;
-
-	ax = (x / GRID_SIZE) * GRID_SIZE;
-	ay = (y / GRID_SIZE) * GRID_SIZE;
-	if(ax > GRID_X * GRID_SIZE || ay > GRID_Y * GRID_SIZE)
-		return;
-
 	/* this whole stencil dance is to draw that fancy lit grid */
 	glStencilFunc(GL_ALWAYS, 1, 1);
 	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
@@ -105,20 +95,46 @@ static void draw_prelight_grid(int x, int y, state_t *state)
 	glCallList(DISPLAY_LIST_OCCLUDE);
 	glPopMatrix();
 
+}
+
+static void draw_main(int x, int y, state_t *state)
+{
+	int ax = (x / GRID_SIZE) * GRID_SIZE,
+	    ay = (y / GRID_SIZE) * GRID_SIZE;
+	float range = 0.0;
+	grid_type g;
+
+	if(ax > GRID_X * GRID_SIZE || ay > GRID_Y * GRID_SIZE)
+		return;
+	if(state->selected != TT_NONE)
+		draw_prelight_grid(x, y, ax, ay);
+
+	g = grid[ay/GRID_SIZE][ax/GRID_SIZE].g;
 	glPushMatrix();
 	glTranslatef(ax + GRID_SIZE/2, ay + GRID_SIZE/2, 0.0);
-	glColor3fv(tt_data[state->selected].color);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-	if(grid[ay/GRID_SIZE][ax/GRID_SIZE].g != GRID_TYPE_NONE) {
-		glColor3f(1.0, 0.0, 0.0);
-		glCallList(DISPLAY_LIST_X);
+	if(g == GRID_TYPE_TOWER)
+		range = sqrtf(grid[ay/GRID_SIZE][ax/GRID_SIZE].t.range);
+
+	if(state->selected != TT_NONE) {
+		if(g != GRID_TYPE_NONE) {
+			glColor3f(1.0, 0.0, 0.0);
+			glCallList(DISPLAY_LIST_X);
+		}
+		else {
+			range = tt_data[state->selected].tower.range;
+			glColor3fv(tt_data[state->selected].color);
+			glCallList(DISPLAY_LIST_TOWER);
+			glColor3f(1.0, 1.0, 1.0);
+			glCallList(DISPLAY_LIST_TOWER_BASE + state->selected);
+		}
 	}
 	else {
-		float range = tt_data[state->selected].tower.range;
-		glCallList(DISPLAY_LIST_TOWER);
 		glColor3f(1.0, 1.0, 1.0);
-		glCallList(DISPLAY_LIST_TOWER_BASE + state->selected);
+	}
+	/* draw range circle */
+	if(range != 0.0) {
 		glScalef(range, range, 1.0);
 		glBegin(GL_LINE_STRIP);
 		glCallList(DISPLAY_LIST_CIRCLE);
@@ -331,7 +347,7 @@ void controls_draw(state_t *state)
 
 	SDL_GetMouseState(&x, &y);
 	if(in_main_area(x, y))
-		draw_prelight_grid(x, y, state);
+		draw_main(x, y, state);
 	levels_draw(state);
 	scores_draw(state);
 	bar_draw(x, y, state);
