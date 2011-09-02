@@ -54,10 +54,14 @@ void noob_destroy(noob_t *noob, state_t *state)
 {
 	noob_obj *n_obj = (noob_obj*)noob;
 
-	if(noob->is_dead == NOOB_KILLED)
+	if(noob->is_dead == NOOB_KILLED) {
+		state->gil += 100 + 75 * (state->max_power - state->power_used) /
+		                         (state->max_power);
 		state->kills++;
-	else if(noob->is_dead == NOOB_LEAKED)
+	}
+	else if(noob->is_dead == NOOB_LEAKED) {
 		state->leaks++;
+	}
 
 	Q_REMOVE(&noob_list, noob, list);
 	n_obj->next = noob_first_free;

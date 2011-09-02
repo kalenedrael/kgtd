@@ -11,10 +11,13 @@
 
 typedef struct sel_t {
 	ttype_t type;
-	unsigned short unlocked;
-	unsigned short upgrades;
+	unsigned short cost;
+	unsigned char unlocked;
+	unsigned char upgrades;
 	struct sel_t *dep;
 } sel_t;
+
+static int tower_cost = 300;
 
 #define UPG_UP 1
 #define UPG_DIAG 2
@@ -29,28 +32,28 @@ typedef struct sel_t {
 /* @brief the tower selector */
 static sel_t sel_arr[4][4] = {
 	{
-		{ TT_BASIC,  1, UPG_UP | UPG_DIAG | UPG_LEFT,  NULL },
-		{ TT_APCR,   0, UPG_LEFT,            &sel_arr[0][0] },
-		{ TT_APFSDS, 0, UPG_LEFT,            &sel_arr[0][1] },
-		{ TT_DU,     0, 0,                   &sel_arr[0][2] }
+		{ TT_BASIC,  0   , 1, UPG_UP | UPG_DIAG | UPG_LEFT,  NULL },
+		{ TT_APCR,   700 , 0, UPG_LEFT,            &sel_arr[0][0] },
+		{ TT_APFSDS, 2000, 0, UPG_LEFT,            &sel_arr[0][1] },
+		{ TT_DU,     9000, 0, 0,                   &sel_arr[0][2] }
 	},
 	{
-		{ TT_PLASMA, 0, UPG_UP | UPG_DIAG,   &sel_arr[0][0] },
-		{ TT_HE,     0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
-		{ TT_HEAT,   0, 0,                   &sel_arr[1][1] },
-		{ TT_NONE,   0, 0,                   NULL }
+		{ TT_PLASMA, 700 , 0, UPG_UP | UPG_DIAG,   &sel_arr[0][0] },
+		{ TT_HE,     2000, 0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
+		{ TT_HEAT,   8000, 0, 0,                   &sel_arr[1][1] },
+		{ TT_NONE,   0   , 0, 0,                   NULL }
 	},
 	{
-		{ TT_PULSE,  0, UPG_UP,              &sel_arr[1][0] },
-		{ TT_LTNG,   0, 0,                   &sel_arr[1][0] },
-		{ TT_AREA,   0, 0,                   &sel_arr[1][1] },
-		{ TT_NONE,   0, 0,                   NULL }
+		{ TT_PULSE,  2000, 0, UPG_UP,              &sel_arr[1][0] },
+		{ TT_LTNG,   3000, 0, 0,                   &sel_arr[1][0] },
+		{ TT_AREA,   5000, 0, 0,                   &sel_arr[1][1] },
+		{ TT_NONE,   0   , 0, 0,                   NULL }
 	},
 	{
-		{ TT_CW,     0, 0,                   &sel_arr[2][0] },
-		{ TT_NONE,   0, 0,                   NULL },
-		{ TT_NONE,   0, 0,                   NULL },
-		{ TT_NONE,   0, 0,                   NULL }
+		{ TT_CW,     25000, 0, 0,                   &sel_arr[2][0] },
+		{ TT_NONE,   0   , 0, 0,                   NULL },
+		{ TT_NONE,   0   , 0, 0,                   NULL },
+		{ TT_NONE,   0   , 0, 0,                   NULL }
 	}
 };
 
@@ -223,8 +226,10 @@ static void sel_click(int x, int y, state_t *state)
 
 	if(cur->unlocked)
 		state->selected = cur->type;
-	else if(cur->dep && cur->dep->unlocked)
+	else if(cur->dep && cur->dep->unlocked && state->gil >= cur->cost) {
+		state->gil -= cur->cost;
 		cur->unlocked = 1;
+	}
 
 	return;
 }
@@ -243,8 +248,8 @@ static void bar_draw(int x, int y, state_t *state)
 	glColor3f(0.9, 0.9, 0.9);
 	if(in_main_area(x, y)) {
 		if(state->selected != TT_NONE)
-			snprintf(buf, sizeof(buf), "Click to place %s tower",
-			         tt_data[state->selected].dscr);
+			snprintf(buf, sizeof(buf), "Click to place %s tower (cost: %d)",
+			         tt_data[state->selected].dscr, tower_cost);
 		else if(grid[y/GRID_SIZE][x/GRID_SIZE].g == GRID_TYPE_TOWER)
 			strcpy(buf, "Click to increase power supplied, "
 			            "right click to decrease");
@@ -259,14 +264,16 @@ static void bar_draw(int x, int y, state_t *state)
 				snprintf(buf, sizeof(buf), "Click to select %s tower",
 				         tt_data[sel->type].dscr);
 			else if(sel->dep && sel->dep->unlocked)
-				snprintf(buf, sizeof(buf), "Click to unlock %s tower",
-				         tt_data[sel->type].dscr);
+				snprintf(buf, sizeof(buf), "Click to unlock %s tower (cost: %d)",
+				         tt_data[sel->type].dscr, sel->cost);
 		}
 	}
 	text_draw(buf, 184, 550);
 	snprintf(buf, sizeof(buf), "Power used: %d/%d", state->power_used,
 	                                                state->max_power);
 	text_draw(buf, 184, 576);
+	snprintf(buf, sizeof(buf), "Gil: %d", state->gil);
+	text_draw(buf, 184, 602);
 }
 
 static void wave_draw_one(wave_t *wave, int dx)
@@ -386,11 +393,13 @@ void controls_click(SDL_MouseButtonEvent *ev, state_t *state)
 	else if(in_main_area(ev->x, ev->y)) {
 		int gx = ev->x/GRID_SIZE;
 		int gy = ev->y/GRID_SIZE;
-		if(ev->button == SDL_BUTTON_LEFT && state->selected != TT_NONE) {
+		if(ev->button == SDL_BUTTON_LEFT && state->selected != TT_NONE && state->gil >= tower_cost) {
 			int power = state->max_power - state->power_used;
 			power = power > 100 ? 100 : power;
 			tower_t *tower = tower_new(gx, gy, power, state->selected);
 			if(tower != NULL) {
+				state->gil -= tower_cost;
+				tower_cost += 200;
 				state->towers++;
 				state->power_used += tower->power;
 			}

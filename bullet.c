@@ -136,7 +136,7 @@ static void overpenetrate(bullet_t *bullet, float angle)
 	}
 
 	if(opt != NULL && bullet->damage > 10000)
-		bullet_new(&bullet->pos, bullet->damage/2, bullet->type, opt);
+		bullet_new(&bullet->pos, bullet->damage * 3 / 4, bullet->type, opt);
 
 	return;
 }
