@@ -32,7 +32,7 @@ struct tt_data_t tt_data[TT_NUM] = {
 	},
 	[TT_APCR] = {
 		.color = {0.4, 0.8, 0.4},
-		.dscr = "AP gun",
+		.dscr = "artillery",
 		.tower = {tower_upd_normal, 240.0},
 		.bullet = {bullet_upd_proj , bullet_draw_proj, BULLET_HIT_MAX_AGE},
 	},
