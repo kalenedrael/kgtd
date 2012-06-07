@@ -39,14 +39,14 @@ static sel_t sel_arr[4][4] = {
 	},
 	{
 		{ TT_PLASMA, 700 , 0, UPG_UP | UPG_DIAG,   &sel_arr[0][0] },
-		{ TT_HE,     2000, 0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
-		{ TT_HEAT,   8000, 0, 0,                   &sel_arr[1][1] },
+		{ TT_HE,     700 , 0, UPG_LEFT | UPG_DIAG, &sel_arr[0][0] },
+		{ TT_HEAT,   2000, 0, 0,                   &sel_arr[1][1] },
 		{ TT_NONE,   0   , 0, 0,                   NULL }
 	},
 	{
 		{ TT_PULSE,  2000, 0, UPG_UP,              &sel_arr[1][0] },
 		{ TT_LTNG,   3000, 0, 0,                   &sel_arr[1][0] },
-		{ TT_AREA,   5000, 0, 0,                   &sel_arr[1][1] },
+		{ TT_AREA,   8000, 0, 0,                   &sel_arr[1][1] },
 		{ TT_NONE,   0   , 0, 0,                   NULL }
 	},
 	{

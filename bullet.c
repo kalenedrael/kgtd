@@ -131,7 +131,7 @@ static void overpenetrate(bullet_t *bullet, float angle)
 		d2 = distance2(&bullet->pos, &cur->pos);
 		da = fabs(angle - atan2(cur->pos.y - bullet->pos.y,
 		                        cur->pos.x - bullet->pos.x));
-		if(d2 < 1600.0 && da < 0.1 && d2 * da < score && !cur->is_dead) {
+		if(d2 < 10000.0 && da < 0.1 && d2 * da < score && !cur->is_dead) {
 			opt = cur;
 			score = d2 * da;
 		}

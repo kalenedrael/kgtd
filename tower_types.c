@@ -63,7 +63,7 @@ struct tt_data_t tt_data[TT_NUM] = {
 	[TT_AREA] = {
 		.color = {1.0, 0.5, 0.0},
 		.dscr = "damage field",
-		.tower = {tower_upd_normal, 80.0},
+		.tower = {tower_upd_normal, 100.0},
 		.bullet = {bullet_upd_pulse, bullet_draw_area, 500},
 	},
 	[TT_BASIC] = {

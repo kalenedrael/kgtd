@@ -22,6 +22,7 @@ static SDL_Surface *screen;
 
 /* timekeeper */
 static int oldtime;
+static int need_draw;
 
 /* game state */
 state_t kgtd_state;
@@ -35,8 +36,8 @@ static void handle_event(SDL_Event *ev)
 		controls_click(&ev->button, &kgtd_state);
 		return;
 	case SDL_USEREVENT: /* update event */
-		draw();
 		update();
+		need_draw = 1;
 	default:
 		return;
 	}
@@ -147,8 +148,15 @@ int main(int argc, char **argv)
 
 	init();
 
-	while (SDL_WaitEvent(&ev))
-		handle_event(&ev);
+	while (SDL_WaitEvent(&ev)) {
+		do {
+			handle_event(&ev);
+		} while (SDL_PollEvent(&ev));
+		if(need_draw) {
+			need_draw = 0;
+			draw();
+		}
+	}
 
 	return 1;
 }

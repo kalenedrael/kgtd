@@ -67,7 +67,7 @@ void tower_upd_cw(tower_t *tower, int dt)
 		return;
 
 	if(tower->energy < tower->energymax) {
-		tower->energy += 50 * dt;
+		tower->energy += (tower->type == TT_PLASMA ? 150 : 50) * dt;
 		return;
 	}
 

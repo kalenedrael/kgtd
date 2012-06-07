@@ -17,7 +17,7 @@ static int armor_table[][3] = {
 	[TT_DU]     = {192,  64,  128},
 	[TT_HE]     = {72,   48,  128},
 	[TT_HEAT]   = {128,  64,  128},
-	[TT_AREA]   = {64,   96,  96},
+	[TT_AREA]   = {128,  96,  96},
 	[TT_BASIC]  = {64,   64,  64}
 };
 
@@ -45,8 +45,8 @@ static float splash_range[] = {
 	[TT_APFSDS] = 0.0,
 	[TT_DU]     = 0.0,
 	[TT_HE]     = 1600.0,
-	[TT_HEAT]   = 400.0,
-	[TT_AREA]   = 6400.0,
+	[TT_HEAT]   = 900.0,
+	[TT_AREA]   = 10000.0,
 	[TT_BASIC]  = 0.0,
 };
 
