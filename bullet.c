@@ -10,9 +10,9 @@
 #include "state.h"
 
 #define BULLET_NUM_MAX 2048
-static bullet_obj bullets[BULLET_NUM_MAX];
-static bullet_obj *bullet_first_free;
-static Q_HEAD(bullet_t) bullet_list;
+static bullet_t bullet_pool[BULLET_NUM_MAX];
+static Q_HEAD(bullet_t) bullet_list = Q_STATIC_INITIALIZER;
+static Q_HEAD(bullet_t) bullet_free = Q_STATIC_INITIALIZER;
 extern Q_HEAD(noob_t) noob_list;
 
 /* @brief initialize bullet list */
@@ -20,25 +20,20 @@ void bullet_init()
 {
 	int i;
 
-	for(i = 0; i < BULLET_NUM_MAX - 1; i++)
-		bullets[i].next = &(bullets[i+1]);
-
-	bullets[i].next = NULL;
-	bullet_first_free = bullets;
-	Q_INIT_HEAD(&bullet_list);
+	for(i = 0; i < BULLET_NUM_MAX; i++)
+		Q_INSERT_HEAD(&bullet_free, &bullet_pool[i], list);
 }
 
 /* @brief creates a new bullet of the given type */
 bullet_t *bullet_new(pos_t *pos, unsigned int damage, ttype_t type, noob_t *dest)
 {
-	bullet_obj *b_obj = bullet_first_free;
-	if(b_obj == NULL) {
+	bullet_t *bullet = Q_GET_HEAD(&bullet_free);
+	if(bullet == NULL) {
 		printf("Too many bullets...\n");
 		exit(0);
 	}
-	bullet_first_free = b_obj->next;
+	Q_REMOVE(&bullet_free, bullet, list);
 
-	bullet_t *bullet = &b_obj->b;
 	bullet->update = tt_data[type].bullet.update;
 	bullet->draw = tt_data[type].bullet.draw;
 	bullet->pos = *pos;
@@ -56,12 +51,9 @@ bullet_t *bullet_new(pos_t *pos, unsigned int damage, ttype_t type, noob_t *dest
 
 void bullet_destroy(bullet_t *bullet)
 {
-	bullet_obj *b_obj = (bullet_obj*)bullet;
-
 	noob_ref_destroy(bullet->dest);
 	Q_REMOVE(&bullet_list, bullet, list);
-	b_obj->next = bullet_first_free;
-	bullet_first_free = b_obj;
+	Q_INSERT_HEAD(&bullet_free, bullet, list);
 }
 
 static void set_color(bullet_t *bullet)
@@ -224,8 +216,8 @@ void bullet_upd_pulse(bullet_t *bullet, float dt, int idt)
 
 void bullet_update_all(float dt, int idt)
 {
-	bullet_t *cur;
-	Q_FOREACH(cur, &bullet_list, list)
+	bullet_t *cur, *nxt;
+	Q_FOREACH_NXT(cur, nxt, &bullet_list, list)
 		cur->update(cur, dt, idt);
 }
 

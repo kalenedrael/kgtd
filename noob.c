@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "noob.h"
 #include "state.h"
 #include "grid_objs.h"
@@ -5,15 +6,12 @@
 
 #define NOOBS_NUM_MAX 1024
 static noob_t noobs_pool[NOOBS_NUM_MAX];
-static Q_HEAD(noob_t) noob_free;
-Q_HEAD(noob_t) noob_list;
+static Q_HEAD(noob_t) noob_free = Q_STATIC_INITIALIZER;
+Q_HEAD(noob_t) noob_list = Q_STATIC_INITIALIZER;
 
 void noob_init()
 {
 	int i;
-
-	Q_INIT_HEAD(&noob_free);
-	Q_INIT_HEAD(&noob_list);
 
 	for(i = 0; i < NOOBS_NUM_MAX; i++)
 		Q_INSERT_HEAD(&noob_free, &noobs_pool[i], list);
@@ -50,6 +48,7 @@ noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
 
 void noob_ref_destroy(noob_t *noob)
 {
+	assert(noob->refcnt > 0);
 	if(--noob->refcnt)
 		return;
 
@@ -105,7 +104,10 @@ static void update_each(noob_t *noob, float dt, int idt, state_t *state)
 	float dl;
 	path_t *path;
 
-	if(noob->hp <= 0 && !(noob->is_dead)) {
+	if(noob->is_dead)
+		return;
+
+	if(noob->hp <= 0) {
 		state->gil += 100 + 75 * (state->max_power - state->power_used) /
 		                         (state->max_power);
 		state->kills++;
@@ -144,9 +146,9 @@ static void update_each(noob_t *noob, float dt, int idt, state_t *state)
 
 void noob_update_all(float dt, int idt, state_t *state)
 {
-	noob_t *cur;
+	noob_t *cur, *nxt;
 
-	Q_FOREACH(cur, &noob_list, list)
+	Q_FOREACH_NXT(cur, nxt, &noob_list, list)
 		update_each(cur, dt, idt, state);
 }
 

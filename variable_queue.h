@@ -83,7 +83,10 @@ do {                                                                            
 		(Q_HEAD)->tail = (Q_ELEM)->LINK_NAME.prev;                           \
 } while(0)
 
-#define Q_FOREACH(CURRENT_ELEM,Q_HEAD,LINK_NAME) \
-for(CURRENT_ELEM = (Q_HEAD)->head; CURRENT_ELEM; CURRENT_ELEM = (CURRENT_ELEM)->LINK_NAME.next)
+#define Q_FOREACH(CUR_ELEM,Q_HEAD,LINK_NAME) \
+for(CUR_ELEM = (Q_HEAD)->head; CUR_ELEM; CUR_ELEM = (CUR_ELEM)->LINK_NAME.next)
+
+#define Q_FOREACH_NXT(CUR_ELEM,NEXT_ELEM,Q_HEAD,LINK_NAME) \
+for(CUR_ELEM = (Q_HEAD)->head; CUR_ELEM && ({ NEXT_ELEM = (CUR_ELEM)->LINK_NAME.next; 1; }); CUR_ELEM = NEXT_ELEM)
 
 #endif

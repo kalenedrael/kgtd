@@ -11,6 +11,8 @@
 #include "variable_queue.h"
 
 struct bullet_t {
+	Q_NEW_LINK(bullet_t) list;
+	noob_t *dest;
 	void (*update)(bullet_t*, float, int);
 	void (*draw)(bullet_t*);
 	pos_t pos;
@@ -19,14 +21,7 @@ struct bullet_t {
 	unsigned int age;
 	unsigned int max_age;
 	ttype_t type;
-	noob_t *dest;
-	Q_NEW_LINK(bullet_t) list;
 };
-
-typedef union bullet_obj {
-	bullet_t b;
-	union bullet_obj *next;
-} bullet_obj;
 
 void bullet_init();
 bullet_t *bullet_new(pos_t *pos, unsigned int damage, ttype_t type, noob_t *dest);
