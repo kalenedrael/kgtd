@@ -57,9 +57,9 @@ static wave_t wave14 = {
 	.next = &wave15,
 	.noobs = 30,
 	.speed = NOOB_DEFAULT_SPEED,
-	.hp = NOOB_DEFAULT_HP * 2,
+	.hp = NOOB_DEFAULT_HP,
 	.delay = 500,
-	.shield = NOOB_DEFAULT_HP,
+	.shield = NOOB_DEFAULT_HP * 3,
 	.armor_type = 0,
 };
 
@@ -77,9 +77,9 @@ static wave_t wave16 = {
 	.next = &wave17,
 	.noobs = 50,
 	.speed = NOOB_DEFAULT_SPEED,
-	.hp = NOOB_DEFAULT_HP * 2,
+	.hp = NOOB_DEFAULT_HP,
 	.delay = 500,
-	.shield = NOOB_DEFAULT_HP,
+	.shield = NOOB_DEFAULT_HP * 2,
 	.armor_type = ARMOR_REFLECTIVE,
 };
 

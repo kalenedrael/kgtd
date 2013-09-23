@@ -86,6 +86,7 @@ void tower_upd_cw(tower_t *tower, int dt)
 	if(cur_range > tower->range ||
 	   damage_not_worthwhile(tower->target, tower->type)) {
 		/* set target to NULL to search for new target */
+		noob_ref_destroy(tower->target);
 		tower->target = NULL;
 		tower->energy -= tower->energymax;
 	}
@@ -102,9 +103,11 @@ void tower_upd_normal(tower_t *tower, int dt)
 	noob_t *target = tower->target;
 
 	/* de-target */
-	if(damage_not_worthwhile(target, tower->type) ||
-	   (target != NULL && distance2(&tower->pos, &target->pos) > tower->range))
+	if(target != NULL && (damage_not_worthwhile(target, tower->type) ||
+	                      distance2(&tower->pos, &target->pos) > tower->range)) {
+		noob_ref_destroy(target);
 		target = NULL;
+	}
 
 	if(tower->energy < tower->energymax) {
 		tower->energy += tower->power * dt;

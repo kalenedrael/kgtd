@@ -27,6 +27,6 @@ depend:
 	$(CC) -MM *.c > .depend
 	
 kgtd: $(ALL_OBJS) $(ARCH_OBJS)
-	$(CC) -o kgtd $(LIBS) $(ALL_OBJS) $(ARCH_OBJS)
+	$(CC) -o kgtd $(ALL_OBJS) $(ARCH_OBJS) $(LIBS)
 
 -include .depend

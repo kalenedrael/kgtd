@@ -281,16 +281,17 @@ static void wave_draw_one(wave_t *wave, int dx)
 	char buf[BUF_SIZE];
 
 	snprintf(buf, sizeof(buf), "%dx", wave->noobs);
+	if(wave->hp > NOOB_DEFAULT_HP * 50)
+		glColor3f(1.0, 0.2, 0.2);
 	text_draw(buf, dx + 5, BOT_BAR - 13);
 
 	glPushMatrix();
 	glTranslatef(dx, LEVEL_BAR, 0);
-	glCallList(DISPLAY_LIST_WAVE);
-
-	if(wave->shield == 0)
+	if(wave->shield > wave->hp)
 		glColor3f(0.5, 0.5, 1.0);
 	else
 		glColor3f(0.9, 0.9, 0.9);
+	glCallList(DISPLAY_LIST_WAVE);
 
 	glTranslatef(57, 5, 0);
 	if(wave->armor_type & ARMOR_COMPOSITE) {

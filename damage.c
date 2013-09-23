@@ -125,9 +125,6 @@ void damage_calc(bullet_t *bullet, int dt)
 /* @brief calculates if a target is worth firing at */
 int damage_not_worthwhile(noob_t *noob, ttype_t type)
 {
-	if(noob == NULL || noob->hp <= 0 || noob->is_dead ||
-	   ((noob->future_stun || noob->stun_time > 0) && type == TT_LTNG))
-		return 1;
-	else
-		return 0;
+	return noob->hp <= 0 || noob->is_dead ||
+	       ((noob->future_stun || noob->stun_time > 0) && type == TT_LTNG);
 }

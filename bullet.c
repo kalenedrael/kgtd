@@ -58,7 +58,7 @@ void bullet_destroy(bullet_t *bullet)
 {
 	bullet_obj *b_obj = (bullet_obj*)bullet;
 
-	bullet->dest->refcnt--;
+	noob_ref_destroy(bullet->dest);
 	Q_REMOVE(&bullet_list, bullet, list);
 	b_obj->next = bullet_first_free;
 	bullet_first_free = b_obj;

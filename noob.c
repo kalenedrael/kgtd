@@ -4,33 +4,31 @@
 #include "damage.h"
 
 #define NOOBS_NUM_MAX 1024
-static noob_obj noobs[NOOBS_NUM_MAX];
-static noob_obj *noob_first_free;
+static noob_t noobs_pool[NOOBS_NUM_MAX];
+static Q_HEAD(noob_t) noob_free;
 Q_HEAD(noob_t) noob_list;
 
 void noob_init()
 {
 	int i;
 
-	for(i = 0; i < NOOBS_NUM_MAX - 1; i++)
-		noobs[i].next = &(noobs[i+1]);
-
-	noobs[i].next = NULL;
-	noob_first_free = noobs;
+	Q_INIT_HEAD(&noob_free);
 	Q_INIT_HEAD(&noob_list);
+
+	for(i = 0; i < NOOBS_NUM_MAX; i++)
+		Q_INSERT_HEAD(&noob_free, &noobs_pool[i], list);
 }
 
 noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
                    state_t *state)
 {
-	noob_obj *n_obj = noob_first_free;
-	if(n_obj == NULL) {
+	noob_t *noob = Q_GET_HEAD(&noob_free);
+	if(noob == NULL) {
 		printf("Too many noobs...\n");
 		abort();
 	}
-	noob_first_free = n_obj->next;
+	Q_REMOVE(&noob_free, noob, list);
 
-	noob_t *noob = &(n_obj->n);
 	noob->pos = state->path->pos;
 	noob->speed = speed;
 	noob->hp = hp;
@@ -40,8 +38,8 @@ noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
 	noob->armor_type = armor_type;
 	noob->future_stun = 0;
 	noob->stun_time = 0;
-	noob->is_dead = NOOB_ALIVE;
-	noob->refcnt = 0;
+	noob->is_dead = 0;
+	noob->refcnt = 1;
 	noob->path = state->path;
 
 	state->total_noobs++;
@@ -50,22 +48,13 @@ noob_t *noob_spawn(float speed, int hp, int shield, unsigned char armor_type,
 	return noob;
 }
 
-void noob_destroy(noob_t *noob, state_t *state)
+void noob_ref_destroy(noob_t *noob)
 {
-	noob_obj *n_obj = (noob_obj*)noob;
-
-	if(noob->is_dead == NOOB_KILLED) {
-		state->gil += 100 + 75 * (state->max_power - state->power_used) /
-		                         (state->max_power);
-		state->kills++;
-	}
-	else if(noob->is_dead == NOOB_LEAKED) {
-		state->leaks++;
-	}
+	if(--noob->refcnt)
+		return;
 
 	Q_REMOVE(&noob_list, noob, list);
-	n_obj->next = noob_first_free;
-	noob_first_free = n_obj;
+	Q_INSERT_HEAD(&noob_free, noob, list);
 }
 
 static void draw_each(noob_t *noob)
@@ -116,12 +105,12 @@ static void update_each(noob_t *noob, float dt, int idt, state_t *state)
 	float dl;
 	path_t *path;
 
-	if(noob->hp <= 0 && !(noob->is_dead))
-		noob->is_dead = NOOB_KILLED;
-
-	if(noob->is_dead) {
-		if(noob->refcnt == 0)
-			noob_destroy(noob, state);
+	if(noob->hp <= 0 && !(noob->is_dead)) {
+		state->gil += 100 + 75 * (state->max_power - state->power_used) /
+		                         (state->max_power);
+		state->kills++;
+		noob->is_dead = 1;
+		noob_ref_destroy(noob);
 		return;
 	}
 
@@ -135,7 +124,9 @@ static void update_each(noob_t *noob, float dt, int idt, state_t *state)
 	for(dl = dt * noob->speed; dl > 0; /* no */) {
 		path = noob->path;
 		if(path == NULL) {
-			noob->is_dead = NOOB_LEAKED;
+			state->leaks++;
+			noob->is_dead = 1;
+			noob_ref_destroy(noob);
 			return;
 		}
 		if(noob->pos.x == path->pos.x) {
@@ -183,5 +174,7 @@ noob_t *noob_find_target(pos_t *pos, ttype_t type)
 			noob = cur;
 		}
 	}
+	if(noob)
+		noob->refcnt++;
 	return noob;
 }
