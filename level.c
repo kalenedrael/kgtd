@@ -14,7 +14,6 @@ void level_init(state_t *state)
 	state->until_next = WAVE_DELAY * 1000;
 }
 
-
 void level_update(int dt, state_t *state)
 {
 	int next = state->until_next;

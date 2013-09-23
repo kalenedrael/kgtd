@@ -11,10 +11,13 @@
 #define PWR_IN 0
 #define PWR_OUT 2
 
-static Q_HEAD(tower_t) tower_list = Q_STATIC_INITIALIZER;
+static Q_HEAD(tower_t) tower_list;
 
 /* @brief initialize towers... used to have more */
-void tower_init() {}
+void tower_init()
+{
+	Q_INIT_HEAD(&tower_list);
+}
 
 /* @brief creates a tower
  * @return the created tower, or NULL if the desired position is occupied

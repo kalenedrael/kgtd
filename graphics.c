@@ -179,4 +179,5 @@ void graphics_init(void)
 	init_prelight();
 	init_vertex_lists();
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glEnable(GL_LINE_SMOOTH);
 }

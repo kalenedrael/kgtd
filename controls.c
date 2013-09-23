@@ -23,6 +23,8 @@ static int tower_cost = 300;
 #define UPG_DIAG 2
 #define UPG_LEFT 4
 #define SEL_BOX_SIZE 20
+#define SEL_BOX_MITER 9
+#define SEL_MITER 15
 #define BUF_SIZE 256
 
 #define in_sel_box(x,y) ((x) < SEL_X && (y) > SEL_Y)
@@ -139,6 +141,7 @@ static void draw_main(int x, int y, state_t *state)
 	/* draw range circle */
 	if(range != 0.0) {
 		glScalef(range, range, 1.0);
+		glColor3f(1.0, 0.2, 0.2);
 		glBegin(GL_LINE_STRIP);
 		glCallList(DISPLAY_LIST_CIRCLE);
 		glEnd();
@@ -159,24 +162,24 @@ static void sel_draw_one(sel_t *cur, int i, int j, ttype_t selected)
 	if(cur->unlocked || cur->dep->unlocked) {
 		glPushMatrix();
 		glTranslatef(x - TOWER_SIZE/2, y + TOWER_SIZE/2, 0);
-		glColor3f(1.0, 1.0, 1.0);
+		if(cur->type == selected) {
+			glColor4f(1.0, 1.0, 1.0, 0.2);
+			glBegin(GL_POLYGON);
+			glVertex2f( SEL_BOX_SIZE,  SEL_BOX_SIZE - SEL_BOX_MITER);
+			glVertex2f( SEL_BOX_SIZE - SEL_BOX_MITER, SEL_BOX_SIZE);
+			glVertex2f(-SEL_BOX_SIZE,  SEL_BOX_SIZE);
+			glVertex2f(-SEL_BOX_SIZE, -SEL_BOX_SIZE + SEL_BOX_MITER);
+			glVertex2f(-SEL_BOX_SIZE + SEL_BOX_MITER, -SEL_BOX_SIZE);
+			glVertex2f( SEL_BOX_SIZE, -SEL_BOX_SIZE);
+			glVertex2f( SEL_BOX_SIZE, -SEL_BOX_SIZE);
+			glEnd();
+		}
 		if(cur->unlocked) {
-			glCallList(DISPLAY_LIST_TOWER_BASE + cur->type);
 			glColor3fv(tt_data[cur->type].color);
 			glCallList(DISPLAY_LIST_TOWER);
 		}
-		else {
-			glCallList(DISPLAY_LIST_TOWER_BASE + cur->type);
-		}
-		if(cur->type == selected) {
-			glBegin(GL_LINE_STRIP);
-			glVertex2f( SEL_BOX_SIZE,  SEL_BOX_SIZE);
-			glVertex2f(-SEL_BOX_SIZE,  SEL_BOX_SIZE);
-			glVertex2f(-SEL_BOX_SIZE, -SEL_BOX_SIZE);
-			glVertex2f( SEL_BOX_SIZE, -SEL_BOX_SIZE);
-			glVertex2f( SEL_BOX_SIZE,  SEL_BOX_SIZE);
-			glEnd();
-		}
+		glColor3f(1.0, 1.0, 1.0);
+		glCallList(DISPLAY_LIST_TOWER_BASE + cur->type);
 		glPopMatrix();
 	}
 	/* draw the upgrade lines */
@@ -208,16 +211,22 @@ static void sel_draw(state_t *state)
 {
 	int i, j;
 
+	glColor3f(0.05, 0.05, 0.05);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBegin(GL_POLYGON);
+	glVertex2f(0, SEL_Y - BTN_OFFSET + SEL_MITER);
+	glVertex2f(SEL_MITER, SEL_Y - BTN_OFFSET);
+	glVertex2f(SEL_X + BTN_OFFSET, SEL_Y - BTN_OFFSET);
+	glVertex2f(SEL_X + BTN_OFFSET, YRES - SEL_MITER);
+	glVertex2f(SEL_X + BTN_OFFSET - SEL_MITER, YRES);
+	glVertex2f(0, YRES);
+	glEnd();
+
 	for(i = 0; i < 4; i++)
 		for(j = 0; j < 4; j++)
 			sel_draw_one(&sel_arr[j][i], i, j, state->selected);
 
-	glColor3f(0.3, 0.3, 0.3);
-	glBegin(GL_LINE_STRIP);
-	glVertex2f(0, SEL_Y - BTN_OFFSET);
-	glVertex2f(SEL_X + BTN_OFFSET, SEL_Y - BTN_OFFSET);
-	glVertex2f(SEL_X + BTN_OFFSET, YRES);
-	glEnd();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
 static void sel_click(int x, int y, state_t *state)
@@ -238,10 +247,12 @@ static void bar_draw(int x, int y, state_t *state)
 {
 	char buf[BUF_SIZE];
 
-	glColor3f(0.3, 0.3, 0.3);
-	glBegin(GL_LINES);
-	glVertex2f(SEL_X + BTN_OFFSET, BOT_BAR);
+	glColor3f(0.1, 0.1, 0.1);
+	glBegin(GL_QUADS);
+	glVertex2f(0, BOT_BAR);
 	glVertex2f(XRES, BOT_BAR);
+	glVertex2f(XRES, YRES);
+	glVertex2f(0, YRES);
 	glEnd();
 
 	buf[0] = '\0';
